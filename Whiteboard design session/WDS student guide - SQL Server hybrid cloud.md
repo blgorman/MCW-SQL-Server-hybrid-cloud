@@ -27,20 +27,20 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 <!-- TOC -->
 
 - [SQL Server hybrid cloud whiteboard design session student guide](#sql-server-hybrid-cloud-whiteboard-design-session-student-guide)
-    - [Abstract and learning objectives](#abstract-and-learning-objectives)
-    - [Step 1: Review the customer case study](#step-1-review-the-customer-case-study)
-        - [Customer situation](#customer-situation)
-        - [Customer needs](#customer-needs)
-        - [Customer objections](#customer-objections)
-        - [Infographic for common scenarios](#infographic-for-common-scenarios)
-        - [Azure Site Recovery](#azure-site-recovery)
-        - [Azure Traffic Manager](#azure-traffic-manager)
-        - [SQL Server Always Encrypted](#sql-server-always-encrypted)
-        - [SQL Server Stretch Database](#sql-server-stretch-database)
-    - [Step 2: Design a proof of concept solution](#step-2-design-a-proof-of-concept-solution)
-    - [Step 3: Present the solution](#step-3-present-the-solution)
-    - [Wrap-up](#wrap-up)
-    - [Additional references](#additional-references)
+  - [Abstract and learning objectives](#abstract-and-learning-objectives)
+  - [Step 1: Review the customer case study](#step-1-review-the-customer-case-study)
+    - [Customer situation](#customer-situation)
+    - [Customer needs](#customer-needs)
+    - [Customer objections](#customer-objections)
+    - [Infographic for common scenarios](#infographic-for-common-scenarios)
+    - [Azure Site Recovery](#azure-site-recovery)
+    - [Azure Traffic Manager](#azure-traffic-manager)
+    - [SQL Server Always Encrypted](#sql-server-always-encrypted)
+    - [SQL Server Stretch Database](#sql-server-stretch-database)
+  - [Step 2: Design a proof of concept solution](#step-2-design-a-proof-of-concept-solution)
+  - [Step 3: Present the solution](#step-3-present-the-solution)
+  - [Wrap-up](#wrap-up)
+  - [Additional references](#additional-references)
 
 <!-- /TOC -->
 
@@ -60,7 +60,7 @@ Analyze your customer's needs.
 
 Timeframe: 15 minutes
 
-Directions: With all participants in the session, the facilitator/SME presents an overview of the customer case study along with technical tips.
+Directions:  With all participants in the session, the facilitator/SME presents an overview of the customer case study along with technical tips.
 
 1.  Meet your table participants and trainer.
 
@@ -71,12 +71,11 @@ Directions: With all participants in the session, the facilitator/SME presents a
 ### Customer situation
 
 Fabrikam Publishing is a media and publishing company in Seattle, Washington with approximately 5000 employees. They have a successful direct-to-consumer e-commerce site built with .NET, and they use SQL Server to store customer profile and order information.
-
-Fabrikam has a single data center for both internal and customer-facing applications. Most servers are virtualized on VMware. Application servers primarily run Microsoft server software, including Active Directory (AD) Domain Services and a number of AD-integrated services including Exchange 2013 as well as multi-tier, internal, and AD-integrated Microsoft Internet Information Services (IIS) based web applications with SQL Server 2016 as the database platform.
+Fabrikam has a single data center for both internal and customer-facing applications. Most servers are virtualized on VMware. Application servers primarily run Microsoft server software, including Active Directory (AD) Domain Services and a number of AD-integrated services including Exchange 2013 as well as multi-tier, internal, and AD-integrated Microsoft Internet Information Services (IIS) based web applications with SQL Server 2017 as the database platform.
 
 Recently, the site experienced a multi-day outage due to a lightning strike that disabled both the primary and secondary cooling systems at the data center. In order to avoid such long outages in the future, Fabrikam is investing in a secondary site for disaster recovery. "A disaster recovery site has been on our project proposals for the last four years, but it has always been shelved due to budget constraints," says Michelle Jenkins, Chief Information Officer (CIO). "The recent outage combined with the new capabilities in the cloud have finally encouraged the board to approve the additional budget necessary to build out our disaster recover (DR) capabilities." To keep capital expenditures in check, Fabrikam would like to use the public cloud to host its DR site.
 
-James Sherburn, Director of Information Technology Operations, describes Fabrikam's current disaster recovery strategy as a classic backup/restore strategy with no offsite warm standby machines. Backups are dumped on a network share, and these backups are then archived once per day to an offsite location. According to Sherburn, this strategy requires an "all hands on deck" approach to recovering the site, which is resource-intensive and slow. It also requires significant expense to bring temporary hardware online at a remote, vendor-provided data center. Because of the cost and complexity, this disaster recovery plan has never been tested, and Information Technology (IT) is not confident that it could bring up the secondary site in a reasonable amount of time. This lack of confidence in the current DR strategy prevented IT management from implementing a failover during the last disaster, resulting in significant losses for the company.
+James Sherburn, Director of Information Technology Operations, describes Fabrikam's current disaster recovery strategy as a classic backup/restore strategy with no offsite warm standby machines. Backups are dumped on a network share, and these backups are then archived once per day to an offsite location. There is no enterprise backup solution in place. According to Sherburn, this strategy requires an "all hands on deck" approach to recovering the site, which is resource-intensive and slow. It also requires significant expense to bring temporary hardware online at a remote, vendor-provided data center. Because of the cost and complexity, this disaster recovery plan has never been tested, and Information Technology (IT) is not confident that it could bring up the secondary site in a reasonable amount of time. This lack of confidence in the current DR strategy prevented IT management from implementing a failover during the last disaster, resulting in significant losses for the company.
 
 The application team is concerned that the database DR solution will have a negative impact on the overall database performance. The website currently experiences periodic database latency issues during peak load. They would like to have a solution that improves performance of the predominantly read workloads generated by the website to improve the overall responsiveness and the user experience. The Database Architect, Brandon Burns, saw a presentation at a conference last year on leveraging SQL Server Availability Groups with readable secondaries to offload read workloads. Brandon said, "Our ideal solution would be a scale out solution for the data platform, however, we are concerned about potentially making a lot of application code changes." We need a solution that minimizes the amount of changes in the application, and we would like to investigate SQL Server Availability Groups and readable secondaries.
 
@@ -86,9 +85,9 @@ Future application plans call for new applications that will need to access the 
 
 An additional concern is that the database maintenance jobs are exceeding the current maintenance window. Robert Moore, Manager of Database Administration, believes this is due to the lack of an archive strategy on the current order related tables. Backup times have gradually increased over time to the point where they exceed the maintenance window. Moore's other concern is the sheer size of these databases could make initial synchronization or resynchronization of the DR site a long process that could result in the site running in an exposed state for extended periods. Currently, the database holds approximately 10 years worth of data. "Data older than one year is rarely accessed," says Moore. The business has resisted any data archiving because of several reports that periodically need access to the historical data.
 
-Finally, Fabrikam has a requirement to store the database backups offsite in an encrypted format within two hours of backup completion. The current backup strategy consists of SQL Server backups to an on-premises file server; the backups are then copied to tape and shipped offsite. This process can take up to 24 hours to secure the tapes offsite. In addition to being slow, the tape backups are notoriously unreliable and are generally not available for ad hoc access in the case that a restore becomes necessary. Fabrikam would like to have these backups secured offsite within two hours of the backup completing.
+Finally, Fabrikam has a requirement to store the database backups offsite in an encrypted format within two hours of backup completion and they need insight into when backups are not occuring across all databases in the environment, they currently rely on manual configuration of SQL Agent jobs to run backups and management is concerned that not all databases are being backed up appropriately. The current backup strategy consists of SQL Server backups to an on-premises file server; the backups are then copied to tape and shipped offsite. This process can take up to 24 hours to secure the tapes offsite. In addition to being slow, the tape backups are notoriously unreliable and are generally not available for ad hoc access in the case that a restore becomes necessary. Fabrikam would like to have these backups secured offsite within two hours of the backup completing and a centralized backup management and monitoring solution.
 
-![Fabrikam's datacenter is represented as icons that are labeled Web Farm, Application Servers, VMWare, and vCenter. Below that is another icon that is labeled SQL Server 2016, which is Fabrikam\'s database platform.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image2.png "Fabrikam Publishing data center illustration")
+![Fabrikam\'s datacenter is represented as icons that are labeled Web Farm, Application Servers, VMWare, and vCenter. Below that is another icon that is labeled SQL Server 2016, which is Fabrikam\'s database platform.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image2.png "Fabrikam Publishing data center illustration")
 
 ### Customer needs 
 
@@ -106,7 +105,7 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 7.  Data archiving to keep database sizes more manageable and reduce the amount of time needed for database maintenance.
 
-8.  Secure offsite backups in less than two hours after backup completion.
+8.  Centralized management and monitoring of backups with secure offsite backups.
 
 ### Customer objections 
 
@@ -122,7 +121,7 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 6.  Archive solution must not impact the current applications that periodically pull historical data from the production system.
 
-7.  Backups need to be secured offsite in less than two hours.
+7.  We need to be able to backup databases both on-premises and in the cloud. How will your backup solution support this?
 
 ### Infographic for common scenarios
 
@@ -132,7 +131,8 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 ### Azure Traffic Manager
 
-![This diagram is an example of the Failover traffic routing method for a set of endpoints. In step 1, Traffic Manager first receives an incoming request from a client through DNS and locates the profiles, which is represented as an arrow pointing from a user's laptop to an octagon with arrows inside of it. The octagon has an exploded table with the following columns: Endpoints and Status. The first row has an endpoint of CS-A and a status of Offline (highlighted in red). The second row has an endpoint of CS-B and a status of Online. The third row has an endpoint of CS-C and a status of Online. The fourth row has an endpoint of CS-D and a status of Online. Step 2 is a check of the ordered endpoints. The profile contains an ordered list of endpoints. Traffic Manager check which endpoint is first in the list. If the endpoint is online (based on the ongoing endpoint monitoring), it will specify that endpoint's DNS name in the DNS response to the client. If the endpoint is offline, Traffic Manager determines the next online endpoint in the list. In this example CS-A is offline (unavailable), but CS-B is online (available). In step 3, Traffic Manager returns CS-B's domain name to the client's DNS server, which resolves the domain name to an IP address and sends it to the client. This is represented by an arrow that points from the octagon through DNS to the laptop and user from step one. In step 4, the client initiates traffic to CS-B, which is represented as an arrow that points from the client to an icon of CS-B (Standby 1) at the bottom. To the left of this icon is an icon representing CS-A (Primary), which is in an Offline state. To the right of CS-B are icons representing CS-C (Standby 2) and CS-D (Standby 3).](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image4.png "Diagram of the Failover traffic routing method for a set of endpoints")
+![Graphic depicting Azure Traffic Manager routing. User submits a DNS query to their DNS server, the DNS server queries Traffic Manager and sends a DNS response back to the user with the DNS name of primary server. The client connects directly to the selected endpoint, not through traffic manager. When the primary fails the client will be routed to the highest priority among the remaining online endpoints.](images/2018-12-17-12-35-23.png "Diagram of the Failover traffic routing method for a set of endpoints")
+
 
 ### SQL Server Always Encrypted
 
@@ -152,7 +152,7 @@ Timeframe: 60 minutes
 
 **Business needs**
 
-Directions:  With all participants at your table, answer the following questions and list the answers on a flip chart:
+Directions: With all participants at your table, answer the following questions and list the answers on a flip chart:
 
 1.  Who should you present this solution to? Who is your target customer audience? Who are the decision makers?
 
@@ -166,7 +166,7 @@ Directions: With all participants at your table, respond to the following questi
 
 1. **Orchestrated failover**: Fabrikam needs to automate and simplify the failover process for the web site. Design a solution that supports orchestrated failover of the entire site.
 
-2. **Additional infrastructure:** Address what additional infrastructure Fabrikam needs to enable the stated solution.
+2. **Additional infrastructure:** Address what additional infrastructure Fabrikam needs to enable the stated solution
 
 3. **SQL Server:** The DR solution for SQL Server should include near-zero data loss. Design the DR solution to provide near-zero data loss, but minimal overhead on normal transactions. The solution should not require the application to be recoded.
 
@@ -174,40 +174,49 @@ Directions: With all participants at your table, respond to the following questi
 
 ***Scale out data platform***
 
-1. **Database scale out:** The solution should include the ability to scale out the data platform for heavy read workloads without major code changes to the existing application.
+1. **Database scale out:** The solution should include the ability to scale out the data platform for heavy read workloads without major code changes to the existing application
 
 2. **User experience**: Address the user experience issues of the data tier. How will this solution address this?
 
 3. **Application impact**: What impact will your design have on the existing application?
 
-4. **Diagram the solution**.
+4. **Diagram the solution**
 
 ***Protect data***
 
-1. **Encrypt PCI data:** Choose an appropriate encryption technology to protect credit card related data.
+1. **Encrypt PCI data:** Choose an appropriate encryption technology to protect credit card related data
 
 2. **Key management**: How are the encryption keys to be managed in your design?
 
 3. **Application impact**: What impact will your design have on the existing application?
 
-4. **Encryption type**: Create a table that shows each type of PCI data and the appropriate type of encryption for each.
+4. **Encryption type**: The following table shows some common types of PCI data. Determine the appropriate type of encryption for each data element to complete the table.
+
+    |         |            |
+    | ------------- |:-------------:|
+    | **Data Element** | **Encryption Type** |
+    | Primary Account Number (PAN)    |   |
+    | Cardholder Name    |   |
+    | Service Code    |   |
+    | Expiration Date    |   |
+
+5. **Diagram the solution**
 
 ***Data archiving***
 
 1. **Plan**: What questions would you pose to the customer in designing a data archive strategy?
 
-2. **Identify archive data**: Describe how you would identify the appropriate tables for archiving.
+2. **Identify archive data**: Describe how you would identify the appropriate tables for archiving
 
 3. **Determine impact**: What impact will your design have on the existing reporting system? How will this solution effect the current maintenance issues?
 
-4. **Diagram the solution**.
+4. **Diagram the solution**
 
 ***Offsite backup***
 
-1. **Describe database backups:** What backup technologies would you consider? How does the solution meet the offsite requirements?
-How does this design meet the stated security goals?
+1. **Describe database backups:** What backup technologies would you consider? How does the solution meet the offsite requirements? How does this design meet the stated security goals?
 
-2. **Provide the following configuration details:** What will be needed in the event that a database needs to be restored? How does this solution impact the time to restore? What considerations need to be made with regard to Azure Storage Account scale targets?
+2. **Provide the following configuration details:** What configuration will be required for this backup solution to support both cloud and on-premises SQL Servers?
 
 **Prepare**
 
@@ -267,7 +276,6 @@ Directions: Tables reconvene with the larger group to hear the facilitator/SME s
 | Always Encrypted  | <https://docs.microsoft.com/en-us/sql/relational-databases/security/encryption/always-encrypted-database-engine>  |
 | Azure Key Vault | <https://docs.microsoft.com/en-us/azure/key-vault>  |
 | SQL Server Stretch Database  | <https://docs.microsoft.com/en-us/sql/sql-server/stretch-database/stretch-database>  |
-| SQL Server Backup to URL   | <https://docs.microsoft.com/en-us/sql/relational-databases/backup-restore/sql-server-backup-to-url>   |
+| Azure Backup   | <https://docs.microsoft.com/en-us/azure/backup/>   |
 | Azure Traffic Manager  | <https://docs.microsoft.com/en-us/azure/traffic-manager/traffic-manager-overview>   |
 | Reduce RTO with Traffic Manager and Azure Site Recovery  | <https://docs.microsoft.com/en-us/azure/traffic-manager/traffic-manager-overview>  |
-| Azure Storage Scalability and Performance Targets  | <https://docs.microsoft.com/en-us/azure/storage/storage-scalability-targets>  |

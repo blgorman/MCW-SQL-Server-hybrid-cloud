@@ -256,7 +256,8 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 ### Azure Traffic Manager
 
-![This diagram is an example of the Failover traffic routing method for a set of endpoints. In step 1, Traffic Manager first receives an incoming request from a client through DNS and locates the profiles, which is represented as an arrow pointing from a user's laptop to an octagon with arrows inside of it. The octagon has an exploded table with the following columns: Endpoints and Status. The first row has an endpoint of CS-A and a status of Offline (highlighted in red). The second row has an endpoint of CS-B and a status of Online. The third row has an endpoint of CS-C and a status of Online. The fourth row has an endpoint of CS-D and a status of Online. Step 2 is a check of the ordered endpoints. The profile contains an ordered list of endpoints. Traffic Manager check which endpoint is first in the list. If the endpoint is online (based on the ongoing endpoint monitoring), it will specify that endpoint's DNS name in the DNS response to the client. If the endpoint is offline, Traffic Manager determines the next online endpoint in the list. In this example CS-A is offline (unavailable), but CS-B is online (available). In step 3, Traffic Manager returns CS-B's domain name to the client's DNS server, which resolves the domain name to an IP address and sends it to the client. This is represented by an arrow that points from the octagon through DNS to the laptop and user from step one. In step 4, the client initiates traffic to CS-B, which is represented as an arrow that points from the client to an icon of CS-B (Standby 1) at the bottom. To the left of this icon is an icon representing CS-A (Primary), which is in an Offline state. To the right of CS-B are icons representing CS-C (Standby 2) and CS-D (Standby 3).](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image4.png "Diagram of the Failover traffic routing method for a set of endpoints")
+![Graphic depicting Azure Traffic Manager routing. User submits a DNS query to their DNS server, the DNS server queries Traffic Manager and sends a DNS response back to the user with the DNS name of primary server. The client connects directly to the selected endpoint, not through traffic manager. When the primary fails the client will be routed to the highest priority among the remaining online endpoints.](images/2018-12-17-12-35-23.png "Diagram of the Failover traffic routing method for a set of endpoints")
+
 
 ### SQL Server Always Encrypted
 
@@ -607,7 +608,9 @@ The solution for Fabrikam's scenario involved several technologies.
 
     - Install the AzureBackupWindowsWorkload extension on each virtual machine that will be backed up. Discover databases using the Recovery Services vault and configure the backups by configurdefining a new policy for backups.
 
-    - For on-premises servers we will use ***
+    - For on-premises servers we will use Azure Backup Server isntalled to a dedicated, domain joined machine. You will register this Azure Backup Server with a Recovery Services vault, which will allow you to download and install the Azure Backup Server, configure the backup for the on-premises workload and download the vault credentials.
+
+    - On-premises servers will need to have the Data Protection Manager protection agent installed. This can be installed via Backup Server Administration Console.
 
    If a backup of a TDE encrypted database needs to be restored, you will first need to restore the certificate used by TDE.
 
@@ -665,11 +668,11 @@ The solution for Fabrikam's scenario involved several technologies.
 
     **Potential answer**
 
-    SQL Server Backup to URL backs up databases directly to Azure Storage. As soon as the backup is complete, it is offsite and protected. Furthermore, if using geo-redundant storage, your database backups will be asynchronously replicated to a secondary region hundreds of miles away.
+    Azure Backup backs up to an Azure Recovery Services Vault. As soon as the backup is complete, it is offsite and protected. Furthermore, if using geo-redundant storage for the Recovery Services Vault, your database backups will be asynchronously replicated to a secondary region hundreds of miles away.
 
 ## Customer quote (to be read back to the attendees at the end)
 
 "*By using Azure, we have the confidence that we can keep our business running in the event of a disaster, with minimal overhead and near-zero data loss.*"
 
----Michelle Jenkins, Chief Information Officer, Fabrikam Publishing
+---Michelle Jenkins, Chief Information Officer, Fabrikam Publishing 
 

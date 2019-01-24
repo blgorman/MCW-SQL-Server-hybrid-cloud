@@ -305,7 +305,7 @@ Directions: With all participants at your table, respond to the following questi
 
 3. **Application impact**: What impact will your design have on the existing application?
 
-4. **Diagram the solution**
+4. **Diagram the solution**.
 
 ***Protect data***
 
@@ -325,7 +325,7 @@ Directions: With all participants at your table, respond to the following questi
     | Service Code    |   |
     | Expiration Date    |   |
 
-5. **Diagram the solution**
+5. **Diagram the solution**.
 
 ***Data archiving***
 
@@ -335,7 +335,7 @@ Directions: With all participants at your table, respond to the following questi
 
 3. **Determine impact**: What impact will your design have on the existing reporting system? How will this solution effect the current maintenance issues?
 
-4. **Diagram the solution**
+4. **Diagram the solution**.
 
 ***Offsite backup***
 

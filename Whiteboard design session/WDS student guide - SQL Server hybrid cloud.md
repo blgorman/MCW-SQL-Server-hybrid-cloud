@@ -9,7 +9,7 @@ Whiteboard design session student guide
 </div>
 
 <div class="MCWHeader3">
-September 2018
+December 2018
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -166,7 +166,7 @@ Directions: With all participants at your table, respond to the following questi
 
 1. **Orchestrated failover**: Fabrikam needs to automate and simplify the failover process for the web site. Design a solution that supports orchestrated failover of the entire site.
 
-2. **Additional infrastructure:** Address what additional infrastructure Fabrikam needs to enable the stated solution
+2. **Additional infrastructure:** Address what additional infrastructure Fabrikam needs to enable the stated solution.
 
 3. **SQL Server:** The DR solution for SQL Server should include near-zero data loss. Design the DR solution to provide near-zero data loss, but minimal overhead on normal transactions. The solution should not require the application to be recoded.
 
@@ -174,17 +174,17 @@ Directions: With all participants at your table, respond to the following questi
 
 ***Scale out data platform***
 
-1. **Database scale out:** The solution should include the ability to scale out the data platform for heavy read workloads without major code changes to the existing application
+1. **Database scale out:** The solution should include the ability to scale out the data platform for heavy read workloads without major code changes to the existing application.
 
 2. **User experience**: Address the user experience issues of the data tier. How will this solution address this?
 
 3. **Application impact**: What impact will your design have on the existing application?
 
-4. **Diagram the solution**
+4. **Diagram the solution**.
 
 ***Protect data***
 
-1. **Encrypt PCI data:** Choose an appropriate encryption technology to protect credit card related data
+1. **Encrypt PCI data:** Choose an appropriate encryption technology to protect credit card related data.
 
 2. **Key management**: How are the encryption keys to be managed in your design?
 
@@ -200,17 +200,17 @@ Directions: With all participants at your table, respond to the following questi
     | Service Code    |   |
     | Expiration Date    |   |
 
-5. **Diagram the solution**
+5. **Diagram the solution**.
 
 ***Data archiving***
 
 1. **Plan**: What questions would you pose to the customer in designing a data archive strategy?
 
-2. **Identify archive data**: Describe how you would identify the appropriate tables for archiving
+2. **Identify archive data**: Describe how you would identify the appropriate tables for archiving.
 
 3. **Determine impact**: What impact will your design have on the existing reporting system? How will this solution effect the current maintenance issues?
 
-4. **Diagram the solution**
+4. **Diagram the solution**.
 
 ***Offsite backup***
 

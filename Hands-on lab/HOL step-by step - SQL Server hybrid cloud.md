@@ -122,13 +122,23 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
 2.  Launch the **Hyper-V Manager** application and connect to the SQL Server guest virtual machine.
 
-3.  From within your SQL Server guest virtual machine, install the latest version of Azure PowerShell by launching PowerShell ISE, and running the following command. Accept any warnings or authorization to install the components.
+3.  Launch **Server Manager**, select **Local Server** from the menu on the left and verify that **IE Enhanced Security Configuration** is set to **Off**.
+
+    ![Server manager applciation with local server selected and IE Enhanced Security Configuration set to Off.](images/hands-on-lab/2019-03-16-14-00-37.png "Server Manager local server configuration")
+
+4.  From within your SQL Server guest virtual machine, install Azure PowerShell by launching an **administrative PowerShell ISE session** and running the following command. Accept any warnings or authorization to install the components.
 
     ```
-    Install-Module -Name Az -AllowClobber
+    Install-Module -Name AzureRM -AllowClobber
     ```
 
-4.  From **LABVM**, execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the AdventureWorks database.
+5.  From the PowerShell ISE, type the following at the prompt and follow the prompts to login to your Azure subscription.
+
+    ```
+    login-AzureRmAccount
+    ```
+
+6.  Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script, change the $storageAcctName to a unique name.
 
     ```powershell
     $storageAcctName = "[unique storage account name]"
@@ -166,7 +176,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
     EXEC msdb.managed_backup.sp_backup_config_basic   
      @enable_backup = 1,   
-     @database_name = 'AdventureWorks',  
+     @database_name = 'SmartHotel.Registration',  
      @container_url = '$containerUrl',   
      @retention_days = 30
        
@@ -178,19 +188,24 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     Write-Host $enableManagedBackupScript 
     ```
 
-5.  Execute the code using PowerShell ISE. Make sure you change the **\$storageAcctName = \"\[unique storage account name\]\"** field to a unique storage account name across Azure prior to execution. 
+7.  Execute the code using PowerShell ISE. Make sure you change the **\$storageAcctName = \"\[unique storage account name\]\"** field to a unique storage account name across Azure prior to execution. 
 
-6.  Save the T-SQL code generated between the **Begin TSQL Script** and **End TSQL Script** in your PowerShell ISE output after execution into a notepad file. This code creates an identity using a Shared Access Signature (SAS) to a container in the storage account and configures managed backup when executed.
+    >**Note**: Due to differences between markdown and PowerShell formatting requirements, you may need to remove the white space prior to the **\"\@** near the end of the file.
+
+8.  Save the T-SQL code generated between the **Begin TSQL Script** and **End TSQL Script** in your PowerShell ISE output after execution into a notepad file. This code creates an identity using a Shared Access Signature (SAS) to a container in the storage account and configures managed backup when executed.
 
 ### Task 2: Configure managed backup in SQL Server
 
-1.  Connect to **SQL0** using remote desktop and launch SQL Server Management Studio and connect to the database instance.
+1.  From within your SQL Server virtual machine, launch SQL Server Management Studio and connect to the local database instance.
 
-2.  Right click on **SQL0**, and click **New Query**.
+2.  From within SQL Server Management Studio, click **New Query**.
 
     ![A screen showing how to launch the new query pane in SQL Server Management Studio.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image102.png "Launching the new query pane")
 
+
 3.  Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures. Refresh SQL Server Management Studio and if SQL Server Agent is stopped right click on it and click Start.
+
+    ![SQL Server Management Studio indicating the location of where to see the current status of the SQL Server Agent](images/hands-on-lab/2019-03-16-14-19-27.png "Management Studio" )
 
     ```sql
     EXEC sp_configure 'show advanced options', 1
@@ -211,7 +226,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     USE msdb;  
     GO  
     EXEC managed_backup.sp_backup_config_schedule   
-         @database_name =  'AdventureWorks'  
+         @database_name =  'SmartHotel.Registration'  
         ,@scheduling_option = 'Custom'  
         ,@full_backup_freq_type = 'Weekly'  
         ,@days_of_week = 'Monday'  
@@ -224,9 +239,11 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
     ```sql
     EXEC msdb.managed_backup.sp_backup_on_demand   
-    @database_name  = 'AdventureWorks',
+    @database_name  = 'SmartHotel.Registration',
     @type ='Database'
     ```
+
+7. To verify that your backups are working, go to the Azure portal, navigate to your **DRsite** resource group. Open the storage account you just created, select the **Blobs** tile, then the **backups** container. You should see your backups here.
 
 ## Exercise 2: Build the primary DCs for resiliency
 

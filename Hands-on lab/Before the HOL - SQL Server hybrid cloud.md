@@ -31,6 +31,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 1: Deploy the on-premises environment](#task-1-deploy-the-on-premises-environment)
     - [Task 2: Deploy the Azure infrastructure to support your disaster recovery site](#task-2-deploy-the-azure-infrastructure-to-support-your-disaster-recovery-site)
     - [Task 2: Verify on-premises virtual machines domain join status](#task-2-verify-on-premises-virtual-machines-domain-join-status)
+    - [Task 3: Verify the website is operational](#task-3-verify-the-website-is-operational)
   - [Summary](#summary)
 
 # SQL Server Hybrid Cloud before the hands-on lab setup guide 
@@ -124,6 +125,21 @@ In this exercise, you deploy an on-premises environment and the Azure infrastruc
     ```
 
 7.  Repeat the above steps for the remaining servers.
+
+### Task 3: Verify the website is operational 
+
+1.  In the Azure portal, navigate to the **OnPremises** resource group. 
+
+2.  Open the **sh360tm** Traffic Manager resource.
+
+    ![Screen capture of the Traffic Manager icon from the Azure portal.](images/before-the-hands-on-lab/2019-03-16-13-10-40.png "Traffic Manager")
+
+3.  Copy the **DNS name**.
+
+4.  Paste the DNS name into a web browser. You should see the smart hotel web page.
+
+    ![Screen capture of the smart hotel web application showing the smart hotel logo in the upper left and a table of customer information covering the rest of the page.](images/before-the-hands-on-lab/2019-03-16-13-09-17.png "Smart Hotel")
+
 
 ## Summary
 

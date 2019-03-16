@@ -32,10 +32,9 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
   - [Solution architecture](#solution-architecture)
   - [Requirements](#requirements)
     - [Help references](#help-references)
-  - [Exercise 1: Prepare connectivity between regions](#exercise-1-prepare-connectivity-between-regions)
-    - [Task 1: Deploy the lab environment](#task-1-deploy-the-lab-environment)
-    - [Task 2: Create a VNET in the second region](#task-2-create-a-vnet-in-the-second-region)
-    - [Task 3: Configure VNET Peering between Azure regions](#task-3-configure-vnet-peering-between-azure-regions)
+  - [Exercise 1: SQL Backup solution](#exercise-1-sql-backup-solution)
+    - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account)
+    - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
   - [Exercise 2: Build the primary DCs for resiliency](#exercise-2-build-the-primary-dcs-for-resiliency)
     - [Task 1: Create Resilient Active Directory Deployment](#task-1-create-resilient-active-directory-deployment)
     - [Task 2: Create the Active Directory deployment in the second Azure region](#task-2-create-the-active-directory-deployment-in-the-second-azure-region)
@@ -48,8 +47,8 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 2: Build a scalable and resilient web tier](#task-2-build-a-scalable-and-resilient-web-tier)
     - [Summary](#summary-1)
   - [Exercise 4: Configure SQL Server Managed Backup](#exercise-4-configure-sql-server-managed-backup)
-    - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account)
-    - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
+    - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account-1)
+    - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server-1)
   - [Exercise 5: Validate resiliency](#exercise-5-validate-resiliency)
     - [Task 1: Validate resiliency for the CloudShop application](#task-1-validate-resiliency-for-the-cloudshop-application)
     - [Task 2: Validate SQL Always On](#task-2-validate-sql-always-on)
@@ -109,106 +108,125 @@ Cloud based disaster recovery site.
 | Azure Backup |  <https://azure.microsoft.com/en-us/services/backup/> |
 
 
-## Exercise 1: Prepare connectivity between regions
+## Exercise 1: SQL Backup solution
 
 Duration: 30 minutes
 
-Contoso is planning to deploy infrastructure in multiple regions in Azure to provide infrastructure closer to their employees in each region as well as the ability to provide additional resiliency in the future for certain workloads. In this exercise, you will configure connectivity between the two regions.
+Backups must be maintained offsite from the on-premises environment. The backups must be online and accessible by the DBA team. To accomplish this you will configure SQL Managed Backup.
 
-### Task 1: Deploy the lab environment
+### Task 1: Create an Azure Storage Account
 
-1.  Login to the Azure portal (<https://portal.azure.com>) with the credentials that you want to deploy the lab environment to.
+In this task, you will create an Azure Storage Account for use with SQL Managed Backup.
 
-2.  In a separate tab, navigate to: <https://github.com/opsgility/cw-building-resilient-iaas-architecture>.
+1.  Connect to your Hyper-V host server by navigating to your **OnPremises** resource group and then connecting to the **sh360host** virtual machine.
 
-3.  Click the button **Deploy to Azure**.
+2.  Launch the **Hyper-V Manager** application and connect to the SQL Server guest virtual machine.
 
-    ![A screen with the Deploy to Azure button visible.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image24.png "Sample Application in GitHub")
+3.  From within your SQL Server guest virtual machine, install the latest version of Azure PowerShell by launching PowerShell ISE, and running the following command. Accept any warnings or authorization to install the components.
 
-4.  Specify the Resource group name as **ContosoRG** and the region as **East US 2**, check the **I agree to the terms and conditions state above** checkbox on the page and click **Purchase**.
+    ```
+    Install-Module -Name Az -AllowClobber
+    ```
 
-    ![The custom deployment screen with ContosoRG as the resource group and West Central US as the region.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image111.png "Custom deployment")
-    
-    >**Note**: The deployment may take up to 20 minutes.
+4.  From **LABVM**, execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the AdventureWorks database.
 
-5.  Once the deployment is successful, validate the deployment by opening the **CloudShopWeb** virtual machine and navigating your browser to its public IP address.
+    ```powershell
+    $storageAcctName = "[unique storage account name]"
 
-    ![The CloudShopDemo window displays. Under Select a product from the list, a product list displays.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image27.png "CloudShopDemo window")
+    $resourceGroupName = "DRsite"
+    $containerName= "backups"
+    $location = "South Central US"
+    $storageSkuName = "Standard_LRS"
 
-### Task 2: Create a VNET in the second region
+    "Creating Storage Account $storageAcctName"
+    $sa = New-AzureRmStorageAccount -ResourceGroupName $resourceGroupName  `
+        -Name $storageAcctName `
+        -Location $location `
+        -SkuName $storageSkuName 
 
-1.  Browse to the Azure portal and authenticate at <https://portal.azure.com/>.
+    $storageKey = (Get-AzureRmStorageAccountKey -Name $storageAcctName -ResourceGroupName $resourceGroupName )[0].Value
+    $context = New-AzureStorageContext -StorageAccountName $storageAcctName -StorageAccountKey $storageKey
 
-2.  In the left pane, click **+ Create a resource**.
+    Write-Host "Creating New Storage Container  $containerName" 
+    New-AzureStorageContainer -name $containerName -permission container -context $context
 
-3.  In the **New** blade, select **Networking \>** **Virtual Network**.
+    $fullSasToken = New-AzureStorageContainerSASToken -Name $containerName -Permission rwdl -FullUri -Context $context  
+    $containerUrl = $fullSasToken.Substring(0,$fullSasToken.IndexOf("?"))
+    $sasToken = $fullSasToken.Substring($fullSasToken.IndexOf("?")+1)
 
-    ![In the New Blade, under Azure Marketplace, Networking is selected. Under Featured, Virtual Network is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image28.png "New Blade")
+    $enableManagedBackupScript = @"
+    --------------------
+    ---BEGIN TSQL Script
+    --------------------
+    CREATE CREDENTIAL [$containerUrl] 
+    WITH IDENTITY = 'Shared Access Signature', 
+         SECRET = '$sasToken' 
 
-4.  In the **Create virtual network** blade, enter the following information:
+    GO
 
-    - Name: **VNET2**
-    - Address space: **172.16.0.0/16**
-    - Subscription: **Choose your subscription**.
-    - Resource group (create new): **CUSRG**
-    - Location: **Central US**
-    - Subnet name: **Apps**
-    - Subnet address range: **172.16.0.0/24**
-    - DDoS protection: **Basic**
-    - Service endpoints: **Disabled**
-    - Firewall: **Disabled**
+    EXEC msdb.managed_backup.sp_backup_config_basic   
+     @enable_backup = 1,   
+     @database_name = 'AdventureWorks',  
+     @container_url = '$containerUrl',   
+     @retention_days = 30
+       
+     --------------------
+     ---END TSQL Script
+     --------------------
+    "@
 
-    ![A blade showing the creation of a virtual network in the Azure portal.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image112.png "Create virtual network")
+    Write-Host $enableManagedBackupScript 
+    ```
 
-5. Click the **Create** button to continue.
+5.  Execute the code using PowerShell ISE. Make sure you change the **\$storageAcctName = \"\[unique storage account name\]\"** field to a unique storage account name across Azure prior to execution. 
 
-6.  Once the deployment is complete, add two more subnets to the virtual network. To do this, select the **Subnets \>** icon in the **Settings** area.
+6.  Save the T-SQL code generated between the **Begin TSQL Script** and **End TSQL Script** in your PowerShell ISE output after execution into a notepad file. This code creates an identity using a Shared Access Signature (SAS) to a container in the storage account and configures managed backup when executed.
 
-    ![Under Settings, Subnets is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image30.png "Settings section")
+### Task 2: Configure managed backup in SQL Server
 
-7.  Click the **+ Subnet** option, and enter the following settings:
+1.  Connect to **SQL0** using remote desktop and launch SQL Server Management Studio and connect to the database instance.
 
-    ![Screenshot of the Subnets button.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image31.png "Subnets button")
+2.  Right click on **SQL0**, and click **New Query**.
 
-    -   Name: **Data**
-    -   Address range (CIDR block): **172.16.1.0/24**
-    -   Click the **OK** button to add this subnet.
+    ![A screen showing how to launch the new query pane in SQL Server Management Studio.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image102.png "Launching the new query pane")
 
-    ![In the Add subnet blade, the Name field is set to Data, and Add range (CIDR block) is set to 172.16.1.0/24.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image32.png "Add subnet blade")
+3.  Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures. Refresh SQL Server Management Studio and if SQL Server Agent is stopped right click on it and click Start.
 
-8.  Once the subnet is created successfully, repeat the above step for an **Identity** subnet with the following settings:
+    ```sql
+    EXEC sp_configure 'show advanced options', 1
+    GO
+    RECONFIGURE
+    GO
+    EXEC sp_configure 'Agent XPs', 1
+    GO
+    RECONFIGURE
+    GO
+    ```
 
-    -   Name: **Identity**
-    -   Address range (CIDR block): **172.16.2.0/24**
-    -   Click the **OK** button to add this subnet.
+4.  Paste the T-SQL code you copied in the previous task into the query window replacing the existing code and click **Execute**. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
 
-    ![In the Add subnet blade, the Name field is set to Identity, and Add range (CIDR block) is set to 172.16.2.0/24.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image33.png "Add subnet blade")
+5.  Paste the code into the query window replacing the existing code and click **Execute** to create a custom backup schedule.
 
-9.  The subnets will look like this once complete:
+    ```sql
+    USE msdb;  
+    GO  
+    EXEC managed_backup.sp_backup_config_schedule   
+         @database_name =  'AdventureWorks'  
+        ,@scheduling_option = 'Custom'  
+        ,@full_backup_freq_type = 'Weekly'  
+        ,@days_of_week = 'Monday'  
+        ,@backup_begin_time =  '17:30'  
+        ,@backup_duration = '02:00'  
+        ,@log_backup_freq = '00:05'  
+    GO
+    ```
+6.  Execute the following tSQL in the query window to generate a backup on-demand. You can also specify Log for \@type.
 
-    ![The following subnets display: Apps, Data, and Identity.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image34.png "Subnets")
-
-### Task 3: Configure VNET Peering between Azure regions
-
-1.  Open the first virtual network (VNET1) by clicking **All Services -\> Virtual networks** and clicking the name.
-
-2.  Click on **Peerings** and click **+Add**.
-
-    ![A screen highlighting the peerings link in the Azure portal.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image35.png "Peerings")
-
-3.  Name the peering, **VNET1TOVNET2** and change the Virtual network dropdown to **VNET2** click **Allow forwarded traffic,** and then click **OK**.
-
-    ![A screen that shows the name Peering, the virtual network VNET2, and Allow forwarded traffic checked.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image118.png "Add peering")
-
-4.  Open the second virtual network (VNET2) by clicking **All Services -\> Virtual networks** and clicking the name.
-
-5.  Click on **Peerings** and click **+Add**.
-
-    ![A screen highlighting the peerings link in the Azure portal.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image35.png "Peerings")
-
-6.  Name the peering, **VNET2TOVNET1** and change the Virtual network dropdown to **VNET1** click **Allow forwarded traffic,** and then click **OK**.
-
-    ![A screen that shows the name Peering, the virtual network VNET, and Allow forwarded traffic checked.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image119.png "Add peering")
+    ```sql
+    EXEC msdb.managed_backup.sp_backup_on_demand   
+    @database_name  = 'AdventureWorks',
+    @type ='Database'
+    ```
 
 ## Exercise 2: Build the primary DCs for resiliency
 

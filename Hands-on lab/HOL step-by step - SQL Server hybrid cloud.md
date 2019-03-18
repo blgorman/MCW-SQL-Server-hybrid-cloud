@@ -35,18 +35,15 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
   - [Exercise 1: SQL Backup solution](#exercise-1-sql-backup-solution)
     - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account)
     - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
-  - [Exercise 2: Build the primary DCs for resiliency](#exercise-2-build-the-primary-dcs-for-resiliency)
-    - [Task 1: Create Resilient Active Directory Deployment](#task-1-create-resilient-active-directory-deployment)
-    - [Task 2: Create the Active Directory deployment in the second Azure region](#task-2-create-the-active-directory-deployment-in-the-second-azure-region)
-    - [Task 3: Add data disks to Active Directory domain controllers (both regions)](#task-3-add-data-disks-to-active-directory-domain-controllers-both-regions)
-    - [Task 4: Format data disks on DCs and configure DNS settings across connection](#task-4-format-data-disks-on-dcs-and-configure-dns-settings-across-connection)
-    - [Task 5: Promote DCs as additional domain controllers](#task-5-promote-dcs-as-additional-domain-controllers)
-    - [Summary](#summary)
-  - [Exercise 3: Build web tier and SQL for resiliency](#exercise-3-build-web-tier-and-sql-for-resiliency)
+  - [Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-2-implement-a-data-archive-strategy-with-sql-server-stretch-database)
+    - [Task 1: Identify tables that may benefit from Stretch DB](#task-1-identify-tables-that-may-benefit-from-stretch-db)
+    - [Task 2: Implement Stretch DB on based on date key](#task-2-implement-stretch-db-on-based-on-date-key)
+  - [Summary](#summary)
+  - [Exercise 3: Build SQL Availability Group for Database HADR](#exercise-3-build-sql-availability-group-for-database-hadr)
     - [Task 1: Deploy SQL Always-On Cluster](#task-1-deploy-sql-always-on-cluster)
     - [Task 2: Build a scalable and resilient web tier](#task-2-build-a-scalable-and-resilient-web-tier)
     - [Summary](#summary-1)
-  - [Exercise 4: Configure SQL Server Managed Backup](#exercise-4-configure-sql-server-managed-backup)
+  - [Exercise 4: Configure Azure Site Recovery to Web Tier DR](#exercise-4-configure-azure-site-recovery-to-web-tier-dr)
     - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account-1)
     - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server-1)
   - [Exercise 5: Validate resiliency](#exercise-5-validate-resiliency)
@@ -245,283 +242,106 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
 7. To verify that your backups are working, go to the Azure portal, navigate to your **DRsite** resource group. Open the storage account you just created, select the **Blobs** tile, then the **backups** container. You should see your backups here.
 
-## Exercise 2: Build the primary DCs for resiliency
+## Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database
 
 Duration: 30 minutes
 
-In this exercise, you will deploy Windows Server Active Directory configured for resiliency using Azure Managed Disks and Availability Sets in the primary region. You will then deploy additional domain controllers in a second region for future expansion of the Azure footprint.
+In this exercise, you will implement SQL Server Stretch Database to stretch data from a table into Azure.
 
-### Task 1: Create Resilient Active Directory Deployment 
+### Task 1: Identify tables that may benefit from Stretch DB 
 
-In this task, you will change the disk cache settings on the existing domain controller **Read Only** to avoid corruption of Active Directory database.
+1.  Connect to your Hyper-V host server by navigating to your **OnPremises** resource group and then connecting to the **sh360host** virtual machine.
 
-1.  Select **Virtual machines** in the left menu pane of the Azure portal.
+2.  Launch the **Hyper-V Manager** application and connect to the SQL Server guest virtual machine.
 
-2.  Click on **ADVM**, and in the **Settings** area, select **Disks**.
+3.  Select **Virtual machines** in the left menu pane of the Azure portal.
 
-    ![Under Settings, Disks is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image38.png "Settings section")
+4.  In the SQL Server Management Studio Object Explorer, connect to your local SQL Server instance and expand the Databases folder.
 
-3.  On the Disks blade, click **Edit**.
+5.  Right-click the AdventureWorksDW2016CTP3 database, select Tasks, select Stretch, then choose Enable.
 
-    ![On the Disks blade, the Edit icon is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image39.png "Disks blade")
+6.  The Enable Database for Stretch wizard should open automatically. Click Next on the Introduction screen.
 
-4.  Change the **Host caching** from **Read/Write** to **None** via the drop-down option, and click the **Save** icon.
+7.  On the Select tables window all of your tables will be listed. Notice that some tables have warning next to them. Click on the warning icon next to the FactResellerSalesXL_PageCompressed table. This warning simply indicates that the primary key cannot be enforced in the remote Azure table.
 
-    ![In the Edit blade, under Host Caching, None is selected. At the top, the Save button is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image40.png "Edit blade")
+8.  Scroll to the right until you see the Migrate column. Clicking Entire Table allows you to choose rows that define which rows will be migrated to Azure. In this lab we are going to configure this through TSQL. Click Cancel to break out of the wizard.
 
-    >**Note**: In production, we would not want to have any OS drives that do not have read/write cache enabled. This machine will be decommissioned, but first, we want to make sure the AD Database and SYSVOL will not be corrupted during our updates.
+### Task 2: Implement Stretch DB on based on date key  
 
-5.  In the left pane, click **+ Create a resource**.
+1.  Launch a new Query tab and execute the following code to prepare the server and the database for Stretch Database. 
 
-6.  In the **New** blade, select **Compute** **\>** **Windows Server 2016 VM**.
+    ```
+    --Enable the server for Stretch Database
+    EXEC sp_configure 'remote data archive' , '1';
+    GO
+    RECONFIGURE;
+    GO
 
-    ![In the New blade, under Azure Marketplace, Compute is selected. Under Featured, Windows Server 2016 Datacenter is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image41.png "New blade")
+    --Create a database master key to encrypt the data stored in Azure
+    USE AdventureWorksDW2016CTP3
+    GO
+    CREATE MASTER KEY ENCRYPTION BY PASSWORD='demo@pass123'
+    GO
 
-7.  In the **Create virtual machine** blade, enter the **Basics** information:
-
-    -   Subscription: **Select your subscription**.
-    -   Resource group (create new): **EU2ADRG**
-    -   Virtual machine name: **DC01**
-    -   Size: **Standard D2SV3**
-    -   Region: **East US 2**
-    -   Username: **demouser**
-    -   Password: **demo\@pass123**
-    -   Confirm password: **demo\@pass123**
-    -   Public inbound ports: **Allow selected ports**
-    -   Select inbound ports: **RDP (3389)**
-
-    ![A screen that shows the basics blade of creating a new VM. The name is DC01, the user name is demouser, the resource group is EU2ADRG, and the location is East US 2.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image113.png "Basics")
-
-8. For **Availability options**, select **Availability set**. Select **Create new** and enter the name **ADAV** and click **OK**.
-
-    ![Azure portal screenshot showing the Create new availability set blade with the name set to ADAV.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image114.png "Create new Availability Set")
-
-9. Click the **Networking** tab and select the existing virtual network **VNET1** and the **Identity** subnet.
-
-    ![Azure portal screenshot showing the Networking tab of the VM create blade, selecting the virtual network VNET1.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image115.png "Networking settings")
-
-10. Click the **Management** tab and configure as follows:
-
-    - Boot diagnostics: **On**
-    - Diagnostics storage account: **Create new and select a unique name**
-    - Enable backup: **On**
-    - Recovery Services vault: **Create new**
-    - Recovery Services vault name: **BackupVault**
-    - Resource group (create new): **BackupVaultRG**
-
-    ![Azure portal screenshot showing the Management tab of the VM create blade, selecting the diagnostics and backup settings.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image116.png "Management settings")
-    
-    >**Note**: Backup with a Domain Controller is a supported scenario. Care should be taken on restore. For more information see the following: <https://docs.microsoft.com/en-us/azure/backup/backup-azure-arm-restore-vms#backup-for-restored-vms>.
-
-11. Click the **Review + create** button or click on the **Review + create** tab. There will be a final validation and when this is passed, click the **Create** button to complete the deployment.
-
-12. Give the deployment a few minutes to build the Availability Set resource. Then, repeat the virtual machine creation steps to create **DC02**, as that will be another Domain Controller making sure to place it in the **ADAV** availability set and select the existing diagnostics storage account and the existing **BackupVault**.
-
-    ![Azure portal screenshot showing the Review and create screen for a virtual machine named DC02.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image117.png "Create new VM validation") 
-
-### Task 2: Create the Active Directory deployment in the second Azure region
-
-In this task, you will deploy Active Directory in the second region, so identity is available for new workloads. In this region, an additional level of resiliency will be introduced by using Availability Zones for the virtual machines hosting Active Directory.
-
-1.  In the left pane, click **+ Create a resource**.
-
-2.  In the **New** blade, select **Virtual Machines \>** **Windows Server 2016 VM**.
-
-    ![In the New blade, under Azure Marketplace, Compute is selected. Under Featured, Windows Server 2016 VM is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image41.png "New blade")
-
-3.  In the **Create virtual machine** blade, enter the **Basics** information:
-
-    -   Subscription: **Select your subscription**.
-    -   Resource group (create new): **CUSADRG**
-    -   Virtual machine name: **DC03**
-    -   Size: **Standard D2SV3**
-    -   Region: **Central US**
-    -   Username: **demouser**
-    -   Password: **demo\@pass123**
-    -   Confirm password: **demo\@pass123**
-    -   Public inbound ports: **Allow selected ports**
-    -   Select inbound ports: **RDP (3389)**
-
-    ![Azure portal screenshot showing the Basics tab of the new VM create blade for DC03.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image120.png "Create new VM")
-
-4. For **Availability options**, select **Availability zone**. Select zone **1**.
-
-    ![Azure portal screenshot the selection of Availability Zones and Zone 1.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image121.png "Select availability zone")
-
-5. Click the **Networking** tab and select the existing virtual network **VNET2** and the **Identity** subnet.
-
-    ![Azure portal screenshot showing the Networking tab of the VM create blade, selecting the virtual network VNET2.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image122.png "Networking settings")
-
-6. Click the **Management** tab and configure as follows:
-
-    - Boot diagnostics: **On**
-    - Diagnostics storage account: **Create new and select a unique name**
-    - Enable backup: **On**
-    - Recovery Services vault: **Create new**
-    - Recovery Services vault name: **BackupVault2**
-    - Resource group (create new): **BackupVault2RG**
-
-    ![Azure portal screenshot showing the Management tab of the VM create blade, selecting the diagnostics and backup settings.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image123.png "Management settings")
-    
-    >**Note**: Backup with a Domain Controller is a supported scenario. Care should be taken on restore. For more information see the following: <https://docs.microsoft.com/en-us/azure/backup/backup-azure-arm-restore-vms#backup-for-restored-vms>.
-
-7. Click the **Review + create** button or click on the **Review + create** tab. There will be a final validation and when this is passed, click the **Create** button to complete the deployment.
-
-8. Give the deployment a few minutes to start and repeat those steps to create **DC04**, as that will be another Domain Controller making sure to place it in Availability Zone **2** and the existing **BackupVault2**.
-
-    ![Azure portal screenshot showing the review and create tab of the new VM create blade for DC04.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image124.png "Review and create tab")
-
-### Task 3: Add data disks to Active Directory domain controllers (both regions)
-
-1.  Open **DC01** from the Azure portal.
-
-2.  In the **Settings** blade, select **Disks**.
-
-3.  Click on **Add data disk**.
-
-    ![The + Add data disk button is visible.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image48.png "Data disks")
-
-4.  On the settings for the **Data disk menu**, click on the drop-down menu under **Name**, and click **Create Disk**.
-
-    ![Under Data disks, under Name, Create disk is selected from the drop-down list.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image49.png "Data disks section")
-
-5.  On the Create managed disk blade, enter the following, and click **Create**:
-
-    -   Name: **DC01-Data-Disk-1**
-    -   Resource group: **Use existing / EU2ADRG**
-    -   Account Type: **Premium SSD**
-    -   Source Type: **None (empty disk)**
-    -   Size: **32**
-
-6.  Once the disk is created, the portal will move back to the **Disks** blade. Locate the new disk under **Data Disks**, change the **HOST CACHING** to **None**, and click **Save**.
-
-    ![On the Disks blade, under Host Caching, None is selected. At the top, Save is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image125.png "Disks blade")
-
-7.  Perform these same steps for **DC02** naming the disk **DC02-Data-Disk-1**. Also, make sure the Host caching is set to **None**.
-
-8.  Perform the add disk steps for **DC03** and **DC04** naming the disks **DC03-Data-Disk-1** and **DC04-Data-Disk1** respectively. Make sure to set the Host caching to **None**. For these disks, select the resource group **CUSADRG**.
-
-### Task 4: Format data disks on DCs and configure DNS settings across connection
-
-1.  Browse to **DC01** in the Azure portal.
-
-2.  Click the **Connect** icon on the menu bar to RDP into the server.
-
-    ![Screenshot of the Connect icon.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image52.png "Connect icon")
-
-3.  Login to the VM with **demouser** and password created during deployment.
-
-    ![On the Windows security login window, the Use a different account option is circled.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image53.png "Windows security login window")
-
-    >**Note**: You might have to click "Use a different account," depending on which OS you are connecting from to put in the demouser credentials.
-
-4.  Click **Yes** to continue to connect to DC01.
-
-5.  Once the logged in, click on **File and Storage Services** in **Server Manager**.
-
-    ![In Server Manager, File and Storage services is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image55.png "Server Manager ")
-
-6.  Click on **Disks**, and let the data load. You should now see an **Unknown** partition disk in the list.
-
-    ![In the Disks section, under DC01, the Unknown partition disk is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/2018-08-27-16-27-45.png "Disks section")
-
-7.  Right-click on this disk and choose **New Volume...** from the context menu options.
-
-    ![The Right-click menu for the Unknown partition disk, New Volume is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image57.png "Right-click menu")
-
-8.  Follow the prompts in the **New Volume Wizard** to format this disk, as the **F:\\** drive for the domain controller.
-
-9.  Perform these same steps for the remaining 3 DCs (**DC02**, **DC03**, and **DC04**).
-
-10. Go back to the Azure portal dashboard and click on **DC01**. Next, click on **Networking** followed by the name of the NIC.
-
-    ![Under Settings, Networking is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image58.png "Settings section")
-
-    ![Next to Network Interface, dc01222 is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image59.png "Network Interface")
-
-11. Select the **IP** **configurations**.
-
-    ![Under Settings, IP configurations is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image60.png "Settings section")
-
-12. Click the IP Configuration named **ipconfig1**.
-
-    ![In the IP Configuration blade, under Name, ipconfig1 is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image61.png "IP Configuration blade")
-
-13. On the **ipconfig1** blade, change the **Private IP address settings** to **Static.** Leave all the other settings at their defaults and click the **Save** icon.
-
-14. Once Azure notifies the network interface change is saved, repeat these steps on the remaining 3 DCs (**DC02**, **DC03**, and **DC04**).
-
-    >**Note**: The Static IP for **DC02** should be 10.0.2.6. **DC03** should be 172.16.2.4 and **DC04** should be 172.16.2.5.
-
-15. In the Azure portal, click **More Services \>** and in the filter, type in **Virtual Networks**. Select **VNET2** from the list.
-
-16. In the **Settings** area, select **DNS Servers**.
-
-    ![Under Settings, DNS servers is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image63.png "Settings section")
-
-17. Change **DNS servers** to **Custom**, and provide the address of **10.0.2.4** in the **Add DNS server** box. Click the **Save** icon to commit the changes.
-
-    ![In the DNS Servers blade, under DNS servers, the Custom radio button is selected, and the field below it is set to 10.0.2.4. ](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image64.png "DNS Servers blade")
-
-18. At this point, restart **DC03** and **DC04**, so they can get their new DNS Settings.
-
-    >**Note**: **DC01** and **DC02** received the correct DNS settings from the VNET DNS configured prior to their deployment, as the custom DNS was set before the hands-on lab for that VNET. **DC03** and **DC04** must be rebooted to receive the updated DNS settings from their virtual network.
-
-19. While these two DCs are rebooting, RDP into **ADVM** using the credentials for **demouser**, and run the following PowerShell command:
-
-    ```powershell
-    Set-DnsServerPrimaryZone -Name contoso.com -DynamicUpdate NonsecureAndSecure
+    --Create the credential used to access an Azure SQL Database
+    CREATE DATABASE SCOPED CREDENTIAL StretchDB 
+    WITH IDENTITY = 'demouser' , SECRET = 'demo@pass123'
+    GO
     ```
 
-    >**Note**: This would not be done in a production environment, but for purposes of our hands-on lab, we need to perform this step for the SQL Cluster in the coming tasks.
+2.  Execute the following code replacing the server name with the name of the SQL Server you created in exercise 1. This code enables Stretch Database on your database
 
-20. After the PowerShell command runs, sign out of **ADVM**.
+    ```
+    --Enable the local database for stretch
+    --You must change your server name to match your environment
+    ALTER DATABASE [AdventureWorksDW2016CTP3]
+    SET REMOTE_DATA_ARCHIVE = ON (SERVER = N'<your server name>.database.windows.net', CREDENTIAL = StretchDB )
+    ```
 
-### Task 5: Promote DCs as additional domain controllers 
+3.  Execute the following code to create the stretch predicate. The stretch predicate allows us to define the conditions under which a row will be stretched. In this case the function leverages a date key column to stretch any rows prior to January 1, 2014. 
 
-1.  Login to **LABVM** created before the hands-on lab or the machine where you have downloaded the exercise files.
+    ```
+    --Create the stretch predicate
+    CREATE FUNCTION dbo.fn_stretch_datekey_predicate(@column1 int)
+    RETURNS TABLE
+    WITH SCHEMABINDING 
+    AS 
+    RETURN	SELECT 1 AS is_eligible
+		    WHERE @column1 < '20140101'
+    GO
+    ```
 
-2.  Browse to the Azure portal and authenticate at <https://portal.azure.com/>.
+4. Execute the following to begin the migration of eligible data to your Azure SQL Database.
 
-3.  Click on **DC01** on the Azure dashboard.
+    ```
+    --Enable stretch on the table using the stretch predicate with the OrderDateKey
+    ALTER TABLE FactResellerSalesXL_PageCompressed 
+    SET ( REMOTE_DATA_ARCHIVE = ON (
+	    FILTER_PREDICATE = dbo.fn_stretch_datekey_predicate([OrderDateKey]),
+	    MIGRATION_STATE = OUTBOUND
+    ) )
 
-4.  In the **Settings** area, click **Extensions**.
+5. Refresh the AdventureWorksDW2016CTP3 database in Object Explorer by right clicking it and choosing Refresh.
 
-    ![Under Settings, Extensions is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image65.png "Settings section")
+6. Right-click the AdventureWorksDW2016CTP3 database, choose Tasks, Stretch, then select Monitor
 
-5.  Click the **+ Add** icon.
+7. View the stretch database report. Note that over time the Eligible Rows, Local Rows, and Rows In Azure numbers will change.
 
-    ![Screenshot of the Add icon.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image66.png "Add icon")
+8.	Click the dropdown under Migration State. Notice that you have the option to pause the outbound migration.
 
-6.  Choose **Custom Script Extension** by Microsoft Corp., and click the **Create** button to continue.
+9.	Launch a new Query tab and execute the following code to programatically monitor space used in Azure and locally.
 
-    ![The Custom Script Extention option displays.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image67.png "Custom Script Extention option")
+    ```
+    sp_spaceused 'FactResellerSalesXL_PageCompressed', @mode = 'REMOTE_ONLY'
+    GO
+    sp_spaceused 'FactResellerSalesXL_PageCompressed', @mode = 'LOCAL_ONLY'
+    GO
+    ```
 
-7.  Browse to the **C:\\HOL** folder and select the **AddDC.ps1** script by clicking the folder icon for **Script file (Required)**. Then, click the **OK** button to continue.
+## Summary
+In this exercise, you implemented an archive solution with Stretch Database. First, you reviewed the table compatibility by using the Enable Database for Stretch wizard. You then configured your database and table via T-SQL to archive data satisfied by a stretch predicate. Finally, you reviewed the progress, status and space used locally and in Azure via the built-in management tools
 
-    ![The Script file field is set to AddDC.ps1, and the OK button is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image68.png "Script section")
-
-8.  This script will run the commands to add this DC to the domain as an additional DC in the contoso.com domain. Repeat these steps for **DC02**, **DC03**, and **DC04**.
-
-9.  Once this succeeds, you will see a **Provisioning succeeded** message under **Extensions** for all four domain controllers.
-
-    ![In the Extensions blade, the status for CustomScriptExtensions is Provisioning succeeded.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image69.png "Extensions blade")
-
-    >**Note**: If this was a live production environment, there would need to be some additional steps to clean up Region 1 and to configure DNS, Sites and Services, Subnets, etc. Please refer to documentation on running Active Directory Virtualized or in Azure for details. ADVM should be demoted gracefully, and if required, a new DC can be added to the ADAV Availability Set and data disk attached for F:\\.
-
-10. Open the settings for **VNET2** in the Azure portal. Under DNS servers, remove the exiting custom DNS entry and add the two new domain controller IP addresses and click **Save**.
-
-    - DNS servers
-        - **172.16.2.4**
-        - **172.16.2.5**
-
-    ![A screen that shows setting the IP addresses for the two new DNS servers on the virtual network.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image70.png "DNS servers")
-
-### Summary
-
-In this exercise, you deployed Windows Server Active Directory and configured for resiliency using Azure Managed Disks and Availability Sets in the primary region and Availability Zones in the failover region. Availability Sets offer an SLA of 99.95% and Availability Zones offer an SLA of 99.99%. 
-
-## Exercise 3: Build web tier and SQL for resiliency
+## Exercise 3: Build SQL Availability Group for Database HADR
 
 Duration: 60 minutes
 
@@ -644,7 +464,7 @@ In this task, you will deploy a highly available web servers.
 
 In this exercise, you deployed resilient web servers behind a load balancer, and a SQL Always-On Availability Group for database resiliency through an ARM template. Also you deployed resilient web tier with an external load balancer through an ARM template.
 
-## Exercise 4: Configure SQL Server Managed Backup 
+## Exercise 4: Configure Azure Site Recovery to Web Tier DR 
 
 Duration: 15 minutes
 

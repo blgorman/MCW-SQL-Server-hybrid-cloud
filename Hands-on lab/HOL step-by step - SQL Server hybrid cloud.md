@@ -36,8 +36,9 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account)
     - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
   - [Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-2-implement-a-data-archive-strategy-with-sql-server-stretch-database)
-    - [Task 1: Identify tables that may benefit from Stretch DB](#task-1-identify-tables-that-may-benefit-from-stretch-db)
-    - [Task 2: Implement Stretch DB on based on date key](#task-2-implement-stretch-db-on-based-on-date-key)
+    - [Task 1: Crete a logical SQL Server to host Stretch DB](#task-1-crete-a-logical-sql-server-to-host-stretch-db)
+    - [Task 2: Identify tables that may benefit from Stretch DB](#task-2-identify-tables-that-may-benefit-from-stretch-db)
+    - [Task 3: Implement Stretch DB on based on date key](#task-3-implement-stretch-db-on-based-on-date-key)
   - [Summary](#summary)
   - [Exercise 3: Build SQL Availability Group for Database Disaster Recovery](#exercise-3-build-sql-availability-group-for-database-disaster-recovery)
     - [Task 1: Create the cluster](#task-1-create-the-cluster)
@@ -197,12 +198,13 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
 2.  From within SQL Server Management Studio, click **New Query**.
 
-    ![A screen showing how to launch the new query pane in SQL Server Management Studio.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image102.png "Launching the new query pane")
+    ![A screen showing how to launch the new query pane in SQL Server Management Studio.](images/hands-on-lab/2019-03-20-11-08-08.png "Launching the new query pane")
 
-
-3.  Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures. Refresh SQL Server Management Studio and if SQL Server Agent is stopped right click on it and click Start.
+3.  Refresh SQL Server Management Studio and if SQL Server Agent is stopped right click on it and click Start.
 
     ![SQL Server Management Studio indicating the location of where to see the current status of the SQL Server Agent](images/hands-on-lab/2019-03-16-14-19-27.png "Management Studio" )
+
+4. Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures. 
 
     ```sql
     EXEC sp_configure 'show advanced options', 1
@@ -215,9 +217,9 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     GO
     ```
 
-4.  Paste the T-SQL code you copied in the previous task into the query window replacing the existing code and click **Execute**. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
+4.  Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and click **Execute**. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
 
-5.  Paste the code into the query window replacing the existing code and click **Execute** to create a custom backup schedule.
+5.  Paste the code below into the query window replacing the existing code and click **Execute** to create a custom backup schedule.
 
     ```sql
     USE msdb;  
@@ -248,25 +250,62 @@ Duration: 30 minutes
 
 In this exercise, you will implement SQL Server Stretch Database to stretch data from a table into Azure.
 
-### Task 1: Identify tables that may benefit from Stretch DB 
+### Task 1: Crete a logical SQL Server to host Stretch DB 
+
+1.  Connect to your Hyper-V host server by navigating to your **OnPremises** resource group and then connecting to the **sh360host** virtual machine.
+
+2.  Launch the Chrome and navigate to the Azure portal.
+
+3.  Click **+Create a resource** at the top of the left side menu.
+
+4.  Type **SQL Server logical server** into the search box, hit enter and choose **SQL server (logical server)** from the search results.
+    ![Azure Marketplace search for SQL Server logical server](images/hands-on-lab/2019-03-20-11-38-42.png "Search for SQL Server logical server")
+
+5. Click **Create** on the SQL Server (logical server) information blade.
+6. On the SQL Server (logical server) blade, use the following configurations and click **Create**.
+
+    - Server name: ***Choose a unique server name***
+    - Server admin login: **demouser**
+    - Password: **demo@pass123**
+    - Subscription: ***Your subscription***
+    - Resource group: **DRsite**
+    - Location: ***Use the same location you have been using***
+    - Allow Azure Services: ***Checked***
+
+        ![](images/hands-on-lab/2019-03-20-11-44-41.png)
+
+7. Make note of the server name you chose above. It will be used in a later task.
+8. After the SQL Server logical server has deployed, navigate to it and select **Firewalls and virtual networks** from the security menu on the left.
+
+    ![Security menu with Firewalls and virtual networks highlighted.](images/hands-on-lab/2019-03-20-11-56-21.png "Security menu")
+
+9. Add a new firewall rule by clicking **+Add client IP** and then clicking **Save**.
+
+    ![](images/hands-on-lab/2019-03-20-12-01-55.png "Firewall configuration")
+
+### Task 2: Identify tables that may benefit from Stretch DB 
 
 1.  Connect to your Hyper-V host server by navigating to your **OnPremises** resource group and then connecting to the **sh360host** virtual machine.
 
 2.  Launch the **Hyper-V Manager** application and connect to the SQL Server guest virtual machine.
 
-3.  Select **Virtual machines** in the left menu pane of the Azure portal.
+3.  Launch SQL Server Management Studio.
 
 4.  In the SQL Server Management Studio Object Explorer, connect to your local SQL Server instance and expand the Databases folder.
 
-5.  Right-click the SmartHotel database, select Tasks, select Stretch, then choose Enable.
+5.  Right-click the SmartHotel.Registration database, select Tasks, select Stretch, then choose Enable.
 
-6.  The Enable Database for Stretch wizard should open automatically. Click Next on the Introduction screen.
+    ![SQL Server Management Studio Object Explorer with the Smart Hotel right-click menu open, tasks is highlighted then stretch is highlighted and Enable is selected.](images/hands-on-lab/2019-03-20-11-22-09.png "Enable Stretch Database")
 
-7.  On the Select tables window all of your tables will be listed. Notice that some tables have warning next to them. Click on the warning icon next to the FactResellerSalesXL_PageCompressed table. This warning simply indicates that the primary key cannot be enforced in the remote Azure table.
+6.  The Enable Database for Stretch wizard should open automatically. Click **Next** on the Introduction screen.
 
-8.  Scroll to the right until you see the Migrate column. Clicking Entire Table allows you to choose rows that define which rows will be migrated to Azure. In this lab we are going to configure this through TSQL. Click Cancel to break out of the wizard.
+7.  On the Select tables window all of your tables will be listed. Notice that some tables have warnings and some may be greyed out. Click on the warning icon next to the Bookings table. This warning indicates that the table does not meet the StretchDB eligibility requirements.
 
-### Task 2: Implement Stretch DB on based on date key  
+    ![Stretch Database Wizard showing error for the bookings table](images/hands-on-lab/2019-03-20-11-26-55.png "Stretch Database wizard")
+
+8.  Scroll to the right until you see the Migrate column. Clicking Entire Table on an eligable table allows you to define which rows will be migrated to Azure. In this lab we are going to configure this through TSQL. Click Cancel to break out of the wizard.
+
+### Task 3: Implement Stretch DB on based on date key  
 
 1.  Launch a new Query tab and execute the following code to prepare the server and the database for Stretch Database. 
 
@@ -278,7 +317,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
     GO
 
     --Create a database master key to encrypt the data stored in Azure
-    USE AdventureWorksDW2016CTP3
+    USE [SmartHotel.Registration]
     GO
     CREATE MASTER KEY ENCRYPTION BY PASSWORD='demo@pass123'
     GO
@@ -289,12 +328,12 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
     GO
     ```
 
-2.  Execute the following code replacing the server name with the name of the SQL Server you created in exercise 1. This code enables Stretch Database on your database
+2.  Execute the following code replacing the server name with the name of the SQL Server you created in exercise 1. This code enables Stretch Database on your database. It may take a few minutes to complete.
 
     ```
     --Enable the local database for stretch
     --You must change your server name to match your environment
-    ALTER DATABASE [AdventureWorksDW2016CTP3]
+    ALTER DATABASE [SmartHotel.Registration]
     SET REMOTE_DATA_ARCHIVE = ON (SERVER = N'<your server name>.database.windows.net', CREDENTIAL = StretchDB )
     ```
 
@@ -307,7 +346,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
     WITH SCHEMABINDING 
     AS 
     RETURN	SELECT 1 AS is_eligible
-		    WHERE @column1 < '20140101'
+		    WHERE @column1 < '20020101'
     GO
     ```
 
@@ -315,29 +354,36 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
     ```
     --Enable stretch on the table using the stretch predicate with the OrderDateKey
-    ALTER TABLE FactResellerSalesXL_PageCompressed 
+    ALTER TABLE ResellerSales 
     SET ( REMOTE_DATA_ARCHIVE = ON (
 	    FILTER_PREDICATE = dbo.fn_stretch_datekey_predicate([OrderDateKey]),
 	    MIGRATION_STATE = OUTBOUND
     ) )
 
-5. Refresh the AdventureWorksDW2016CTP3 database in Object Explorer by right clicking it and choosing Refresh.
+5. Refresh the SmartHotel.Registration database in Object Explorer by right clicking it and choosing Refresh.
 
-6. Right-click the AdventureWorksDW2016CTP3 database, choose Tasks, Stretch, then select Monitor
+6. Right-click the SmartHotel.Registration database, choose Tasks, Stretch, then select Monitor
 
 7. View the stretch database report. Note that over time the Eligible Rows, Local Rows, and Rows In Azure numbers will change.
+
+    ![](images/hands-on-lab/2019-03-20-12-21-30.png)
 
 8.	Click the dropdown under Migration State. Notice that you have the option to pause the outbound migration.
 
 9.	Launch a new Query tab and execute the following code to programatically monitor space used in Azure and locally.
 
     ```
-    sp_spaceused 'FactResellerSalesXL_PageCompressed', @mode = 'REMOTE_ONLY'
+    sp_spaceused 'ResellerSales', @mode = 'REMOTE_ONLY'
     GO
-    sp_spaceused 'FactResellerSalesXL_PageCompressed', @mode = 'LOCAL_ONLY'
+    sp_spaceused 'ResellerSales', @mode = 'LOCAL_ONLY'
     GO
     ```
+10. You may also change the scope of a query.
 
+    ```
+    SELECT COUNT(*) FROM [ResellerSales] WITH (REMOTE_DATA_ARCHIVE_OVERRIDE = REMOTE_ONLY)
+    ```
+    
 ## Summary
 In this exercise, you implemented an archive solution with Stretch Database. First, you reviewed the table compatibility by using the Enable Database for Stretch wizard. You then configured your database and table via T-SQL to archive data satisfied by a stretch predicate. Finally, you reviewed the progress, status and space used locally and in Azure via the built-in management tools
 

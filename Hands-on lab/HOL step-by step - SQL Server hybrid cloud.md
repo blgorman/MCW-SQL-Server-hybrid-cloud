@@ -26,7 +26,7 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
 
 <!-- TOC -->
 
-- [Building a resilient IaaS architecture hands-on lab step-by-step](#building-a-resilient-iaas-architecture-hands-on-lab-step-by-step)
+- [SQL Server Hybrid Cloud hands-on lab step-by-step](#sql-server-hybrid-cloud-hands-on-lab-step-by-step)
   - [Abstract and learning objectives](#abstract-and-learning-objectives)
   - [Overview](#overview)
   - [Solution architecture](#solution-architecture)
@@ -39,13 +39,13 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 1: Identify tables that may benefit from Stretch DB](#task-1-identify-tables-that-may-benefit-from-stretch-db)
     - [Task 2: Implement Stretch DB on based on date key](#task-2-implement-stretch-db-on-based-on-date-key)
   - [Summary](#summary)
-  - [Exercise 3: Build SQL Availability Group for Database HADR](#exercise-3-build-sql-availability-group-for-database-hadr)
-    - [Task 1: Deploy SQL Always-On Cluster](#task-1-deploy-sql-always-on-cluster)
-    - [Task 2: Build a scalable and resilient web tier](#task-2-build-a-scalable-and-resilient-web-tier)
+  - [Exercise 3: Build SQL Availability Group for Database Disaster Recovery](#exercise-3-build-sql-availability-group-for-database-disaster-recovery)
+    - [Task 1: Create the cluster](#task-1-create-the-cluster)
+    - [Task 2: Create the SQL Server Availability Group](#task-2-create-the-sql-server-availability-group)
+    - [Task 3: Create the Internal Load Balancer](#task-3-create-the-internal-load-balancer)
     - [Summary](#summary-1)
   - [Exercise 4: Configure Azure Site Recovery to Web Tier DR](#exercise-4-configure-azure-site-recovery-to-web-tier-dr)
-    - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account-1)
-    - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server-1)
+    - [Task 1: Site Recovery Stuff](#task-1-site-recovery-stuff)
   - [Exercise 5: Validate resiliency](#exercise-5-validate-resiliency)
     - [Task 1: Validate resiliency for the CloudShop application](#task-1-validate-resiliency-for-the-cloudshop-application)
     - [Task 2: Validate SQL Always On](#task-2-validate-sql-always-on)
@@ -60,11 +60,11 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
 
 <!-- /TOC -->
 
-# Building a resilient IaaS architecture hands-on lab step-by-step 
+# SQL Server Hybrid Cloud hands-on lab step-by-step 
 
 ## Abstract and learning objectives 
 
-In this hands-on lab, you will build a disaster recovery site for an on-premises environment. You will enhance the existing database solution to support high availability on-premises, implement an archiving strategy and a backup/restore strategy.
+In this hands-on lab, you will build a disaster recovery site for an on-premises environment. You will enhance the existing database solution to support a hybrid cloud-based disaster recovery solution, implement an archiving strategy and a backup/restore strategy designed to protect data.
 
 At the end of the lab, you will be better able to design and use availability sets, Managed Disks, SQL Server Always on Availability Groups, Stretch DB and SQL Server Managed Backup.
 
@@ -135,7 +135,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     login-AzureRmAccount
     ```
 
-6.  Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script, change the $storageAcctName to a unique name.
+6.  Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script, change the **$storageAcctName** variable to a unique name.
 
     ```powershell
     $storageAcctName = "[unique storage account name]"
@@ -258,7 +258,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 4.  In the SQL Server Management Studio Object Explorer, connect to your local SQL Server instance and expand the Databases folder.
 
-5.  Right-click the AdventureWorksDW2016CTP3 database, select Tasks, select Stretch, then choose Enable.
+5.  Right-click the SmartHotel database, select Tasks, select Stretch, then choose Enable.
 
 6.  The Enable Database for Stretch wizard should open automatically. Click Next on the Introduction screen.
 
@@ -341,124 +341,278 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 ## Summary
 In this exercise, you implemented an archive solution with Stretch Database. First, you reviewed the table compatibility by using the Enable Database for Stretch wizard. You then configured your database and table via T-SQL to archive data satisfied by a stretch predicate. Finally, you reviewed the progress, status and space used locally and in Azure via the built-in management tools
 
-## Exercise 3: Build SQL Availability Group for Database HADR
+## Exercise 3: Build SQL Availability Group for Database Disaster Recovery
 
 Duration: 60 minutes
 
-In this exercise, you will deploy resilient web servers using VM scale sets and a SQL Always-On Cluster for resiliency at the data tier.
+In this exercise, you will build a SQL Always-On Cluster for resiliency of the data tier.
 
-### Task 1: Deploy SQL Always-On Cluster 
+### Task 1: Create the cluster
 
-In this task, you will deploy a SQL Always-On cluster using an ARM template that deploys to your existing Virtual Network and Active Directory infrastructure.
+1.  Launch a browser and navigate to <https://portal.azure.com>. Login 
+    with your Azure credentials if you haven't already.
 
-1.  Navigate to https://github.com/hansenms/iac/tree/master/sql-alwayson and click **Deploy to Azure** to deploy the template.
-   
-2.  Specify the following information
-   
-    Resource group:**CloudShopRG** 
-    
-    Location: **East US 2** 
-    
-    **Subnet Id**: Go to **resources.azure.com** then go to Subscription - Resource Group - ContosoRG - Providers - Microsoft.Network - VirtualNetworks - **Find subnet id for Data Subnet**. Copy the full subnet ID in between the **" "** quote.
+    > Note: You may need to launch an \"in-private\" session in your
+browser if you have multiple Microsoft Accounts.
 
-    Admin username **demouser**
-    Admin Password **demo@pass123**
-    Domain Name: contoso.com
+2.  Select **+Create a resource** 
 
-    Leave the rest of the template parameters with their default values.
+3.  Type **SQL Server 2016 SP2 on WS 2016** into the search box and select the SQL Server 2016 SP2
 
-    ![The custom deployment blade is displayed with CloudShopRG as the resource group and East US 2 as the location.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image126.png "Custom deployment")
-
-3.  Check the **I agree to the terms and conditions state above** checkbox on the page and click **Purchase**.
-
-    ![A screen with the checkbox for I agree to the terms and conditions checked and the purchase button highlighted.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/2018-08-27-20-21-18.png "Terms and Conditions")
-
-4.  Wait until the template deployment is complete before continuing. 
-
-    >**Note**: The deployment may take up to 30 minutes.
-
-    ![Screenshot of the successful deployment of sql tier.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/sqltierdeployment.png "Template deployment")
-
-5.  Open a remote desktop connection to the **SQL0** virtual machine you created in the previous task, and login using the **contoso\\demouser** account with the password **demo@pass123**.
-
-    ![Screenshot of the Connect icon.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image52.png "Connect icon")
-
-6.  Once connected, open the Windows Explorer, check to make sure the **F:\\** Drive is present.
-
-7.  open the **Failover Cluster Manager**, click connect to the cluster and type **SQLClusterAG**. Cluster manager will connect to the newly deployed Always on availability group. expand the cluster, select Nodes, validate all nodes are online and Assigned Vote and Current Vote are listed as "1" for all nodes of the cluster.
-
-    ![In Failover Cluster Manager, in the Nodes pane, two Nodes display: SQL0, SQL1. Their Assigned Votes and Current votes are all 1.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image76.png "Failover Cluster Manager")
-
-8.  Launch **SQL Server 2017 Configuration Manager** on **SQL0**.
-
-    ![SQL Server 2017 Configuration Manager is typed in the search field, and below, SQL Server 2016 Configuration Manager is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image77.png "Search field and results")
-
-9. Click **SQL Server Services**, right-click **SQL Server (MSSQLSERVER)**, and select **Properties**.
-
-    ![In SQL Server 2017 Configuration Manager, in the left pane, under SQL Server Configuration Manager (Local), SQL Server Services is selected. In the right pane, under Name, SQL Server (MSSQLSERVER) is selected, and Properties is selected from its right-click menu.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image78.png "SQL Server 2017 Configuration Manager")
-
-10. Select the **AlwaysOn High Availability** tab, make sure the box for **Enable AlwaysOn Availability Groups** is selected.
-
-    ![In the SQL Server (MSSQLSERVER) Properties dialog box, on the AlwaysOn High Availability tab, the Enable AlwaysOn Availability Groups checkbox is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image79.png "SQL Server (MSSQLSERVER) Properties dialog box")
-
-11. On the **Log On** tab, change the service account to **contoso\\demouser** using **demo\@pass123** for the password. Click **OK** to accept the changes, and click **Yes** to confirm the restart of the server.
-
-    ![In the SQL Server (MSSQLSERVER) Properties dialog box, on the Log On tab, in the Account Name field, contoso\\demouser is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image80.png "SQL Server (MSSQLSERVER) Properties dialog box")
-
-    ![On the Confirm Account Change pop-up, the Yes button is selected.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image81.png "Confirm Account Change pop-up")
-
-12. Minimize the RDP Window for **SQL0**.
-
-13. From the Azure portal, locate **SQL1**, and click **Connect.** Make sure to Sign On using the **contoso\\demouser** domain account.
-
-    ![On the Windows Security login page, the contoso\\demouser credentials are called out.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image82.png "Windows Security login page")
-
-14. From the RPD Session on **SQL1**, repeat steps to verify the configuration of **AlwaysOn High Availability** and **Log On** using SQL 2017 Configuration Manager.
-
-15. Move back to RDP session with **SQL0**.
-
-16. Launch **SQL Server Management Studio 17**, and connect to the local instance of SQL Server.
-
-17. Click **Connect** to login to SQL Server.
-
-    ![The Connect to Server dialog box displays.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/2018-08-28-19-36-49.png "Connect to Server dialog box")
-
-    >**Note**: Availability Groups require that the databases be in full recovery mode.
-
-18. Use the PowerShell or PowerShell ISE to deploy the cloudshop database by running the command below. Deploy-cloudshop-db.ps1 script is available in this github repository. The script will deploy the cloudshop database to the database servers. 
-    
-    >**Note**: You need to pass the parameters below with the PowerShell script. If you download the script from the url below in your local desktop or any drive, just copy and paste in your PowerShell window.
-    
-    https://github.com/opsgility/cw-building-resilient-iaas-architecture/tree/master/script-extensions 
-
-    
-    PS C:\Users\demouser.SQL0\Desktop> .\deploy-cloudshop-db.ps1  -user "demouser" -password "demo@pass123" -dbsource "https://cloudworkshop.blob.core.windows.net/building-resilient-iaas-architecture/AdventureWorks2012.bak" -sqlConfigUrl "https://raw.githubusercontent.com/opsgility/cw-building-resilient-iaas-architecture/master/script-extensions/configure-sql.ps1"
+4.  Repeat steps 2-3 on SQLVM-01 (your main VM in the lab player) and SQLVM-02.
 
 
-    >**Note**: You may need to wait few minutes to view the newly created adventureworks database in SSMS.
+5.  On SQLVM-01(your main VM in the lab player) Open the PowerShell ISE and execute the following code:
 
-20. In SSMS - Right click AdventureWorks database - Task - Back Up. Make sure **Backup type** and **Recovery Type** is **Full** selected. Click Ok to initiate the backup. 
+    ```
+    New-Cluster -Name CLUST-01 -Node SQLVM-01,SQLVM-02,WITNESSVM -StaticAddress 10.0.0.7
+    ```
 
-    ![New Database creation in Availability Group.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image02.png "Creating a new database")
+    This will create a three node cluster with a static IP address. It is also possible to use a wizard for this task but the resulting cluster will require additional configuration to set the static IP address to be viable in Azure. This is due to the manner in which Azure DHCP distributes IP addresses causing the cluster to receive the same IP address as the node it is executing on resulting in a duplicate IP address and failure of the cluster service.
+
+6.  Open the Failover Cluster Manager on SQVM-01 from the start menu under Winows Administrative Tools. In the right navigation right-click **Failover Cluster Manager** and click **Connect to Cluster**. Click OK in the pop-up. Expand the CLUST-01 cluster, select Nodes, validate that all nodes are online and that Assigned Vote and Current Vote are 1 for all nodes of the cluster.
+
+    ![](Exercise2images/media/image1.png)
+
+### Task 2: Create the SQL Server Availability Group
+
+1.  In SQLVM-01, launch **SQL Server 2016 Configuration Manager**.
+
+    ![](Exercise3images/media/image2.png)
+
+2.  Click **SQL Server Services**, then right-click **SQL Server
+    (MSSQLSERVER)** and select **Properties**.
+
+    ![](Exercise3images/media/image3.png)
+
+3.  Click on the **Log On** tab. To setup a SQL Server Availability
+    Group the SQL Server service account needs to have access to all of
+    the SQL Servers that will participate in the Availability Group.
+    Change the service account to the **CONTOSO\\demouser** domain
+    account using **Demo@pass123** for the password.
+
+    ![](Exercise3images/media/image4.png)
+
+4.  Select the **AlwaysOn High Availability** tab and check the box for
+    **Enable AlwaysOn Availability Groups**, then click **OK**, then
+    click **Yes** to confirm the account change.
+
+    ![](Exercise3images/media/image5.png)
+
+    ![](Exercise3images/media/image6.png)
+
+5.  Repeat steps 2-6 on **SQLVM-02**.
+
+6.  The database you will be replicating has its data files in the
+    C:\\SQLDATA folder on SQLVM-01. We need to create the same folder
+    structure on our secondary server, SQLVM-02. Login to **SQLVM-02**
+    and create the **C:\\SQLDATA** folder.
+
+7.  Open a remote desktop connection to the SQLVM-01 virtual machine and
+    login using the **CONTOSO\\demouser** account. Note that this
+    demouser account is the domain administrator account. You must type
+    the domain name in, otherwise you will be logged in with the local
+    administrator account.
+
+    ![](Exercise3images/media/image1.png)
+
+    ![](Exercise3images/media/image7.png)
+
+8.   Your SQL Server Availability Group will require a file share to be
+    used for the initial synchronization. Open up File Explorer and
+    create a new folder in the root of the C: drive called **AG**.
+    ![](Exercise3images/media/image8.png)
+
+9.   Right-click the new folder and select **Share with \> Specific
+    people...**
+
+10.  On the File Sharing window, select **Administrators** and click
+    **Share**, then click **Done**.
+    ![](Exercise3images/media/image9.png)
+
+11.  Launch **Microsoft** **SQL Server Management Studio** and connect to
+    the local instance of SQL Server.
+    ![](Exercise3images/media/image10.png)
+
+12.  Right-click **AlwaysOn High Availability** then select **New
+    Availability Group Wizard...**
+    ![](Exercise3images/media/image11.png)
+
+13. Click **Next** on the introduction screen.
+
+14. Specify **AdventureWorks** for the name of the availability group
+    and click Next
+
+    ![](Exercise3images/media/image12.png)
+
+15. Select the **AdventureWorksDW2016CTP3** database. The status of the
+    database should state that it \"Meets prerequisites\" meaning that
+    the database is in Full recovery mode.
+
+    ![](Exercise3images/media/image13.png)
+
+16. On the Replicas tab, click the **Add Replica...** button and connect
+    to SQLVM-02.
+
+    ![](Exercise3images/media/image14.png)
+
+17. Click on the **Listener** tab, select the **Create an availability
+    group listener** radio button, set the following values for the
+    listener, then click **Add**.
+
+    - Listener DNS Name: **adventureworks**
+
+    - Port: **1433**
+
+    - Network Mode: **Static IP**
+
+        ![](Exercise3images/media/image15.png)
+
+18. Use **10.0.0.8** for the IPv4 Address and click **OK**, then click
+    **Next**.
+
+    ![](Exercise3images/media/image16.png)
+
+19. Ensure that **Full** is selected and use **\\\\SQLVM-01\\ag** for
+    the network share. Click **Next** to continue.
+
+    ![](Exercise3images/media/image17.png)
+
+20. The validation tests will run automatically. They should all show
+    success. Click **Next**.
+
+    ![](Exercise3images/media/image18.png)
+
+21. Verify your configuration then click **Finish** to build the
+    Availability Group. Click **Close** after the wizard completes.
+
+    ![](Exercise3images/media/image19.png)
+
+### Task 3: Create the Internal Load Balancer
 
 
-21. Expand **AlwaysOn High Availability -\> Availability Groups**, right-click **Availability Databases** (Primary), - Add Database -  and select Adventure works and continue the prompt to add the database to the availability group. Once completed, Right click the **Availability Groups** - **Show Dashboard**. Your dashboard should look similar to this:
+1.  In the Azure Portal, navigate to the **OpsVMRmRG** resource group
+    and click **Add**.
 
-    ![On the Dashboard, a green Check mark displays next to AdventureWorksAG:  (Replica role: Primary). The Availability group state is Healthy, and Synchronization state for SQL0 SQL1, AdventureWorks SQL0 and AdventureWorks SQL1 is Synchronized.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image89.png "Dashboard")
+    ![](Exercise4images/media/image1.png)
 
-### Task 2: Build a scalable and resilient web tier
+2.  Type **Load Balancer** into the search bar then choose the **Load
+    Balancer** and click the **Create** button.
 
-In this task, you will deploy a highly available web servers. 
+    ![](Exercise4images/media/image2.png)
 
-1. Navigate to the URL https://github.com/opsgility/cw-building-resilient-iaas-architecture and click to **Deploy to Azure** on the sample for building a resilient IaaS Architecture - Deploy Web Tier.
-   
-2.  Specify the existing resource group **CloudShopRG**. 
+1.  On the Create load balancer blade, configure the following options,
+    then click **Create**:
 
-3.  **Subnet ID**: Go to **resources.azure.com** then go to Subscription - Resource Group - ContosoRG - Providers - Microsoft.Network - VirtualNetworks - **Find subnet id for App Subnet**. Copy the full subnet ID in between the **" "** quote.
+    - Name: **sqlag**
+    - Type: **Internal**
+    - Virtual network: **OpsTrainingVNET**
+    - Subnet: **Data**
+    - IP address assignment: **Static**
+    - Private IP address: **10.0.0.8**
+    - Subscription: ***\<the subscription you are using for this lab\>***
+    - Resource group: **OpsVMRmRG**
+    - Location: ***\<same location you have used for this lab\>***
 
-4.  Check the **I agree to the terms and conditions state above** checkbox on the page and click **Purchase**.
+4.  Navigate back to your resource group and select the **sqlag** load
+    balancer you just created.
 
-    >**Note**: It could take up to 30 minutes to deploy the environment.
+    ![](Exercise4images/media/image3.png)
+
+5.  On the sqlag load balancer blade, select **Backend Pools**, then
+    click the +Add button.
+
+    ![](Exercise4images/media/image4.png)
+
+6.  On the Add backend pool blade, use the following configurations:
+
+    - Name: **sqlpool**
+    - IP version: **IPv4** 
+    - Associated to: **Availability set**
+    - Availability set: **SQLAvSet**
+
+        ![](Exercise4images/media/image5.png)
+
+7.  Click the **+ Add a target network IP configuration** button.
+
+    ![](Exercise4images/media/image6.png)
+
+8.  Select **SQLVM-01** for the Target virtual machine, and select
+    **ipconfig1** (10.0.1.4) for the Network IP configuration.
+
+    ![](Exercise4images/media/image7.png)
+
+9.  Repeat steps 7-8 to add **SQLVM-02**. DO NOT ADD THE WITNESSVM to
+    the backend pool. Click OK then wait for the load balancer to
+    complete the update.
+
+10. On the sqlag load balancer blade, select **Health** **Probes** and
+    click the **+Add** button.
+
+    ![](Exercise4images/media/image8.png)
+
+11. On the Add health probe blade, use the following configuration
+    values then click **OK** and wait for the load balancer to complete
+    the update.
+
+    - Name: **sqlprobe** 
+    - Protocol: **TCP** 
+    - Port: **59999** 
+    - Interval: **5** 
+    - Unhealthy threshold: **2** 
+
+        ![](Exercise4images/media/image9.png)
+
+12. On the sqlag load balancer blade, select **Load balancing rules**
+    and then click the **+Add** button.
+
+    ![](Exercise4images/media/image10.png)
+
+13. On the Add load balancing rule blade, use the following
+    configuration values then click **OK** and wait for the load
+    balancer to complete the update.
+
+    - Name: **sqlrules**
+    - Frontend IP address: **10.0.0.8**
+    - Protocol: **TCP**
+    - Port: **1433**
+    - Backend port: **1433**
+    - Backend pool: **sqlpool**
+    - Probe: **sqlprobe**
+    - Session persistence: **None**
+    - Idle timeout: **4**
+    - Floating IP: **Enabled**
+
+        ![](Exercise4images/media/image11.png)
+
+14. Open an Administrative PowerShell ISE session on SQLVM-02.
+
+    ![](Exercise4images/media/image12.png)
+
+15. Copy the following PowerShell script to the script window and
+    execute it to configure your cluster for the probe port.
+
+    ```
+    $ClusterNetworkName = "Cluster Network 1" 
+
+    $IPResourceName = "AdventureWorks_10.0.0.8" 
+
+    $ILBIP = "10.0.0.8" 
+
+    Import-Module FailoverClusters
+
+    Get-ClusterResource $IPResourceName | Set-ClusterParameter -Multiple @{"Address"="$ILBIP";"ProbePort"="59999";"SubnetMask"="255.255.255.255";"Network"="$ClusterNetworkName";"EnableDhcp"=0}
+
+    Stop-ClusterResource -Name "AdventureWorks_10.0.0.8"
+
+    Start-ClusterResource -Name "AdventureWorks"
+    ```
+
+16. Connect to **SQLVM-01** and launch SQL Server Management Studio.
+
+17. Open a Server connection to the **adventureworks** listener endpoint to verify connectivity.
+
+    ![](Exercise4images/media/image13.png)
 
 ### Summary
 
@@ -470,110 +624,8 @@ Duration: 15 minutes
 
 In this exercise, you will configure SQL Server Managed Backup to back up to an Azure Storage Account.
 
-### Task 1: Create an Azure Storage Account
-
-In this task, you will add a 3rd node to the SQL Always-On deployment in a second region that you can then failover with Azure Site Recovery in the event of a failure in the primary region.
-
-1.  From **LABVM**, execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the AdventureWorks database.
-
-    ```powershell
-    $storageAcctName = "[unique storage account name]"
-
-    $resourceGroupName = "CloudShopRG"
-    $containerName= "backups"
-    $location = "East US 2"
-    $storageSkuName = "Standard_LRS"
-
-    "Creating Storage Account $storageAcctName"
-    $sa = New-AzureRmStorageAccount -ResourceGroupName $resourceGroupName  `
-        -Name $storageAcctName `
-        -Location $location `
-        -SkuName $storageSkuName 
-
-    $storageKey = (Get-AzureRmStorageAccountKey -Name $storageAcctName -ResourceGroupName $resourceGroupName )[0].Value
-    $context = New-AzureStorageContext -StorageAccountName $storageAcctName -StorageAccountKey $storageKey
-
-    Write-Host "Creating New Storage Container  $containerName" 
-    New-AzureStorageContainer -name $containerName -permission container -context $context
-
-    $fullSasToken = New-AzureStorageContainerSASToken -Name $containerName -Permission rwdl -FullUri -Context $context  
-    $containerUrl = $fullSasToken.Substring(0,$fullSasToken.IndexOf("?"))
-    $sasToken = $fullSasToken.Substring($fullSasToken.IndexOf("?")+1)
-
-    $enableManagedBackupScript = @"
-    --------------------
-    ---BEGIN TSQL Script
-    --------------------
-    CREATE CREDENTIAL [$containerUrl] 
-    WITH IDENTITY = 'Shared Access Signature', 
-         SECRET = '$sasToken' 
-
-    GO
-
-    EXEC msdb.managed_backup.sp_backup_config_basic   
-     @enable_backup = 1,   
-     @database_name = 'AdventureWorks',  
-     @container_url = '$containerUrl',   
-     @retention_days = 30
-       
-     --------------------
-     ---END TSQL Script
-     --------------------
-    "@
-
-    Write-Host $enableManagedBackupScript 
-    ```
-
-2.  Execute the code using PowerShell ISE. Make sure you change the **\$storageAcctName = \"\[unique storage account name\]\"** field to a unique storage account name across Azure prior to execution. 
-
-3.  Save the T-SQL code generated between the **Begin TSQL Script** and **End TSQL Script** in your PowerShell ISE output after execution into a notepad file. This code creates an identity using a Shared Access Signature (SAS) to a container in the storage account and configures managed backup when executed.
-
-### Task 2: Configure managed backup in SQL Server
-
-1.  Connect to **SQL0** using remote desktop and launch SQL Server Management Studio and connect to the database instance.
-
-2.  Right click on **SQL0**, and click **New Query**.
-
-    ![A screen showing how to launch the new query pane in SQL Server Management Studio.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image102.png "Launching the new query pane")
-
-3.  Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures. Refresh SQL Server Management Studio and if SQL Server Agent is stopped right click on it and click Start.
-
-    ```sql
-    EXEC sp_configure 'show advanced options', 1
-    GO
-    RECONFIGURE
-    GO
-    EXEC sp_configure 'Agent XPs', 1
-    GO
-    RECONFIGURE
-    GO
-    ```
-
-4.  Paste the T-SQL code you copied in the previous task into the query window replacing the existing code and click **Execute**. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
-
-5.  Paste the code into the query window replacing the existing code and click **Execute** to create a custom backup schedule.
-
-    ```sql
-    USE msdb;  
-    GO  
-    EXEC managed_backup.sp_backup_config_schedule   
-         @database_name =  'AdventureWorks'  
-        ,@scheduling_option = 'Custom'  
-        ,@full_backup_freq_type = 'Weekly'  
-        ,@days_of_week = 'Monday'  
-        ,@backup_begin_time =  '17:30'  
-        ,@backup_duration = '02:00'  
-        ,@log_backup_freq = '00:05'  
-    GO
-    ```
-6.  Execute the following tSQL in the query window to generate a backup on-demand. You can also specify Log for \@type.
-
-    ```sql
-    EXEC msdb.managed_backup.sp_backup_on_demand   
-    @database_name  = 'AdventureWorks',
-    @type ='Database'
-    ```
-    
+### Task 1: Site Recovery Stuff
+  
 ## Exercise 5: Validate resiliency
 
 ### Task 1: Validate resiliency for the CloudShop application 

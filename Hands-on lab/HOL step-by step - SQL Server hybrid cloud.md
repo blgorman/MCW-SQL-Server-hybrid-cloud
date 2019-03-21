@@ -383,7 +383,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
     ```
     SELECT COUNT(*) FROM [ResellerSales] WITH (REMOTE_DATA_ARCHIVE_OVERRIDE = REMOTE_ONLY)
     ```
-    
+
 ## Summary
 In this exercise, you implemented an archive solution with Stretch Database. First, you reviewed the table compatibility by using the Enable Database for Stretch wizard. You then configured your database and table via T-SQL to archive data satisfied by a stretch predicate. Finally, you reviewed the progress, status and space used locally and in Azure via the built-in management tools
 
@@ -391,7 +391,7 @@ In this exercise, you implemented an archive solution with Stretch Database. Fir
 
 Duration: 60 minutes
 
-In this exercise, you will build a SQL Always-On Cluster for resiliency of the data tier.
+In this exercise, you will build a hybrid-cloud SQL Always-On Cluster for resiliency of the data tier.
 
 ### Task 1: Create the cluster
 
@@ -401,22 +401,41 @@ In this exercise, you will build a SQL Always-On Cluster for resiliency of the d
     > Note: You may need to launch an \"in-private\" session in your
 browser if you have multiple Microsoft Accounts.
 
-2.  Select **+Create a resource** 
+2.  Navigate to your **DRsite** resource group and open your **sh360azsql2** virtual machine and connect to it via Remote Desktop.
 
-3.  Type **SQL Server 2016 SP2 on WS 2016** into the search box and select the SQL Server 2016 SP2
+3.  Login with the **sh360.local\demouser** domain account with password **demo@pass123**. Note that this is NOT the same account that you have been using, this is a domain account.
 
-4.  Repeat steps 2-3 on SQLVM-01 (your main VM in the lab player) and SQLVM-02.
+4.  Launch Server Manager if it does not start automatically. 
 
+5.  Select **Local Server** from the menu on the left and scroll down to **Roles and Features**, click the **Tasks** dropdown and select **Add Roles and Features** from the list.
 
-5.  On SQLVM-01(your main VM in the lab player) Open the PowerShell ISE and execute the following code:
+    ![Server Administrator Application with local server selected, and add roles and features selected in the tasks dropdown of the Roles and Features section.](images/hands-on-lab/2019-03-20-17-33-21.png "Adding Roles and Features")
+
+6.  On the **Before you begin** page, click **Next**.
+
+7.  On the **Select installation type** page, select **Role-based or feature-based installation** and click **Next**.
+
+8.  On the **Select destination server** page, select the current server and click **Next**.
+
+9.  On the **Select server roles** page, accept the defaults and click **Next**.
+
+10. On the **Select features** page, select **Failover Clustering**, then click **Add Features** on the popup and then click **Next**.
+
+    ![The add roles and features wizard with Failover Clustering selected on the select features page.](images/hands-on-lab/2019-03-20-17-48-43.png "Add Failover Clustering")
+
+11. On the **Confirm installation selections** page, click **Install**.
+
+12. Repeat the above steps to install Failover Clustering on your on-premises SQL Server (SMARTHOTELSQL1).
+
+3.  On sh360azsql2 Open the PowerShell ISE and execute the following code:
 
     ```
-    New-Cluster -Name CLUST-01 -Node SQLVM-01,SQLVM-02,WITNESSVM -StaticAddress 10.0.0.7
+    New-Cluster -Name CLUST01 -Node SQLVM-01,SQLVM-02 -StaticAddress 10.0.0.7
     ```
 
     This will create a three node cluster with a static IP address. It is also possible to use a wizard for this task but the resulting cluster will require additional configuration to set the static IP address to be viable in Azure. This is due to the manner in which Azure DHCP distributes IP addresses causing the cluster to receive the same IP address as the node it is executing on resulting in a duplicate IP address and failure of the cluster service.
 
-6.  Open the Failover Cluster Manager on SQVM-01 from the start menu under Winows Administrative Tools. In the right navigation right-click **Failover Cluster Manager** and click **Connect to Cluster**. Click OK in the pop-up. Expand the CLUST-01 cluster, select Nodes, validate that all nodes are online and that Assigned Vote and Current Vote are 1 for all nodes of the cluster.
+4.  Open the Failover Cluster Manager on SQVM-01 from the start menu under Winows Administrative Tools. In the right navigation right-click **Failover Cluster Manager** and click **Connect to Cluster**. Click OK in the pop-up. Expand the CLUST-01 cluster, select Nodes, validate that all nodes are online and that Assigned Vote and Current Vote are 1 for all nodes of the cluster.
 
     ![](Exercise2images/media/image1.png)
 
@@ -435,7 +454,7 @@ browser if you have multiple Microsoft Accounts.
     Group the SQL Server service account needs to have access to all of
     the SQL Servers that will participate in the Availability Group.
     Change the service account to the **CONTOSO\\demouser** domain
-    account using **Demo@pass123** for the password.
+    account using **demo@pass123** for the password.
 
     ![](Exercise3images/media/image4.png)
 

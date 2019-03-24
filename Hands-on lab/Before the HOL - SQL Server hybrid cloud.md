@@ -74,9 +74,11 @@ In this exercise, you deploy an on-premises environment and the Azure infrastruc
     <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopsgility%2Fcw-sql-hybrid-cloud%2Fmaster%2Fazure-deploy.json" rel="nofollow">
     <img src="https://camo.githubusercontent.com/9285dd3998997a0835869065bb15e5d500475034/687474703a2f2f617a7572656465706c6f792e6e65742f6465706c6f79627574746f6e2e706e67" data-canonical-src="http://azuredeploy.net/deploybutton.png" style="max-width:100%;"></a>
 
-6.  On the **Custom deployment** blade, select **Create new** under for the resource group and name the resource group ***OnPremises***. Accept the terms and conditions and click **Purchase**.
+6.  On the **Custom deployment** blade, select **Create new** under for the resource group and name the resource group ***CloudShop1***. Accept the terms and conditions and click **Purchase**.
    
-    ![The Azure custom deployments blade is shown. The setting for resource group has been changed to OnPremises and the I agree to the terms and conditions stated above checkbox has been checked. All other values have been left at the defaults.](images/before-the-hands-on-lab/2019-03-16-10-41-15.png "Custom deployment blade")
+    ![The Azure custom deployments blade is shown. The setting for resource group has been changed to CloudShop1 and the I agree to the terms and conditions stated above checkbox has been checked. All other values have been left at the defaults.](images/before-the-hands-on-lab/2019-03-16-10-41-15.png "Custom deployment blade")
+
+    > **Note**: Do not use a different resource group and do not change any of the values listed here or your lab will not deploy correctly.
 
 7. Wait for the deployment to complete. This may take up to 60 minutes.
 
@@ -98,18 +100,17 @@ In this exercise, you deploy an on-premises environment and the Azure infrastruc
 
 ### Task 3: Verify the website is operational 
 
-1.  In the Azure portal, navigate to the **OnPremises** resource group. 
+1.  In the Azure portal, navigate to the **CloudShop1** resource group. 
 
-2.  Open the **sh360tm** Traffic Manager resource.
+2.  Open the **CloudShopWeb** virtual machine resource.
 
-    ![Screen capture of the Traffic Manager icon from the Azure portal.](images/before-the-hands-on-lab/2019-03-16-13-10-40.png "Traffic Manager")
+3.  Copy the **public ip address**.
 
-3.  Copy the **DNS name**.
+    ![The CloudShopWeb virtual machine with the public ip address highlighted.](images/before-the-hands-on-lab/2019-03-24-17-22-38.png "Copy the public ip address of the web server")
 
-4.  Paste the DNS name into a web browser. You should see the smart hotel web page.
+4.  Paste the public ip address into a web browser. You should see the Cloud Shop web page.
 
-    ![Screen capture of the smart hotel web application showing the smart hotel logo in the upper left and a table of customer information covering the rest of the page.](images/before-the-hands-on-lab/2019-03-16-13-09-17.png "Smart Hotel")
-
+    ![The CloudShop web page.](images/before-the-hands-on-lab/2019-03-24-17-25-37.png "Cloud Shop")
 
 ## Summary
 

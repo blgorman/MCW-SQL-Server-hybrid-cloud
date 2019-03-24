@@ -29,8 +29,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
   - [Requirements](#requirements)
   - [Before the hands-on lab](#before-the-hands-on-lab)
     - [Task 1: Deploy the on-premises environment](#task-1-deploy-the-on-premises-environment)
-    - [Task 2: Deploy the Azure infrastructure to support your disaster recovery site](#task-2-deploy-the-azure-infrastructure-to-support-your-disaster-recovery-site)
-    - [Task 2: Verify on-premises virtual machines domain join status](#task-2-verify-on-premises-virtual-machines-domain-join-status)
+    - [Task 2: Verify virtual machines domain join status](#task-2-verify-virtual-machines-domain-join-status)
     - [Task 3: Verify the website is operational](#task-3-verify-the-website-is-operational)
   - [Summary](#summary)
 
@@ -60,71 +59,42 @@ In this exercise, you deploy an on-premises environment and the Azure infrastruc
 
     >**Note**: You may need to launch an \"in-private\" session in your browser if you have multiple Microsoft Accounts.
 
-2.  Click the **Deploy to Azure** button below. 
+2.  Click the **+ Create a resource** button, type **Resource group** into the search bar, and choose **Resource group** from the search results.
 
-    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fciphertxt%2Fcw-smart-hotel-360-iaas%2Fmaster%2Ftemplate%2FSmartHotelOnPrem.json" rel="nofollow">
+3.  On the resource group blade, click **Create**.
+
+4.  On the create a resource group blade, type **CloudShop2** for the name of the resource group and choose a region near you. Click **Review + Create**, then **Create**.
+
+    ![Resource group creation page of the Azure portal with the resource group name set to CloudShop2.](images/before-the-hands-on-lab/2019-03-24-14-40-03.png "Create a resource group")
+
+    > **Note**: DO NOT USE ANY OTHER NAME FOR THIS RESOURCE GROUP. Using any other resource group name will cause your deployment to fail.
+
+5.  Click the **Deploy to Azure** button below. 
+
+    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopsgility%2Fcw-sql-hybrid-cloud%2Fmaster%2Fazure-deploy.json" rel="nofollow">
     <img src="https://camo.githubusercontent.com/9285dd3998997a0835869065bb15e5d500475034/687474703a2f2f617a7572656465706c6f792e6e65742f6465706c6f79627574746f6e2e706e67" data-canonical-src="http://azuredeploy.net/deploybutton.png" style="max-width:100%;"></a>
 
-3.  On the **Custom deployment** blade, select **Create new** under for the resource group and name the resource group ***OnPremises***. Accept the terms and conditions and click **Purchase**.
+6.  On the **Custom deployment** blade, select **Create new** under for the resource group and name the resource group ***OnPremises***. Accept the terms and conditions and click **Purchase**.
    
     ![The Azure custom deployments blade is shown. The setting for resource group has been changed to OnPremises and the I agree to the terms and conditions stated above checkbox has been checked. All other values have been left at the defaults.](images/before-the-hands-on-lab/2019-03-16-10-41-15.png "Custom deployment blade")
 
-4. Wait for the deployment to complete. This may take up to 45 minutes.
+7. Wait for the deployment to complete. This may take up to 60 minutes.
 
-5. Login to the Hyper-V host server, **sh360host**, using **demouser** for the login account and **demo@pass123** for the password. This will launch a run-once script to configure the virtual machines which you will protect with your DR configuration in Azure. 
+### Task 2: Verify virtual machines domain join status 
 
-    > **Note**: You may continue with the next task while this completes.
+1.  From the Azure portal, navigate to the CloudShop1 resource group.
 
-### Task 2: Deploy the Azure infrastructure to support your disaster recovery site
+2.  Open your CloudShopWeb virtual machine and click **Connect** and login with account **demouser** and password **demo@pass123**.
 
-1.  Click the **Deploy to Azure** button below.
+3.  After a minute or so, the Server Manager application should launch on its own. 
 
-    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fciphertxt%2Fcw-smart-hotel-360-iaas%2Fmaster%2Ftemplate%2FSmartHotelCloud.json" rel="nofollow">
-    <img src="https://camo.githubusercontent.com/9285dd3998997a0835869065bb15e5d500475034/687474703a2f2f617a7572656465706c6f792e6e65742f6465706c6f79627574746f6e2e706e67" data-canonical-src="http://azuredeploy.net/deploybutton.png" style="max-width:100%;"></a>
+4.  Navigate to **Local Server** on the left side menu. Verify that the domain name is **contoso.com**
 
-2.  On the **Custom deployment** blade, select **Create new** under for the resource group and name the resource group ***DRsite***. Accept the terms and conditions and click **Purchase**.
+    ![The Windows Server Manager app is shown with Local Server selected and the domain highlighted. The domain name is contoso.com.](images/before-the-hands-on-lab/2019-03-16-11-57-38.png "Server Manager")
 
-    ![The Azure custom deployments blade is shown. The setting for resource group has been changed to DRsite and the I agree to the terms and conditions stated above checkbox has been checked. All other values have been left at the defaults.](images/before-the-hands-on-lab/2019-03-16-11-31-31.png "Custom deployment blade")
+5.  If the machine has not joined the domain, click **WORKGROUP** and then joining the contoso.com domain. When joining the domain, use the credentials **CONTOSO\demouser** with a password of **demo@pass123**.
 
-    > **Note**: If you used a different resource group name in the first deployment you will need to update it here as well.
-
-3.  Wait for the deployment to complete. This will take up to 25 minutes.
-
-### Task 2: Verify on-premises virtual machines domain join status 
-
-1.  Login to your Hyper-V host server, **sh360host**.
-
-2.  Launch the **Hyper-V Manager** application from within **sh360host**.
-
-3.  Connect to each of the three virtual machines. Login with credentials **Administrator** with a password of **demo@pass123**
-
-    ![The Windows Hyper-V Manager app is shown with the three virtual machines running.](images/before-the-hands-on-lab/2019-03-16-12-16-38.png "Hyper-v Manager")
-
-4.  After a minute or so, the Server Manager application should launch on its own. 
-
-5.  Navigate to **Local Server** on the left side menu. Verify that the domain name is **sh360.local**
-
-    ![The Windows Server Manager app is shown with Local Server selected and the domain highlighted. The domain name is sh360.local.](images/before-the-hands-on-lab/2019-03-16-11-57-38.png "Server Manager")
-
-6.  If the machine has not joined the domain, open a PowerShell ISE window. Copy and paste the following code into the script editor. Changing the value of **$vmToJoinIP** to reflect the IP address of this server.
-
-    ```
-    Write-Output "Configuring VMs..."
-    $vmToJoinIP = "192.168.0.N"
-    $localusername = "Administrator"
-    $password = ConvertTo-SecureString "demo@pass123" -AsPlainText -Force
-    $localcredential = New-Object System.Management.Automation.PSCredential ($localusername, $password)
-    $domainusername = "SH360\demouser"
-    $domaincredential = New-Object System.Management.Automation.PSCredential ($domainusername, $password)
-
-    Write-Output "Configuring VM at $vmToJoinIP..."
-    Invoke-Command -ComputerName "192.168.0.$i" -ScriptBlock { 
-    Add-Computer -DomainName "sh360.local" -Credential $Using:domaincredential -Restart -Force 
-    } -Credential $localcredential
-    Write-Output "Configuration complete"
-    ```
-
-7.  Repeat the above steps for the remaining servers.
+6.  Repeat the above steps for the remaining servers.
 
 ### Task 3: Verify the website is operational 
 

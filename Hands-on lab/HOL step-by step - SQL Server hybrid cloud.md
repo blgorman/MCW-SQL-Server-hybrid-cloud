@@ -116,13 +116,13 @@ Backups must be maintained offsite from the on-premises environment. The backups
 
 In this task, you will create an Azure Storage Account for use with SQL Managed Backup.
 
-1.  Connect to your Hyper-V host server by navigating to your **OnPremises** resource group and then connecting to the **sh360host** virtual machine.
+1.  Connect to your CloudShopSQL virtual machine by navigating to your **CloudShop1** resource group and then connecting to the **CloudShopSQL** virtual machine.
 
-2.  Launch the **Hyper-V Manager** application and connect to the SQL Server guest virtual machine.
+2.  Login with user name **demouser** and password **demo@pass123**.
 
 3.  Launch **Server Manager**, select **Local Server** from the menu on the left and verify that **IE Enhanced Security Configuration** is set to **Off**.
 
-    ![Server manager applciation with local server selected and IE Enhanced Security Configuration set to Off.](images/hands-on-lab/2019-03-16-14-00-37.png "Server Manager local server configuration")
+    ![Server manager application with local server selected and IE Enhanced Security Configuration set to Off.](images/hands-on-lab/2019-03-24-18-38-33.png "Server Manager local server configuration")
 
 4.  From within your SQL Server guest virtual machine, install Azure PowerShell by launching an **administrative PowerShell ISE session** and running the following command. Accept any warnings or authorization to install the components.
 
@@ -136,14 +136,14 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     login-AzureRmAccount
     ```
 
-6.  Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script, change the **$storageAcctName** variable to a unique name.
+6.  Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script, change the **$storageAcctName** variable to a unique name and change the location to match the location you are deploying into for this lab.
 
     ```powershell
     $storageAcctName = "[unique storage account name]"
 
-    $resourceGroupName = "DRsite"
+    $resourceGroupName = "CloudShop2"
     $containerName= "backups"
-    $location = "South Central US"
+    $location = "[choose the region you are using for this lab]"
     $storageSkuName = "Standard_LRS"
 
     "Creating Storage Account $storageAcctName"
@@ -174,7 +174,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
     EXEC msdb.managed_backup.sp_backup_config_basic   
      @enable_backup = 1,   
-     @database_name = 'SmartHotel.Registration',  
+     @database_name = 'AdventureWorks',  
      @container_url = '$containerUrl',   
      @retention_days = 30
        
@@ -202,7 +202,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
 3.  Refresh SQL Server Management Studio and if SQL Server Agent is stopped right click on it and click Start.
 
-    ![SQL Server Management Studio indicating the location of where to see the current status of the SQL Server Agent](images/hands-on-lab/2019-03-16-14-19-27.png "Management Studio" )
+    ![SQL Server Management Studio indicating the location of where to see the current status of the SQL Server Agent](images/hands-on-lab/2019-03-24-19-13-52.png "Management Studio")
 
 4. Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures. 
 
@@ -217,15 +217,15 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     GO
     ```
 
-4.  Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and click **Execute**. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
+5.  Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and click **Execute**. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
 
-5.  Paste the code below into the query window replacing the existing code and click **Execute** to create a custom backup schedule.
+6.  Paste the code below into the query window replacing the existing code and click **Execute** to create a custom backup schedule.
 
     ```sql
     USE msdb;  
     GO  
     EXEC managed_backup.sp_backup_config_schedule   
-         @database_name =  'SmartHotel.Registration'  
+         @database_name =  'AdventureWorks'  
         ,@scheduling_option = 'Custom'  
         ,@full_backup_freq_type = 'Weekly'  
         ,@days_of_week = 'Monday'  
@@ -234,15 +234,15 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
         ,@log_backup_freq = '00:05'  
     GO
     ```
-6.  Execute the following tSQL in the query window to generate a backup on-demand. You can also specify Log for \@type.
+7.  Execute the following tSQL in the query window to generate a backup on-demand. You can also specify Log for \@type.
 
     ```sql
     EXEC msdb.managed_backup.sp_backup_on_demand   
-    @database_name  = 'SmartHotel.Registration',
+    @database_name  = 'AdventureWorks',
     @type ='Database'
     ```
 
-7. To verify that your backups are working, go to the Azure portal, navigate to your **DRsite** resource group. Open the storage account you just created, select the **Blobs** tile, then the **backups** container. You should see your backups here.
+8. To verify that your backups are working, go to the Azure portal, navigate to your **CloudShop2** resource group. Open the storage account you just created, select the **Blobs** tile, then the **backups** container. You should see your backups here.
 
 ## Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database
 
@@ -252,58 +252,54 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 ### Task 1: Crete a logical SQL Server to host Stretch DB 
 
-1.  Connect to your Hyper-V host server by navigating to your **OnPremises** resource group and then connecting to the **sh360host** virtual machine.
+1.  From your **CloudShopSQL** virtual machine, launch a browser, navigate to the Azure portal and login with your Azure credentials.
 
-2.  Launch the Chrome and navigate to the Azure portal.
+2.  Click **+Create a resource** at the top of the left side menu.
 
-3.  Click **+Create a resource** at the top of the left side menu.
-
-4.  Type **SQL Server logical server** into the search box, hit enter and choose **SQL server (logical server)** from the search results.
+3.  Type **SQL Server logical server** into the search box, hit enter and choose **SQL server (logical server)** from the search results.
     ![Azure Marketplace search for SQL Server logical server](images/hands-on-lab/2019-03-20-11-38-42.png "Search for SQL Server logical server")
 
-5. Click **Create** on the SQL Server (logical server) information blade.
-6. On the SQL Server (logical server) blade, use the following configurations and click **Create**.
+4. Click **Create** on the SQL Server (logical server) information blade.
+5. On the SQL Server (logical server) blade, use the following configurations and click **Create**.
 
     - Server name: ***Choose a unique server name***
     - Server admin login: **demouser**
     - Password: **demo@pass123**
     - Subscription: ***Your subscription***
-    - Resource group: **DRsite**
+    - Resource group: **CloudShop2**
     - Location: ***Use the same location you have been using***
     - Allow Azure Services: ***Checked***
 
-        ![](images/hands-on-lab/2019-03-20-11-44-41.png)
+        ![The SQL Server logical server creation blade with the configurations listed previously set to the correct values.](images/hands-on-lab/2019-03-24-19-31-07.png "Create a SQL Server logical server")
 
-7. Make note of the server name you chose above. It will be used in a later task.
-8. After the SQL Server logical server has deployed, navigate to it and select **Firewalls and virtual networks** from the security menu on the left.
+6. Make note of the server name you chose above. It will be used in a later task.
+
+7. After the SQL Server logical server has deployed, navigate to it and select **Firewalls and virtual networks** from the security menu on the left.
 
     ![Security menu with Firewalls and virtual networks highlighted.](images/hands-on-lab/2019-03-20-11-56-21.png "Security menu")
 
-9. Add a new firewall rule by clicking **+Add client IP** and then clicking **Save**.
+8. Add a new firewall rule by clicking **+Add client IP** and then clicking **Save**.
 
     ![](images/hands-on-lab/2019-03-20-12-01-55.png "Firewall configuration")
 
 ### Task 2: Identify tables that may benefit from Stretch DB 
 
-1.  Connect to your Hyper-V host server by navigating to your **OnPremises** resource group and then connecting to the **sh360host** virtual machine.
+1.  From your **CloudShopSQL** virtual machine, launch SQL Server Management Studio if it is not already open.
 
-2.  Launch the **Hyper-V Manager** application and connect to the SQL Server guest virtual machine.
+2.  In the SQL Server Management Studio Object Explorer, connect to your local SQL Server instance and expand the Databases folder.
 
-3.  Launch SQL Server Management Studio.
+3.  Right-click the AdventureWorks database, select Tasks, select Stretch, then choose Enable.
 
-4.  In the SQL Server Management Studio Object Explorer, connect to your local SQL Server instance and expand the Databases folder.
+    ![SQL Server Management Studio Object Explorer with the Smart Hotel right-click menu open, tasks is highlighted then stretch is highlighted and Enable is selected.](images/hands-on-lab/2019-03-24-19-38-01.png "Enable Stretch Database")
 
-5.  Right-click the SmartHotel.Registration database, select Tasks, select Stretch, then choose Enable.
+4.  The Enable Database for Stretch wizard should open automatically. Click **Next** on the Introduction screen.
 
-    ![SQL Server Management Studio Object Explorer with the Smart Hotel right-click menu open, tasks is highlighted then stretch is highlighted and Enable is selected.](images/hands-on-lab/2019-03-20-11-22-09.png "Enable Stretch Database")
-
-6.  The Enable Database for Stretch wizard should open automatically. Click **Next** on the Introduction screen.
-
-7.  On the Select tables window all of your tables will be listed. Notice that some tables have warnings and some may be greyed out. Click on the warning icon next to the Bookings table. This warning indicates that the table does not meet the StretchDB eligibility requirements.
+5.  On the Select tables window all of your tables will be listed. Notice that some tables have warnings and some may be greyed out. Click on the warning icon next to the Bookings table. This warning indicates that the table does not meet the StretchDB eligibility requirements.
 
     ![Stretch Database Wizard showing error for the bookings table](images/hands-on-lab/2019-03-20-11-26-55.png "Stretch Database wizard")
+    ![Stretch Database Wizard showing error for the bookings table](images/hands-on-lab/2019-03-24-19-40-15.png "Stretch Database wizard")
 
-8.  Scroll to the right until you see the Migrate column. Clicking Entire Table on an eligable table allows you to define which rows will be migrated to Azure. In this lab we are going to configure this through TSQL. Click Cancel to break out of the wizard.
+6.  Scroll to the right until you see the Migrate column. Clicking Entire Table on an eligable table allows you to define which rows will be migrated to Azure. In this lab we are going to configure this through TSQL. Click Cancel to break out of the wizard.
 
 ### Task 3: Implement Stretch DB on based on date key  
 

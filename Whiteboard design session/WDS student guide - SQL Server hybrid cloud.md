@@ -101,7 +101,7 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 5.  Data encryption solution that encrypts only PCI data at the application and database level.
 
-6.  Key management solution that does not expose the unencrypted keys to unauthorized personnel (including DBAs and Developers) and allows for key management by the security administration team.
+6.  Key management solution that does not expose the unencrypted keys to unauthorized personnel (including database administrators and developers) and allows for key management by the security administration team.
 
 7.  Data archiving to keep database sizes more manageable and reduce the amount of time needed for database maintenance.
 
@@ -119,9 +119,11 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 5.  The disaster recovery sites must be highly available after a failover.
 
-6.  Archive solution must not impact the current applications that periodically pull historical data from the production system.
+6.  We have seen some documentation surrounding the use of Availability Zones in Azure. What does Availability Zones provide over and above Availability Sets? Would this be a good option for us?
 
-7.  We need to be able to backup databases both on-premises and in the cloud. How will your backup solution support this?
+7.  Archive solution must not impact the current applications that periodically pull historical data from the production system.
+
+8.  We need to be able to backup databases both on-premises and in the cloud. How will your backup solution support this?
 
 ### Infographic for common scenarios
 

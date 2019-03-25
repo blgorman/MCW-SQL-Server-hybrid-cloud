@@ -38,7 +38,7 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
   - [Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-2-implement-a-data-archive-strategy-with-sql-server-stretch-database)
     - [Task 1: Crete a logical SQL Server to host Stretch DB](#task-1-crete-a-logical-sql-server-to-host-stretch-db)
     - [Task 2: Identify tables that may benefit from Stretch DB](#task-2-identify-tables-that-may-benefit-from-stretch-db)
-    - [Task 3: Implement Stretch DB on based on date key](#task-3-implement-stretch-db-on-based-on-date-key)
+    - [Task 3: Implement Stretch DB based on date key](#task-3-implement-stretch-db-based-on-date-key)
   - [Summary](#summary)
   - [Exercise 3: Build SQL Availability Group for Database Disaster Recovery](#exercise-3-build-sql-availability-group-for-database-disaster-recovery)
     - [Task 1: Create the cluster](#task-1-create-the-cluster)
@@ -294,14 +294,13 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 4.  The Enable Database for Stretch wizard should open automatically. Click **Next** on the Introduction screen.
 
-5.  On the Select tables window all of your tables will be listed. Notice that some tables have warnings and some may be greyed out. Click on the warning icon next to the Bookings table. This warning indicates that the table does not meet the StretchDB eligibility requirements.
+5.  On the Select tables window all of your tables will be listed. Notice that some tables have warnings and some may be greyed out. Click on the warning icon next to one of the tables. This indicates that the table does not meet the StretchDB eligibility requirements.
 
-    ![Stretch Database Wizard showing error for the bookings table](images/hands-on-lab/2019-03-20-11-26-55.png "Stretch Database wizard")
-    ![Stretch Database Wizard showing error for the bookings table](images/hands-on-lab/2019-03-24-19-40-15.png "Stretch Database wizard")
+    ![Stretch Database Wizard showing error for a table](images/hands-on-lab/2019-03-24-19-40-15.png "Stretch Database wizard")
 
-6.  Scroll to the right until you see the Migrate column. Clicking Entire Table on an eligable table allows you to define which rows will be migrated to Azure. In this lab we are going to configure this through TSQL. Click Cancel to break out of the wizard.
+6.  Scroll to the right until you see the Migrate column. Clicking Entire Table on an eligible table allows you to define which rows will be migrated to Azure. In this lab, we are going to configure Stretch Database through TSQL. Click Cancel to break out of the wizard.
 
-### Task 3: Implement Stretch DB on based on date key  
+### Task 3: Implement Stretch DB based on date key  
 
 1.  Launch a new Query tab and execute the following code to prepare the server and the database for Stretch Database. 
 
@@ -313,7 +312,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
     GO
 
     --Create a database master key to encrypt the data stored in Azure
-    USE [SmartHotel.Registration]
+    USE [AdventureWorks]
     GO
     CREATE MASTER KEY ENCRYPTION BY PASSWORD='demo@pass123'
     GO
@@ -329,11 +328,11 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
     ```
     --Enable the local database for stretch
     --You must change your server name to match your environment
-    ALTER DATABASE [SmartHotel.Registration]
+    ALTER DATABASE [AdventureWorks]
     SET REMOTE_DATA_ARCHIVE = ON (SERVER = N'<your server name>.database.windows.net', CREDENTIAL = StretchDB )
     ```
 
-3.  Execute the following code to create the stretch predicate. The stretch predicate allows us to define the conditions under which a row will be stretched. In this case the function leverages a date key column to stretch any rows prior to January 1, 2014. 
+3.  Execute the following code to create the stretch predicate. The stretch predicate allows us to define the conditions under which a row will be stretched. In this case the function leverages a date key column to stretch any rows prior to January 1, 2002. 
 
     ```
     --Create the stretch predicate
@@ -350,17 +349,18 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
     ```
     --Enable stretch on the table using the stretch predicate with the OrderDateKey
-    ALTER TABLE ResellerSales 
+    ALTER TABLE Sales.ResellerSales 
     SET ( REMOTE_DATA_ARCHIVE = ON (
 	    FILTER_PREDICATE = dbo.fn_stretch_datekey_predicate([OrderDateKey]),
 	    MIGRATION_STATE = OUTBOUND
     ) )
+    ```
 
-5. Refresh the SmartHotel.Registration database in Object Explorer by right clicking it and choosing Refresh.
+5. Refresh the AdventureWorks database in Object Explorer by right clicking it and choosing Refresh.
 
-6. Right-click the SmartHotel.Registration database, choose Tasks, Stretch, then select Monitor
+6. Right-click the AdventureWorks database, choose Tasks, Stretch, then select Monitor
 
-7. View the stretch database report. Note that over time the Eligible Rows, Local Rows, and Rows In Azure numbers will change.
+7. View the stretch database report. Note that over time the Eligible Rows, Local Rows, and Rows In Azure numbers will change as data is migrated to your Stretch Database in Azure.
 
     ![](images/hands-on-lab/2019-03-20-12-21-30.png)
 
@@ -369,15 +369,15 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 9.	Launch a new Query tab and execute the following code to programatically monitor space used in Azure and locally.
 
     ```
-    sp_spaceused 'ResellerSales', @mode = 'REMOTE_ONLY'
+    sp_spaceused 'Sales.ResellerSales', @mode = 'REMOTE_ONLY'
     GO
-    sp_spaceused 'ResellerSales', @mode = 'LOCAL_ONLY'
+    sp_spaceused 'Sales.ResellerSales', @mode = 'LOCAL_ONLY'
     GO
     ```
 10. You may also change the scope of a query.
 
     ```
-    SELECT COUNT(*) FROM [ResellerSales] WITH (REMOTE_DATA_ARCHIVE_OVERRIDE = REMOTE_ONLY)
+    SELECT COUNT(*) FROM [Sales].[ResellerSales] WITH (REMOTE_DATA_ARCHIVE_OVERRIDE = REMOTE_ONLY)
     ```
 
 ## Summary

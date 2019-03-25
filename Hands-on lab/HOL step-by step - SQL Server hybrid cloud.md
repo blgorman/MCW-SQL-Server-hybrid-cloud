@@ -391,15 +391,17 @@ In this exercise, you will build a hybrid-cloud SQL Always-On Cluster for resili
 
 ### Task 1: Create the cluster
 
+In this task, you will create the underlying Windows Failover Cluster which is the base of your SQL Server Availability Group. You will begin by logging in with an account with administrative privileges on all of the prospective nodes of the cluster, and running a Failover Cluster Validation test. This test verifies that all of the nodes of your cluster are properly configured to support clustering and will flag any best practices that you may not be adhering to in your configuration. Finally, you will create the cluster across the three nodes of you cluster.
+
 1.  Launch a browser and navigate to <https://portal.azure.com>. Login 
     with your Azure credentials if you haven't already.
 
     > Note: You may need to launch an \"in-private\" session in your
 browser if you have multiple Microsoft Accounts.
 
-2.  Navigate to your **DRsite** resource group and open your **sh360azsql2** virtual machine and connect to it via Remote Desktop.
+2.  Navigate to your **CloudShop1** resource group and open your **CloudShopSQL** virtual machine and connect to it via Remote Desktop.
 
-3.  Login with the **sh360.local\demouser** domain account with password **demo@pass123**. Note that this is NOT the same account that you have been using, this is a domain account.
+3.  Login with the **CONTOSO\demouser** domain account with password **demo@pass123**. Note that this is NOT the same account that you have been using, this is a domain account.
 
 4.  Launch Server Manager if it does not start automatically. 
 
@@ -417,107 +419,133 @@ browser if you have multiple Microsoft Accounts.
 
 10. On the **Select features** page, select **Failover Clustering**, then click **Add Features** on the popup and then click **Next**.
 
-    ![The add roles and features wizard with Failover Clustering selected on the select features page.](images/hands-on-lab/2019-03-20-17-48-43.png "Add Failover Clustering")
+    ![The add roles and features wizard with Failover Clustering selected on the select features page.](images/hands-on-lab/2019-03-24-20-03-47.png "Add Failover Clustering")
 
 11. On the **Confirm installation selections** page, click **Install**.
 
-12. Repeat the above steps to install Failover Clustering on your on-premises SQL Server (SMARTHOTELSQL1).
+12. Repeat the above steps to install Failover Clustering on your remainging SQL Servers (CloudShopSQL2 and CloudShopSQL3).
 
-3.  On sh360azsql2 Open the PowerShell ISE and execute the following code:
+13. From CloudShopSQL, open **Administrative Tools** and then launch **Failover Cluster Manager**.
+
+14. From the Actions pane on the right, choose **Validate Configuration**.
+
+    ![The Failover Cluster Manager with Validate Configuration highlighted.](images/hands-on-lab/2019-03-24-20-17-48.png "Failover Cluster Manager")
+
+15. Click **Next** on the Before You Begin window.
+
+16. On the Select Servers or a Cluster window, enter **CloudShopSQL** and then click the **Add** button. Repeat for **CloudShopSQL2** and **CloudShopSQL3** then click **Next**.
+
+    ![The select servers or a cluster window with CloudShopSQL, CloudShopSQL2 and CloudShopSQL3 added to the selected servers.](images/hands-on-lab/2019-03-24-20-23-55.png "Validate a Configuration Wizard")
+
+16. On the Testing Options window, select the **Run only tests I select** radio button and click **Next**
+
+    ![The testing options window with run only tests I select selected](images/hands-on-lab/2019-03-24-20-31-41.png "Validate a Configuration Wizard")
+
+17. On the Test selection window, uncheck storage. The storage tests have no relevance for our case and will only throw additional warnings.
+
+    ![The test selection window with the storage tests unchecked.](images/hands-on-lab/2019-03-24-20-34-43.png "Validate a Configuration Wizard")
+
+18. On the Confirmation window, click **Next** to begin the validation tests.
+
+19. Review the output of the tests by clicking the **View Report** button. This validation test aids you in determining if your server and network configuration is correctly configured for Windows Failover Clustering. You should review any warnings or errors. In our case, the environment was preconfigured to support clustering so there should be no errors. There may be warnings regarding best practices such as multiple network cards etc. In a production environment these warnings must be taken seriously as they may adversely effect the performance and reliability of the cluster. In our lab they will have a negligible impact.
+
+20. Click **Finish** on the Validate a Configuration Wizard.
+
+21. On CloudShopSQL, open the PowerShell ISE and execute the following code:
 
     ```
-    New-Cluster -Name CLUST01 -Node SQLVM-01,SQLVM-02 -StaticAddress 10.0.0.7
+    New-Cluster -Name CLUST01 -Node CloudShopSQL, CloudShopSQL2, CloudShopSQl3 -StaticAddress 10.0.1.7, 172.16.1.7  -NoStorage
     ```
+    > **Note**: This command requires that you are logged in with an account that is an administrator on all nodes specified. For this lab you should use **CONTOSO\demouser**.
 
-    This will create a three node cluster with a static IP address. It is also possible to use a wizard for this task but the resulting cluster will require additional configuration to set the static IP address to be viable in Azure. This is due to the manner in which Azure DHCP distributes IP addresses causing the cluster to receive the same IP address as the node it is executing on resulting in a duplicate IP address and failure of the cluster service.
+    This will create a three node cluster with two static IP addresses. We need two static IP addresses because the cluster may be running from our on-premises environment (CloudShop1) or our cloud disaster recovery environment (CloudShop2).  
+    
+    It is also possible to use a wizard for this task but the resulting cluster will require additional configuration to set the static IP addresses to be viable in Azure. This is due to the manner in which Azure distributes IP addresses causing the cluster to receive the same IP address as the node it is executing on resulting in a duplicate IP address and failure of the cluster service.
 
-4.  Open the Failover Cluster Manager on SQVM-01 from the start menu under Winows Administrative Tools. In the right navigation right-click **Failover Cluster Manager** and click **Connect to Cluster**. Click OK in the pop-up. Expand the CLUST-01 cluster, select Nodes, validate that all nodes are online and that Assigned Vote and Current Vote are 1 for all nodes of the cluster.
+22. Open the Failover Cluster Manager on CloudShopSQL from the start menu under Winows Administrative Tools. In the right navigation right-click **Failover Cluster Manager** and click **Connect to Cluster**. Click OK in the pop-up. Expand the **CLUST01** cluster, select **Nodes**, validate that all nodes are online and that Assigned Vote and Current Vote are 1 for all nodes of the cluster.
 
-    ![](Exercise2images/media/image1.png)
+    ![Failover Cluster Manager with CLUST01 selected, Nodes selected, and all three nodes of the cluster showing online with 1 assigned and 1 current vote.](images/hands-on-lab/2019-03-24-21-22-18.png "Nodes view of Failover Cluster Manager")
 
 ### Task 2: Create the SQL Server Availability Group
 
-1.  In SQLVM-01, launch **SQL Server 2016 Configuration Manager**.
+1.  On CloudShopSQL, launch **SQL Server 2017 Configuration Manager**.
 
-    ![](Exercise3images/media/image2.png)
-
-2.  Click **SQL Server Services**, then right-click **SQL Server
+2.  Select **SQL Server Services**, then right-click **SQL Server
     (MSSQLSERVER)** and select **Properties**.
 
-    ![](Exercise3images/media/image3.png)
+    ![SQL Server Configuration Manager with SQL Server Services selected and SQL Server service highlighted.](images/hands-on-lab/2019-03-24-21-31-48.png "SQL Server Configuration Manager")
 
 3.  Click on the **Log On** tab. To setup a SQL Server Availability
-    Group the SQL Server service account needs to have access to all of
+    Group, the SQL Server service account needs to have access to all of
     the SQL Servers that will participate in the Availability Group.
     Change the service account to the **CONTOSO\\demouser** domain
     account using **demo@pass123** for the password.
 
-    ![](Exercise3images/media/image4.png)
+    ![SQL Server Properties is shown with the account set to the CONTOSO\demouser domain account.](images/hands-on-lab/2019-03-24-21-35-08.png "SQL Server Login Properties")
 
 4.  Select the **AlwaysOn High Availability** tab and check the box for
     **Enable AlwaysOn Availability Groups**, then click **OK**, then
     click **Yes** to confirm the account change.
 
-    ![](Exercise3images/media/image5.png)
+    ![SQL Server Properties is shown with Enable AlwaysOn High Availability Groups selected.](images/hands-on-lab/2019-03-24-21-37-08.png "SQL Server AlwaysOn High Availability Properties")
 
-    ![](Exercise3images/media/image6.png)
+5.  Restart the SQL Server service by right-clicking the service and choosing **Restart**.
 
-5.  Repeat steps 2-6 on **SQLVM-02**.
+    ![SQL Server Configuration Manager with SQL Server Services selected and the SQL Server service being restarted.](images/hands-on-lab/2019-03-24-21-40-59.png "Restart the SQL Server service")
 
-6.  The database you will be replicating has its data files in the
-    C:\\SQLDATA folder on SQLVM-01. We need to create the same folder
-    structure on our secondary server, SQLVM-02. Login to **SQLVM-02**
-    and create the **C:\\SQLDATA** folder.
+6.  Repeat this configuration for **CloudShopSQL2** and **CloudShopSQL3**.
 
-7.  Open a remote desktop connection to the SQLVM-01 virtual machine and
+7.  The database you will be replicating has its data and log files in the
+    C:\\Data folder and the C:\\Log folder on CloudShopSQL. We need to verify that the same folder
+    structure exists on our secondary servers, CloudShopSQL2 and CloudShopSQL3. Login to **CloudShopSQL2** and **CloudShopSQL3**
+    and verify that these folders exist. If they do not exist, create them.
+
+8.  Open a remote desktop connection to the CloudShopSQL virtual machine and
     login using the **CONTOSO\\demouser** account. Note that this
     demouser account is the domain administrator account. You must type
     the domain name in, otherwise you will be logged in with the local
     administrator account.
 
-    ![](Exercise3images/media/image1.png)
-
-    ![](Exercise3images/media/image7.png)
-
-8.   Your SQL Server Availability Group will require a file share to be
+9.   Your SQL Server Availability Group will require a file share to be
     used for the initial synchronization. Open up File Explorer and
     create a new folder in the root of the C: drive called **AG**.
-    ![](Exercise3images/media/image8.png)
 
-9.   Right-click the new folder and select **Share with \> Specific
+10. Right-click the new folder and select **Share with \> Specific
     people...**
+    
+    ![File Explorer is shown with the right-click menu of the AG folder with Share with specific people highlighted.](images/hands-on-lab/2019-03-24-21-57-15.png "File Explorer")
 
-10.  On the File Sharing window, select **Administrators** and click
+11. On the File Sharing window, select **Administrators** and click
     **Share**, then click **Done**.
     ![](Exercise3images/media/image9.png)
 
-11.  Launch **Microsoft** **SQL Server Management Studio** and connect to
+12. Launch **Microsoft** **SQL Server Management Studio** and connect to
     the local instance of SQL Server.
     ![](Exercise3images/media/image10.png)
 
-12.  Right-click **AlwaysOn High Availability** then select **New
+13. Right-click **AlwaysOn High Availability** then select **New
     Availability Group Wizard...**
     ![](Exercise3images/media/image11.png)
 
-13. Click **Next** on the introduction screen.
+14. Click **Next** on the introduction screen.
 
-14. Specify **AdventureWorks** for the name of the availability group
+15. Specify **AdventureWorks** for the name of the availability group
     and click Next
 
     ![](Exercise3images/media/image12.png)
 
-15. Select the **AdventureWorksDW2016CTP3** database. The status of the
+16. Select the **AdventureWorksDW2016CTP3** database. The status of the
     database should state that it \"Meets prerequisites\" meaning that
     the database is in Full recovery mode.
 
     ![](Exercise3images/media/image13.png)
 
-16. On the Replicas tab, click the **Add Replica...** button and connect
-    to SQLVM-02.
+17. On the Replicas tab, click the **Add Replica...** button and connect
+    to CloudShopSQL2.
 
     ![](Exercise3images/media/image14.png)
 
-17. Click on the **Listener** tab, select the **Create an availability
+18. Click on the **Listener** tab, select the **Create an availability
     group listener** radio button, set the following values for the
     listener, then click **Add**.
 
@@ -529,22 +557,22 @@ browser if you have multiple Microsoft Accounts.
 
         ![](Exercise3images/media/image15.png)
 
-18. Use **10.0.0.8** for the IPv4 Address and click **OK**, then click
+19. Use **10.0.0.8** for the IPv4 Address and click **OK**, then click
     **Next**.
 
     ![](Exercise3images/media/image16.png)
 
-19. Ensure that **Full** is selected and use **\\\\SQLVM-01\\ag** for
+20. Ensure that **Full** is selected and use **\\\\CloudShopSQL\\ag** for
     the network share. Click **Next** to continue.
 
     ![](Exercise3images/media/image17.png)
 
-20. The validation tests will run automatically. They should all show
+21. The validation tests will run automatically. They should all show
     success. Click **Next**.
 
     ![](Exercise3images/media/image18.png)
 
-21. Verify your configuration then click **Finish** to build the
+22. Verify your configuration then click **Finish** to build the
     Availability Group. Click **Close** after the wizard completes.
 
     ![](Exercise3images/media/image19.png)
@@ -598,12 +626,12 @@ browser if you have multiple Microsoft Accounts.
 
     ![](Exercise4images/media/image6.png)
 
-8.  Select **SQLVM-01** for the Target virtual machine, and select
+8.  Select **CloudShopSQL** for the Target virtual machine, and select
     **ipconfig1** (10.0.1.4) for the Network IP configuration.
 
     ![](Exercise4images/media/image7.png)
 
-9.  Repeat steps 7-8 to add **SQLVM-02**. DO NOT ADD THE WITNESSVM to
+9.  Repeat steps 7-8 to add **CloudShopSQL2**. DO NOT ADD THE WITNESSVM to
     the backend pool. Click OK then wait for the load balancer to
     complete the update.
 
@@ -646,7 +674,7 @@ browser if you have multiple Microsoft Accounts.
 
         ![](Exercise4images/media/image11.png)
 
-14. Open an Administrative PowerShell ISE session on SQLVM-02.
+14. Open an Administrative PowerShell ISE session on CloudShopSQL2.
 
     ![](Exercise4images/media/image12.png)
 
@@ -669,7 +697,7 @@ browser if you have multiple Microsoft Accounts.
     Start-ClusterResource -Name "AdventureWorks"
     ```
 
-16. Connect to **SQLVM-01** and launch SQL Server Management Studio.
+16. Connect to **CloudShopSQL** and launch SQL Server Management Studio.
 
 17. Open a Server connection to the **adventureworks** listener endpoint to verify connectivity.
 

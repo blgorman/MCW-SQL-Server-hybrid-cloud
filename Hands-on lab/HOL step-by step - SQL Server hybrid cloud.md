@@ -546,53 +546,49 @@ browser if you have multiple Microsoft Accounts.
 
     ![Specify the availability group options is shown with the availability group name set to AdventureWorks.](images/hands-on-lab/2019-03-24-22-24-47.png "Specify the name of the availability group")
 
-20. Select the **AdventureWorksDW2016CTP3** database. The status of the
-    database should state that it \"Meets prerequisites\" meaning that
-    the database is in Full recovery mode.
+20. Double-click the password field next to the **AdventureWorks** database and enter the password **demo@pass123** and click **Refresh**. The status of the
+    database should state that it \"Meets prerequisites\" meaning that the database is in Full recovery mode and that you have supplied the correct password for the database master key. Click **Next**.
 
-    ![](Exercise3images/media/image13.png)
+    ![AdventureWorks database is selected, the status shows that it meets prerequisites and the password has been filled in.](images/hands-on-lab/2019-03-24-23-02-02.png "Select database")
 
-21. On the Replicas tab, click the **Add Replica...** button and connect
-    to CloudShopSQL2.
+21. On the Specify Replicas tab, click the **Add Replica...** button and connect
+    to CloudShopSQL2 and CloudShopSQL3.
 
-    ![](Exercise3images/media/image14.png)
+    ![The Specify Replicas window is shown, the add replica button has been clicked and the connection shows a new connection to CloudShopSQL being established.](images/hands-on-lab/2019-03-24-23-05-41.png "Specify Replicas")
 
 22. Click on the **Listener** tab, select the **Create an availability
     group listener** radio button, set the following values for the
     listener, then click **Add**.
 
-    - Listener DNS Name: **adventureworks**
+    - Listener DNS Name: **AdventureWorks**
 
     - Port: **1433**
 
     - Network Mode: **Static IP**
 
-        ![](Exercise3images/media/image15.png)
+        ![The specify replicas listener tab is selected, create an availability group listener is selected with the correct values entered.](images/hands-on-lab/2019-03-24-23-09-42.png "Specify replicas listener tab")
 
-23. Use **10.0.0.8** for the IPv4 Address and click **OK**, then click
+23. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use 172.16.1.8, then click
     **Next**.
 
-    ![](Exercise3images/media/image16.png)
+    ![The listener ip addresses are now shown in the specify replicas window.](images/hands-on-lab/2019-03-24-23-15-53.png "Specifying listener ip addresses")
 
-24. Ensure that **Full** is selected and use **\\\\CloudShopSQL\\ag** for
+24. Ensure that **Full database and log backup** is selected and use **\\\\CloudShopSQL\\ag** for
     the network share. Click **Next** to continue.
 
-    ![](Exercise3images/media/image17.png)
+    ![Select the full database and log backup is chosen with the AG fileshare used as the shared backup location.](images/hands-on-lab/2019-03-24-23-19-12.png "Select initial data synchronization")
 
 25. The validation tests will run automatically. They should all show
     success. Click **Next**.
 
-    ![](Exercise3images/media/image18.png)
+    ![The validations window is shown with all validation marked as successful.](images/hands-on-lab/2019-03-24-23-21-45.png "Validation")
 
 26. Verify your configuration then click **Finish** to build the
     Availability Group. Click **Close** after the wizard completes.
 
-    ![](Exercise3images/media/image19.png)
-
 ### Task 3: Create the Internal Load Balancer
 
-
-1.  In the Azure Portal, navigate to the **OpsVMRmRG** resource group
+1.  In the Azure Portal, navigate to the **CloudShop2** resource group
     and click **Add**.
 
     ![](Exercise4images/media/image1.png)
@@ -602,7 +598,7 @@ browser if you have multiple Microsoft Accounts.
 
     ![](Exercise4images/media/image2.png)
 
-1.  On the Create load balancer blade, configure the following options,
+3.  On the Create load balancer blade, configure the following options,
     then click **Create**:
 
     - Name: **sqlag**

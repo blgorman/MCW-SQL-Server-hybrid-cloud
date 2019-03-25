@@ -517,35 +517,47 @@ browser if you have multiple Microsoft Accounts.
 
 11. On the File Sharing window, select **Administrators** and click
     **Share**, then click **Done**.
-    ![](Exercise3images/media/image9.png)
 
-12. Launch **Microsoft** **SQL Server Management Studio** and connect to
-    the local instance of SQL Server.
-    ![](Exercise3images/media/image10.png)
+12. Launch **SQL Server Management Studio** and connect to
+    **CloudShopSQL**.
 
-13. Right-click **AlwaysOn High Availability** then select **New
-    Availability Group Wizard...**
-    ![](Exercise3images/media/image11.png)
+13. Expand the databases folder, right-click the **AdventureWorks** database and select **Properties**.
 
-14. Click **Next** on the introduction screen.
+14. On the Database Properties window, select **Options** then set the recovery model to **Full** and click the **OK** button. The full recovery model is required for databases that participate in SQL Server Always On Availability Groups.
 
-15. Specify **AdventureWorks** for the name of the availability group
-    and click Next
+    ![Database properties with the recovery model option set to full.](images/hands-on-lab/2019-03-24-22-31-59.png "Set the database recovery model to full")
 
-    ![](Exercise3images/media/image12.png)
+15. Right-click the **AdventureWorks** database, select **Tasks** and choose **Back Up...**.
 
-16. Select the **AdventureWorksDW2016CTP3** database. The status of the
+    ![The AdventureWorks database is selected, then tasks is selected and backup is selected.](images/hands-on-lab/2019-03-24-22-39-23.png "Backup the database")
+
+16. On the Back Up Database - AdventureWorks window, choose to backup to disk, click **Add**, and set the destination to **C:\\Data\\AdventureWorks.bak**, then click **OK**.
+
+    ![Backup destination is selected from the backup wizard.](images/hands-on-lab/2019-03-24-22-46-39.png "Backup the database")
+
+17. From the SQL Server Management Studio CloudShopSQL connection, right-click **AlwaysOn High Availability** then select **New Availability Group Wizard...**
+    
+    ![SQL Server Management Studio with the CloudShopSQL instance shown, the Always On High Availability folder highlighted with the New Availability Group Wizard selected.](images/hands-on-lab/2019-03-24-22-21-28.png "Launch the New Availability Group Wizard")
+
+18. Click **Next** on the Introduction screen.
+
+19. Specify **AdventureWorks** for the name of the availability group
+    and click **Next**.
+
+    ![Specify the availability group options is shown with the availability group name set to AdventureWorks.](images/hands-on-lab/2019-03-24-22-24-47.png "Specify the name of the availability group")
+
+20. Select the **AdventureWorksDW2016CTP3** database. The status of the
     database should state that it \"Meets prerequisites\" meaning that
     the database is in Full recovery mode.
 
     ![](Exercise3images/media/image13.png)
 
-17. On the Replicas tab, click the **Add Replica...** button and connect
+21. On the Replicas tab, click the **Add Replica...** button and connect
     to CloudShopSQL2.
 
     ![](Exercise3images/media/image14.png)
 
-18. Click on the **Listener** tab, select the **Create an availability
+22. Click on the **Listener** tab, select the **Create an availability
     group listener** radio button, set the following values for the
     listener, then click **Add**.
 
@@ -557,22 +569,22 @@ browser if you have multiple Microsoft Accounts.
 
         ![](Exercise3images/media/image15.png)
 
-19. Use **10.0.0.8** for the IPv4 Address and click **OK**, then click
+23. Use **10.0.0.8** for the IPv4 Address and click **OK**, then click
     **Next**.
 
     ![](Exercise3images/media/image16.png)
 
-20. Ensure that **Full** is selected and use **\\\\CloudShopSQL\\ag** for
+24. Ensure that **Full** is selected and use **\\\\CloudShopSQL\\ag** for
     the network share. Click **Next** to continue.
 
     ![](Exercise3images/media/image17.png)
 
-21. The validation tests will run automatically. They should all show
+25. The validation tests will run automatically. They should all show
     success. Click **Next**.
 
     ![](Exercise3images/media/image18.png)
 
-22. Verify your configuration then click **Finish** to build the
+26. Verify your configuration then click **Finish** to build the
     Availability Group. Click **Close** after the wizard completes.
 
     ![](Exercise3images/media/image19.png)

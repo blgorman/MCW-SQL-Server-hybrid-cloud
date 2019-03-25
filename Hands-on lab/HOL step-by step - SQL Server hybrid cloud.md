@@ -48,12 +48,14 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
   - [Exercise 4: Configure Azure Site Recovery to Web Tier DR](#exercise-4-configure-azure-site-recovery-to-web-tier-dr)
     - [Task 1: Site Recovery Stuff](#task-1-site-recovery-stuff)
   - [Exercise 5: Validate resiliency](#exercise-5-validate-resiliency)
+- [We should first failover ASR. Move validation to the end.](#we-should-first-failover-asr-move-validation-to-the-end)
     - [Task 1: Validate resiliency for the CloudShop application](#task-1-validate-resiliency-for-the-cloudshop-application)
     - [Task 2: Validate SQL Always On](#task-2-validate-sql-always-on)
     - [Task 3: Validate backups are taken](#task-3-validate-backups-are-taken)
   - [Exercise 6: Implementing Azure Site Recovery](#exercise-6-implementing-azure-site-recovery)
     - [Task 1: Configure ASR Protection for Cloud Shop](#task-1-configure-asr-protection-for-cloud-shop)
     - [Task 2: Creating the Recovery Plan](#task-2-creating-the-recovery-plan)
+- [need a new task to script a failover gracefully](#need-a-new-task-to-script-a-failover-gracefully)
     - [Task 3: Creating the Test Fail Over.](#task-3-creating-the-test-fail-over)
     - [Task 4: Cleaning the Test Fail Over.](#task-4-cleaning-the-test-fail-over)
   - [After the hands-on lab](#after-the-hands-on-lab)
@@ -591,35 +593,34 @@ browser if you have multiple Microsoft Accounts.
 1.  In the Azure Portal, navigate to the **CloudShop2** resource group
     and click **Add**.
 
-    ![](Exercise4images/media/image1.png)
-
 2.  Type **Load Balancer** into the search bar then choose the **Load
-    Balancer** and click the **Create** button.
+    Balancer** and click the **Review + Create** button, then click **Create**.
 
-    ![](Exercise4images/media/image2.png)
+    ![Create the load balancer resource.](images/hands-on-lab/2019-03-24-23-37-54.png "Add the load balancer")
 
 3.  On the Create load balancer blade, configure the following options,
     then click **Create**:
 
+    - Subscription: ***Your subscription***
+    - Resource group: **CloudShop2**
     - Name: **sqlag**
+    - Region: ***Choose the region you have used for this lab***
     - Type: **Internal**
-    - Virtual network: **OpsTrainingVNET**
+    - SKU: **Basic**
+    - Virtual network: **VNET2**
     - Subnet: **Data**
     - IP address assignment: **Static**
-    - Private IP address: **10.0.0.8**
-    - Subscription: ***\<the subscription you are using for this lab\>***
-    - Resource group: **OpsVMRmRG**
-    - Location: ***\<same location you have used for this lab\>***
+    - Private IP address: **172.16.1.10**
+
+        ![Load balancer configuration screen with the configuration options set.](images/hands-on-lab/2019-03-24-23-46-10.png "Creating the load balancer")
 
 4.  Navigate back to your resource group and select the **sqlag** load
     balancer you just created.
 
-    ![](Exercise4images/media/image3.png)
+5.  On the sqlag load balancer blade, select **Backend pools**, then
+    click the **+Add** button.
 
-5.  On the sqlag load balancer blade, select **Backend Pools**, then
-    click the +Add button.
-
-    ![](Exercise4images/media/image4.png)
+    ![The Load Balancer blade with backend pools selected.](images/hands-on-lab/2019-03-24-23-49-52.png "Add a backend pool")
 
 6.  On the Add backend pool blade, use the following configurations:
 
@@ -628,25 +629,23 @@ browser if you have multiple Microsoft Accounts.
     - Associated to: **Availability set**
     - Availability set: **SQLAvSet**
 
-        ![](Exercise4images/media/image5.png)
+        ![Adding the backend pool.](images/hands-on-lab/2019-03-24-23-52-15.png "Add backend pool")
 
 7.  Click the **+ Add a target network IP configuration** button.
 
-    ![](Exercise4images/media/image6.png)
+    ![The add a target network IP configuration button.](images/hands-on-lab/2019-03-24-23-54-54.png "Add a target network IP configuration")
 
-8.  Select **CloudShopSQL** for the Target virtual machine, and select
-    **ipconfig1** (10.0.1.4) for the Network IP configuration.
+8.  Select **CloudShopSQL2** for the Target virtual machine, and select
+    **ipconfig1 (172.16.1.5)** for the Network IP configuration.
 
-    ![](Exercise4images/media/image7.png)
+    ![Selecting CloudShopSQL2 ipconfig as a backend target.](images/hands-on-lab/2019-03-24-23-59-23.png "Select the target ip configuration")
 
-9.  Repeat steps 7-8 to add **CloudShopSQL2**. DO NOT ADD THE WITNESSVM to
-    the backend pool. Click OK then wait for the load balancer to
+9.  Repeat steps 7-8 to add **CloudShopSQL3**. DO NOT ADD other machines to
+    the backend pool. Click **OK** then wait for the load balancer to
     complete the update.
 
-10. On the sqlag load balancer blade, select **Health** **Probes** and
+10. On the sqlag load balancer blade, select **Health Probes** and
     click the **+Add** button.
-
-    ![](Exercise4images/media/image8.png)
 
 11. On the Add health probe blade, use the following configuration
     values then click **OK** and wait for the load balancer to complete
@@ -658,19 +657,18 @@ browser if you have multiple Microsoft Accounts.
     - Interval: **5** 
     - Unhealthy threshold: **2** 
 
-        ![](Exercise4images/media/image9.png)
+        ![Health probe configuration showing port 59999 as the probe port.](images/hands-on-lab/2019-03-25-00-09-54.png "Health probe configuration")
 
 12. On the sqlag load balancer blade, select **Load balancing rules**
     and then click the **+Add** button.
-
-    ![](Exercise4images/media/image10.png)
 
 13. On the Add load balancing rule blade, use the following
     configuration values then click **OK** and wait for the load
     balancer to complete the update.
 
     - Name: **sqlrules**
-    - Frontend IP address: **10.0.0.8**
+    - IP Version: **IPv4**
+    - Frontend IP address: **172.16.1.10 (LoadBalancerFrontEnd)**
     - Protocol: **TCP**
     - Port: **1433**
     - Backend port: **1433**
@@ -680,11 +678,9 @@ browser if you have multiple Microsoft Accounts.
     - Idle timeout: **4**
     - Floating IP: **Enabled**
 
-        ![](Exercise4images/media/image11.png)
+        ![Adding load balancer rule for floating ip with all configurations set.](images/hands-on-lab/2019-03-25-00-15-04.png "Load balancer rule configurations")
 
 14. Open an Administrative PowerShell ISE session on CloudShopSQL2.
-
-    ![](Exercise4images/media/image12.png)
 
 15. Copy the following PowerShell script to the script window and
     execute it to configure your cluster for the probe port.
@@ -725,6 +721,8 @@ In this exercise, you will configure SQL Server Managed Backup to back up to an 
   
 ## Exercise 5: Validate resiliency
 
+# We should first failover ASR. Move validation to the end.
+
 ### Task 1: Validate resiliency for the CloudShop application 
 
 1.  In the Azure portal, open the **CloudShopRG** resource group. Click the Load Balancer, **OPSLB**.
@@ -739,7 +737,7 @@ In this exercise, you will configure SQL Server Managed Backup to back up to an 
 
 ### Task 2: Validate SQL Always On
 
-1.  Within the Azure portal, click on Virtual Machines and open **SQL0** Click **Stop** at the top of the blade to shut the virtual machine off.
+1.  Within the Azure portal, click on Virtual Machines and open **CloudShopSQL** Click **Stop** at the top of the blade to shut the virtual machine off.
 
 2.  After the VM is deallocated, refresh the CloudShop application in your browser. If the page loads with data in the dropdown list SQL has successfully failed over the primary node to the secondary. You can login to the secondary vm (SQL1) and connect via SQL Server Management Studio to confirm.
 
@@ -790,7 +788,7 @@ In this exercise, you will configure SQL Server Managed Backup to back up to an 
 10. While waiting for the initial replication/synchronization, move on to the next task.
 
 ### Task 2: Creating the Recovery Plan
-
+# need a new task to script a failover gracefully
 In this task, you will create the recovery plan that will be used to orchestrate failover actions, such as the order in which failed-over VMs are powered on.
 
 1. Within the properties of the Recovery Services vault, click on **Recovery Plans (Site Recovery)** under Manage. Click on Step 2: Manage Recovery Plans.

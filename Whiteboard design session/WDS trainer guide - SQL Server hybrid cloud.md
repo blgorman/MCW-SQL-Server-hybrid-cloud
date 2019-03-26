@@ -9,7 +9,7 @@ Whiteboard design session trainer guide
 </div>
 
 <div class="MCWHeader3">
-December 2018
+March 2019
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -18,7 +18,7 @@ Microsoft may have patents, patent applications, trademarks, copyrights, or othe
 
 The names of manufacturers, products, or URLs are provided for informational purposes only and Microsoft makes no representations and warranties, either expressed, implied, or statutory, regarding these manufacturers or the use of the products with any Microsoft technologies. The inclusion of a manufacturer or product does not imply endorsement of Microsoft of the manufacturer or product. Links may be provided to third party sites. Such sites are not under the control of Microsoft and Microsoft is not responsible for the contents of any linked site or any link contained in a linked site, or any changes or updates to such sites. Microsoft is not responsible for webcasting or any other form of transmission received from any linked site. Microsoft is providing these links to you only as a convenience, and the inclusion of any link does not imply endorsement of Microsoft of the site or the products contained therein.
 
-© 2018 Microsoft Corporation. All rights reserved.
+© 2019 Microsoft Corporation. All rights reserved.
 
 Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/Usage/General.aspx> are trademarks of the Microsoft group of companies. All other trademarks are property of their respective owners.
 
@@ -226,7 +226,7 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 5.  Data encryption solution that encrypts only PCI data at the application and database level.
 
-6.  Key management solution that does not expose the unencrypted keys to unauthorized personnel (including DBAs and Developers) and allows for key management by the security administration team.
+6.  Key management solution that does not expose the unencrypted keys to unauthorized personnel (including database administrators and developers) and allows for key management by the security administration team.
 
 7.  Data archiving to keep database sizes more manageable and reduce the amount of time needed for database maintenance.
 
@@ -244,9 +244,11 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 5.  The disaster recovery sites must be highly available after a failover.
 
-6.  Archive solution must not impact the current applications that periodically pull historical data from the production system.
+6.  We have seen some documentation surrounding the use of Availability Zones in Azure. What does Availability Zones provide over and above Availability Sets? Would this be a good option for us?
 
-7.  We need to be able to backup databases both on-premises and in the cloud. How will your backup solution support this?
+7.  Archive solution must not impact the current applications that periodically pull historical data from the production system.
+
+8.  We need to be able to backup databases both on-premises and in the cloud. How will your backup solution support this?
 
 ### Infographic for common scenarios
 
@@ -658,13 +660,19 @@ The solution for Fabrikam's scenario involved several technologies.
 
     SQL Server virtual machines will rely on a combination of Availability Sets and SQL Server Availability Groups to maintain uptime and synchronization. The SQL Servers will belong to a separate Availability Set from the web servers and will also use an internal load balancer.
 
-6.  Archive solution must not impact the current applications, which periodically pull historical data from the production system.
+6.  We have seen some documentation surrounding the use of Availability Zones in Azure. What does Availability Zones provide over and above Availability Sets? Would this be a good option for us?
+
+    **Potential answer**
+
+    Availability Zones would be suitable for Fabrikam’s solution providing that Availability Zones are available in your preferred region. Availability Zones provide you with added protection by separating resources across multiple local datacenters within a given region with separate networking, storage, power etc. However, the datacenters are still close enough to allow for synchronous replication between servers. Availability Zones also provide slightly higher SLAs for availability at 99.99% compared to 99.95% for Availability Sets.
+
+7.  Archive solution must not impact the current applications, which periodically pull historical data from the production system.
 
     **Potential answer**
 
     SQL Server Stretch Database does not require any changes to existing queries or applications; the location of the data is completely transparent to the application. The entire table is always online and can be queried. You will set the policy that determines where the data is stored, either on the local server or in Azure.
 
-7.  Backups need to be secured offsite in less than two hours after completion.
+8.  Backups need to be secured offsite in less than two hours after completion.
 
     **Potential answer**
 

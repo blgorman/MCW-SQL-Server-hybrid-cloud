@@ -44,20 +44,18 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 1: Create the cluster](#task-1-create-the-cluster)
     - [Task 2: Create the SQL Server Availability Group](#task-2-create-the-sql-server-availability-group)
     - [Task 3: Create the Internal Load Balancer](#task-3-create-the-internal-load-balancer)
+    - [Task 4: Validate the Availability Group](#task-4-validate-the-availability-group)
     - [Summary](#summary-1)
   - [Exercise 4: Configure Azure Site Recovery to Web Tier DR](#exercise-4-configure-azure-site-recovery-to-web-tier-dr)
-    - [Task 1: Site Recovery Stuff](#task-1-site-recovery-stuff)
-  - [Exercise 5: Validate resiliency](#exercise-5-validate-resiliency)
-- [We should first failover ASR. Move validation to the end.](#we-should-first-failover-asr-move-validation-to-the-end)
-    - [Task 1: Validate resiliency for the CloudShop application](#task-1-validate-resiliency-for-the-cloudshop-application)
-    - [Task 2: Validate SQL Always On](#task-2-validate-sql-always-on)
-    - [Task 3: Validate backups are taken](#task-3-validate-backups-are-taken)
-  - [Exercise 6: Implementing Azure Site Recovery](#exercise-6-implementing-azure-site-recovery)
-    - [Task 1: Configure ASR Protection for Cloud Shop](#task-1-configure-asr-protection-for-cloud-shop)
+    - [Task 1: Create a Recovery Services Vault](#task-1-create-a-recovery-services-vault)
+    - [Task 2: Configure Azure Site Recovery](#task-2-configure-azure-site-recovery)
     - [Task 2: Creating the Recovery Plan](#task-2-creating-the-recovery-plan)
 - [need a new task to script a failover gracefully](#need-a-new-task-to-script-a-failover-gracefully)
     - [Task 3: Creating the Test Fail Over.](#task-3-creating-the-test-fail-over)
     - [Task 4: Cleaning the Test Fail Over.](#task-4-cleaning-the-test-fail-over)
+  - [Exercise 5: Validate resiliency](#exercise-5-validate-resiliency)
+- [We should first failover ASR. Move validation to the end.](#we-should-first-failover-asr-move-validation-to-the-end)
+    - [Task 1: Validate resiliency for the CloudShop application](#task-1-validate-resiliency-for-the-cloudshop-application)
   - [After the hands-on lab](#after-the-hands-on-lab)
     - [Task 1: Delete the resource groups created](#task-1-delete-the-resource-groups-created)
 
@@ -145,7 +143,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
     $resourceGroupName = "CloudShop2"
     $containerName= "backups"
-    $location = "[choose the region you are using for this lab]"
+    $location = "[choose the same region you used to deploy the CloudShop2 resource group]"
     $storageSkuName = "Standard_LRS"
 
     "Creating Storage Account $storageAcctName"
@@ -269,7 +267,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
     - Password: **demo@pass123**
     - Subscription: ***Your subscription***
     - Resource group: **CloudShop2**
-    - Location: ***Use the same location you have been using***
+    - Location: ***Use the same location you used for CloudShop2***
     - Allow Azure Services: ***Checked***
 
         ![The SQL Server logical server creation blade with the configurations listed previously set to the correct values.](images/hands-on-lab/2019-03-24-19-31-07.png "Create a SQL Server logical server")
@@ -389,7 +387,7 @@ In this exercise, you implemented an archive solution with Stretch Database. Fir
 
 Duration: 60 minutes
 
-In this exercise, you will build a hybrid-cloud SQL Always-On Cluster for resiliency of the data tier.
+In this exercise, you will build a SQL Always-On Cluster for resiliency of the data tier.
 
 ### Task 1: Create the cluster
 
@@ -425,7 +423,7 @@ browser if you have multiple Microsoft Accounts.
 
 11. On the **Confirm installation selections** page, click **Install**.
 
-12. Repeat the above steps to install Failover Clustering on your remainging SQL Servers (CloudShopSQL2 and CloudShopSQL3).
+12. Repeat the above steps to install Failover Clustering on your remaining SQL Servers (CloudShopSQL2 and CloudShopSQL3).
 
 13. From CloudShopSQL, open **Administrative Tools** and then launch **Failover Cluster Manager**.
 
@@ -533,7 +531,7 @@ browser if you have multiple Microsoft Accounts.
 
     ![The AdventureWorks database is selected, then tasks is selected and backup is selected.](images/hands-on-lab/2019-03-24-22-39-23.png "Backup the database")
 
-16. On the Back Up Database - AdventureWorks window, choose to backup to disk, click **Add**, and set the destination to **C:\\Data\\AdventureWorks.bak**, then click **OK**.
+16. On the Back Up Database - AdventureWorks window, choose to backup to disk, click **Add**, and set the destination to **C:\\Data\\AdventureWorks.bak**, then click **OK** and click **OK** again to initiate the backup.
 
     ![Backup destination is selected from the backup wizard.](images/hands-on-lab/2019-03-24-22-46-39.png "Backup the database")
 
@@ -610,9 +608,9 @@ browser if you have multiple Microsoft Accounts.
     - Virtual network: **VNET2**
     - Subnet: **Data**
     - IP address assignment: **Static**
-    - Private IP address: **172.16.1.10**
+    - Private IP address: **172.16.1.8**
 
-        ![Load balancer configuration screen with the configuration options set.](images/hands-on-lab/2019-03-24-23-46-10.png "Creating the load balancer")
+        ![Load balancer configuration screen with the configuration options set.](images/hands-on-lab/2019-03-25-17-41-47.png "Creating the load balancer")
 
 4.  Navigate back to your resource group and select the **sqlag** load
     balancer you just created.
@@ -627,7 +625,7 @@ browser if you have multiple Microsoft Accounts.
     - Name: **sqlpool**
     - IP version: **IPv4** 
     - Associated to: **Availability set**
-    - Availability set: **SQLAvSet**
+    - Availability set: **SQLAvSet2**
 
         ![Adding the backend pool.](images/hands-on-lab/2019-03-24-23-52-15.png "Add backend pool")
 
@@ -668,7 +666,7 @@ browser if you have multiple Microsoft Accounts.
 
     - Name: **sqlrules**
     - IP Version: **IPv4**
-    - Frontend IP address: **172.16.1.10 (LoadBalancerFrontEnd)**
+    - Frontend IP address: **172.16.1.8 (LoadBalancerFrontEnd)**
     - Protocol: **TCP**
     - Port: **1433**
     - Backend port: **1433**
@@ -678,86 +676,111 @@ browser if you have multiple Microsoft Accounts.
     - Idle timeout: **4**
     - Floating IP: **Enabled**
 
-        ![Adding load balancer rule for floating ip with all configurations set.](images/hands-on-lab/2019-03-25-00-15-04.png "Load balancer rule configurations")
+        ![Adding load balancer rule for floating ip with all configurations set.](images/hands-on-lab/2019-03-25-17-51-59.png "Load balancer rule configurations")
 
-14. Open an Administrative PowerShell ISE session on CloudShopSQL2.
+14. Open an Administrative PowerShell ISE session on **CloudShopSQL2**.
 
 15. Copy the following PowerShell script to the script window and
     execute it to configure your cluster for the probe port.
 
     ```
-    $ClusterNetworkName = "Cluster Network 1" 
+    $ClusterNetworkName = "Cluster Network 2" 
 
-    $IPResourceName = "AdventureWorks_10.0.0.8" 
+    $IPResourceName = "AdventureWorks_172.16.1.8" 
 
-    $ILBIP = "10.0.0.8" 
+    $ILBIP = "172.16.1.8" 
 
     Import-Module FailoverClusters
 
     Get-ClusterResource $IPResourceName | Set-ClusterParameter -Multiple @{"Address"="$ILBIP";"ProbePort"="59999";"SubnetMask"="255.255.255.255";"Network"="$ClusterNetworkName";"EnableDhcp"=0}
 
-    Stop-ClusterResource -Name "AdventureWorks_10.0.0.8"
-
+    Stop-ClusterResource -Name "AdventureWorks_172.16.1.8"
+    Stop-ClusterResource -Name "AdventureWorks"
     Start-ClusterResource -Name "AdventureWorks"
     ```
 
-16. Connect to **CloudShopSQL** and launch SQL Server Management Studio.
+### Task 4: Validate the Availability Group 
 
-17. Open a Server connection to the **adventureworks** listener endpoint to verify connectivity.
+1.  Login to your CloudShopSQL virtual machine and launch SQL Server Management Studio. 
 
-    ![](Exercise4images/media/image13.png)
+2.  From Object Explorer, launch a new connection and connect to the **adventureworks** listener. This is simply to check if your listener is actually working. 
+
+3.  From your CloudShopSQL connection, expand Always On High Availability, Availability Replicas, then righ-click **CloudShopSQL2** and choose **Properties**.
+
+    ![](images/hands-on-lab/2019-03-25-18-55-26.png)
+
+4.  On the properties window, change the availability mode to **Synchronous commit** and then click **OK**. 
+
+    Switching to synchronous commit allows us to failover without data loss. If we leave it in asynchronous mode, the failover would be "forced" which also implies some loss of data and invalidates the old primary replica. Since we are only testing functionality of our listener we DO NOT want to break the Availability Group replication.  
+
+    ![](images/hands-on-lab/2019-03-25-18-59-46.png)
+
+5.  Repeat the above for **CloudShopSQL**. This will enable synchronous commits between the two replicas allowing us to failover without breaking the Availability Group replication.
+
+6.  Right-click the **AdventureWorks** Availability Group, and choose **Show Dashboard** from the menu.
+
+    ![](images/hands-on-lab/2019-03-25-19-16-22.png)
+
+7.  The dashboard should show both **CloudShopSQL** and **CloudShopSQL2** with a status of **Synchronized**.
+
+    ![](images/hands-on-lab/2019-03-25-19-19-34.png)
+
+8.  Right-click the **AdventureWorks** Availability Group again and choose **Failover...** from the menu.
+
+    ![](images/hands-on-lab/2019-03-25-19-22-06.png)
+
+9.  In the Failover Wizard, click **Next** on the first screen.
+
+10. On the Select New Primary Replica window, select **CloudShopSQL2** and then click **Next**.
+
+    ![](images/hands-on-lab/2019-03-25-19-25-13.png)
+
+11. On the Connect to Replica window, connect to **CloudShopSQL2** with the **CONTOSO\demouser** account and click **Next**.
+
+    ![](images/hands-on-lab/2019-03-25-19-27-50.png)
+
+12. On the summary window, click **Finish**, then click **Close** on successful completion of the failover.
+
+13. Connect to your **AdventureWorks** listener and open a new Query Window.
+
+14. Run the following code to verify that you are running from CloudShopSQL2.
+
+    ```
+    SELECT @@SERVERNAME
+    ```
+
+    ![](images/hands-on-lab/2019-03-25-19-41-47.png)
+
+15. Use the Failover Wizard to fail **AdventureWorks** back to CloudShopSQL. 
 
 ### Summary
 
-In this exercise, you deployed resilient web servers behind a load balancer, and a SQL Always-On Availability Group for database resiliency through an ARM template. Also you deployed resilient web tier with an external load balancer through an ARM template.
+In this exercise, you deployed a Windows Failover Cluster and a SQL Always-On Availability Group for database resiliency. Also you deployed and configured an internal load balancer to support the Availability Group in Azure. Finally, you validated your configuration by failing over to one of your secondary nodes and connecting to the Availability Group Listener.
 
 ## Exercise 4: Configure Azure Site Recovery to Web Tier DR 
 
 Duration: 15 minutes
 
-In this exercise, you will configure SQL Server Managed Backup to back up to an Azure Storage Account.
+In this exercise, you will configure Azure Site Recovery to protect your web application and allow it to fail to your disaster recovery site.
 
-### Task 1: Site Recovery Stuff
-  
-## Exercise 5: Validate resiliency
+### Task 1: Create a Recovery Services Vault
 
-# We should first failover ASR. Move validation to the end.
+1. From the Azure portal, select **+Create a resource** from the menu on the left.
 
-### Task 1: Validate resiliency for the CloudShop application 
+2. In the search box, type **Backup and site recovery** and then select **Backup and site recovery (OMS)** from the results.
 
-1.  In the Azure portal, open the **CloudShopRG** resource group. Click the Load Balancer, **OPSLB**.
+3. Click the **Create** button on the information blade.
 
-2.  Click the **Overview** tab and copy the public IP address to the clipboard, and navigate to it in a different browser tab.
+4. On the Recovery Services vault creation blade, use the following configurations and click **Create**.
 
-3.  After the application is loaded, click the Spike CPU button to simulate an auto scale event.
+    - Name: **RSVault**
+    - Subscription: *Choose your subscription*
+    - Resource group: **CloudShop2**
+    - Location: ***Use the same location assigned to CloudShop2***
 
-    ![A screen that shows the web page that allows for spiking the CPU,.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image105.png "CPU Spike Demo")
+        ![](images/hands-on-lab/2019-03-25-23-30-11.png)
 
-4.  After 15-20 minutes, refresh the browser and you will see cloud shop site is running and switched from one web server to another one. 
-
-### Task 2: Validate SQL Always On
-
-1.  Within the Azure portal, click on Virtual Machines and open **CloudShopSQL** Click **Stop** at the top of the blade to shut the virtual machine off.
-
-2.  After the VM is deallocated, refresh the CloudShop application in your browser. If the page loads with data in the dropdown list SQL has successfully failed over the primary node to the secondary. You can login to the secondary vm (SQL1) and connect via SQL Server Management Studio to confirm.
-
-### Task 3: Validate backups are taken 
-
-1.  In the Azure portal, click All Services and search for Recovery Vault. Click the link and you should see the two recovery vaults created as part of the deployment of the Active Directory domain controllers.
-
-2.  Open each vault and validate that a backup of the VM has occurred.
-
-    ![The screen shows 2 backup items from one of the vaults.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image109.png "Usage")
-
-    >**Note**: Backup storage consumption may be 0 B if a backup has not occurred. The timing of backups is driven by the policy associated with the backup. Only one policy can be assigned to a virtual machine when using the Azure Backup Extension for Virtual Machines.
-
-3.  To validate the SQL Server backup, open the Storage Account created earlier in the Azure portal and click **Blobs** -\> and then **backups**. If the backup has already completed, you will see the backup file in the container.
-
-    ![An image that depicts SQL Server backup data in an Azure Storage Account.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image110.png "Backup files in storage")
-
-## Exercise 6: Implementing Azure Site Recovery 
-
-### Task 1: Configure ASR Protection for Cloud Shop
+### Task 2: Configure Azure Site Recovery
 
 1. In the Azure Portal - Resource Group - BackupVault2RG and open the BackupVault2.
    
@@ -861,6 +884,25 @@ On the Site recovery jobs blade click on the running job (Test failover).
 5. On the Site recovery jobs blade, click on the running job. Monitor the status until the environment is cleaned up (approximately 5 minutes).
 
 6. In the Azure portal navigate to Resource Groups and click on the **CloudShopRG1-asr** resource group. Notice that the virtual machines and network interfaces have all been deleted, leaving only the resources ASR initial created to support protection and the manually-created public IP address.
+  
+## Exercise 5: Validate resiliency
+
+# We should first failover ASR. Move validation to the end.
+
+### Task 1: Validate resiliency for the CloudShop application 
+
+1.  In the Azure portal, open the **CloudShopRG** resource group. Click the Load Balancer, **OPSLB**.
+
+2.  Click the **Overview** tab and copy the public IP address to the clipboard, and navigate to it in a different browser tab.
+
+3.  After the application is loaded, click the Spike CPU button to simulate an auto scale event.
+
+    ![A screen that shows the web page that allows for spiking the CPU,.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image105.png "CPU Spike Demo")
+
+4.  After 15-20 minutes, refresh the browser and you will see cloud shop site is running and switched from one web server to another one. 
+
+
+
 
 
 ## After the hands-on lab

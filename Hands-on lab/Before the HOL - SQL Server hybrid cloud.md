@@ -59,28 +59,32 @@ In this exercise, you deploy an on-premises environment and the Azure infrastruc
 
     >**Note**: You may need to launch an \"in-private\" session in your browser if you have multiple Microsoft Accounts.
 
-2.  Click the **+ Create a resource** button, type **Resource group** into the search bar, and choose **Resource group** from the search results.
+2.  Before we deploy the environment, we must pre-create the resource group that will host our disaster recovery site. Throughout the lab this will be called **CloudShop2**
 
-3.  On the resource group blade, click **Create**.
+3.  Click the **+ Create a resource** button, type **Resource group** into the search bar, and choose **Resource group** from the search results.
 
-4.  On the create a resource group blade, type **CloudShop2** for the name of the resource group and choose a region near you. Click **Review + Create**, then **Create**.
+4.  On the resource group blade, click **Create**.
+
+5.  This lab will use Azure Site Recovery to replicate VMs to another region. It is not supported to replicate virtual machines to the same region. Choose a region pair to use for this lab. You can see a list of the region pairs at https://docs.microsoft.com/en-us/azure/best-practices-availability-paired-regions 
+
+6.  On the create a resource group blade, type **CloudShop2** for the name of the resource group and choose a region one of your region pairs as the location. Click **Review + Create**, then **Create**.
 
     ![Resource group creation page of the Azure portal with the resource group name set to CloudShop2.](images/before-the-hands-on-lab/2019-03-24-14-40-03.png "Create a resource group")
 
     > **Note**: DO NOT USE ANY OTHER NAME FOR THIS RESOURCE GROUP. Using any other resource group name will cause your deployment to fail.
 
-5.  Click the **Deploy to Azure** button below. 
+7.  Click the **Deploy to Azure** button below. 
 
     <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopsgility%2Fcw-sql-hybrid-cloud%2Fmaster%2Fazure-deploy.json" rel="nofollow">
     <img src="https://camo.githubusercontent.com/9285dd3998997a0835869065bb15e5d500475034/687474703a2f2f617a7572656465706c6f792e6e65742f6465706c6f79627574746f6e2e706e67" data-canonical-src="http://azuredeploy.net/deploybutton.png" style="max-width:100%;"></a>
 
-6.  On the **Custom deployment** blade, select **Create new** under for the resource group and name the resource group ***CloudShop1***. Accept the terms and conditions and click **Purchase**.
+8.  On the **Custom deployment** blade, select **Create new** under for the resource group and name the resource group ***CloudShop1***. Choose the region pair of your CloudShop2 resource group location. In our lab document we have chosen the **East US 2/Central US** region pair. Accept the terms and conditions and click **Purchase**.
    
-    ![The Azure custom deployments blade is shown. The setting for resource group has been changed to CloudShop1 and the I agree to the terms and conditions stated above checkbox has been checked. All other values have been left at the defaults.](images/before-the-hands-on-lab/2019-03-16-10-41-15.png "Custom deployment blade")
+    ![The Azure custom deployments blade is shown. The setting for resource group has been changed to CloudShop1 and the I agree to the terms and conditions stated above checkbox has been checked. All other values have been left at the defaults.](images/hands-on-lab/2019-03-25-21-15-05.png "Custom deployment blade")
 
     > **Note**: Do not use a different resource group and do not change any of the values listed here or your lab will not deploy correctly.
 
-7. Wait for the deployment to complete. This may take up to 60 minutes.
+9.  Wait for the deployment to complete. This may take up to 60 minutes.
 
 ### Task 2: Verify virtual machines domain join status 
 
@@ -92,7 +96,7 @@ In this exercise, you deploy an on-premises environment and the Azure infrastruc
 
 4.  Navigate to **Local Server** on the left side menu. Verify that the domain name is **contoso.com**
 
-    ![The Windows Server Manager app is shown with Local Server selected and the domain highlighted. The domain name is contoso.com.](images/before-the-hands-on-lab/2019-03-16-11-57-38.png "Server Manager")
+    ![The Windows Server Manager app is shown with Local Server selected and the domain highlighted. The domain name is contoso.com.](images/before-the-hands-on-lab/2019-03-25-22-22-06.png "Server Manager")
 
 5.  If the machine has not joined the domain, click **WORKGROUP** and then joining the contoso.com domain. When joining the domain, use the credentials **CONTOSO\demouser** with a password of **demo@pass123**.
 

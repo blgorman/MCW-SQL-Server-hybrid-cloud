@@ -45,17 +45,16 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 2: Create the SQL Server Availability Group](#task-2-create-the-sql-server-availability-group)
     - [Task 3: Create the Internal Load Balancer](#task-3-create-the-internal-load-balancer)
     - [Task 4: Validate the Availability Group](#task-4-validate-the-availability-group)
+    - [Task 5: Update the Web Application to Connect to the Listener](#task-5-update-the-web-application-to-connect-to-the-listener)
     - [Summary](#summary-1)
-  - [Exercise 4: Configure Azure Site Recovery to Web Tier DR](#exercise-4-configure-azure-site-recovery-to-web-tier-dr)
+  - [Exercise 4: Configure Azure Site Recovery for Web Tier DR](#exercise-4-configure-azure-site-recovery-for-web-tier-dr)
     - [Task 1: Create a Recovery Services Vault](#task-1-create-a-recovery-services-vault)
     - [Task 2: Configure Azure Site Recovery](#task-2-configure-azure-site-recovery)
-    - [Task 2: Creating the Recovery Plan](#task-2-creating-the-recovery-plan)
-- [need a new task to script a failover gracefully](#need-a-new-task-to-script-a-failover-gracefully)
-    - [Task 3: Creating the Test Fail Over.](#task-3-creating-the-test-fail-over)
-    - [Task 4: Cleaning the Test Fail Over.](#task-4-cleaning-the-test-fail-over)
-  - [Exercise 5: Validate resiliency](#exercise-5-validate-resiliency)
-- [We should first failover ASR. Move validation to the end.](#we-should-first-failover-asr-move-validation-to-the-end)
-    - [Task 1: Validate resiliency for the CloudShop application](#task-1-validate-resiliency-for-the-cloudshop-application)
+    - [Task 3: Creating the Recovery Plan](#task-3-creating-the-recovery-plan)
+  - [Exercise 5: Failing Over to the Disaster Recovery Site](#exercise-5-failing-over-to-the-disaster-recovery-site)
+    - [Task 1: Failover the Data Tier](#task-1-failover-the-data-tier)
+    - [Task 2: Failover the Web Tier](#task-2-failover-the-web-tier)
+    - [Task 3: Validate Failover of the CloudShop application](#task-3-validate-failover-of-the-cloudshop-application)
   - [After the hands-on lab](#after-the-hands-on-lab)
     - [Task 1: Delete the resource groups created](#task-1-delete-the-resource-groups-created)
 
@@ -753,11 +752,28 @@ browser if you have multiple Microsoft Accounts.
 
 15. Use the Failover Wizard to fail **AdventureWorks** back to CloudShopSQL. 
 
+### Task 5: Update the Web Application to Connect to the Listener 
+
+1.  Login to your CloudShopWeb virtual machine.
+
+2.  Launch File Explorer and navigate to **C:\inetpub\wwwroot**.
+
+3.  Open the **web.config** file in Notepad. 
+
+4.  Edit the connection string to connect to the **AdventureWorks** listener.
+
+    ![](images/hands-on-lab/2019-03-26-04-37-23.png)
+
+5.  Save the file.
+
+6.  Launch a command prompt and execute **iisreset**. 
+
+
 ### Summary
 
 In this exercise, you deployed a Windows Failover Cluster and a SQL Always-On Availability Group for database resiliency. Also you deployed and configured an internal load balancer to support the Availability Group in Azure. Finally, you validated your configuration by failing over to one of your secondary nodes and connecting to the Availability Group Listener.
 
-## Exercise 4: Configure Azure Site Recovery to Web Tier DR 
+## Exercise 4: Configure Azure Site Recovery for Web Tier DR 
 
 Duration: 15 minutes
 
@@ -782,128 +798,171 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
 ### Task 2: Configure Azure Site Recovery
 
-1. In the Azure Portal - Resource Group - BackupVault2RG and open the BackupVault2.
+1. In the Azure Portal navigate to the Recovery Services vault you just created.
    
-2. In the **BackupVault2** blade, click on **Site Recovery** under **GETTING STARTED**.
-   
-3. Under **FOR ON-PREMISES MACHINES AND AZURE VMS** click **Step 1: Replicate Application**.
+2. Select **Site recovery infrastructure** from the menu on the left and then choose **Network mapping**.
 
-    ![An image that depicts Azure Site Recovery. An arrow points to Step 1: Replicate Application.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image03.png "Replicate application Settings")
+3. Click the **+Add mapping** button. Set your source network to VNET1 and your target network to VNET2.
 
-4. On Step 1 Source, under Source Location choose the azure region where your Cloud Shop deployment exists. Then under Source resource group select the resource group where your Cloud Shop deployment exists (e.g. "CloudShopRG"). Select **Resource Manager** as Azure VM Deployment Model. Click OK.
+    ![](images/hands-on-lab/2019-03-26-03-20-41.png)
 
-    ![An image that depicts Azure Site Recovery settings.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image04.png "ASR replicate source settings")
+4. In the Recovery Services vault blade, click on **Site Recovery** under **Getting started**.
 
-5. On Step 2, Select the Virtual Machines (Web and SQL Servers) for the replication.
+    ![](images/hands-on-lab/2019-03-25-23-46-47.png)
 
-6. On the Configure settings blade, notice that you can alter the target resource group and virtual network settings, along with the replication policy. Click **Create target resources**. 
+5. Under **FOR ON-PREMISES MACHINES AND AZURE VMS** click **Step 1: Replicate Application**.
+
+    ![An image that depicts Azure Site Recovery. Step 1: Replicate Application is highlighted.](images/hands-on-lab/2019-03-25-23-48-09.png "Replicate application Settings")
+
+6. Choose the following configurations and click **OK**.
+
+    - Source: **Azure**
+    - Source location: ***The location of your CloudShop1 resource group***
+    - Azure virtual machine deployment model: **Resource Manager**
+    - Source subscription: *Your subscription*
+    - Source resource group: **CloudShop1**
+
+        ![An image that depicts Azure Site Recovery settings.](images/hands-on-lab/2019-03-25-23-53-54.png "ASR replicate source settings")
+
+7. On the select virtual machines blade, select the **CloudShopWeb** virtual machine for replication. We will only use Azure Site Recovery to protect the web servers. Click the **OK** button.
+
+    ![](images/hands-on-lab/2019-03-26-00-02-35.png)
+
+8. On the Configure settings blade, set the Target location to the location of your CloudShop2 resource group. 
+
+9. Click on the **Customize** link.
+
+    ![](images/hands-on-lab/2019-03-26-03-26-07.png)
+
+10. Change the target resource group to **CloudShop2**.
+
+    ![](images/hands-on-lab/2019-03-26-03-27-29.png)
+
+11. Click **Create target resources**. 
 
     **Note**: Do not close the blade. It will close by itself after the target resources are created (2-3 minutes).
 
-7. Several Site Recovery jobs will be initiated which are creating the replication policy as well as the target resources to be used during a failover. 
+    ![](images/hands-on-lab/2019-03-26-00-06-44.png)
 
-8. If you click on the Enable replication job, you can see additional details of what takes place when protecting a VM. It may take up to 30 minutes to complete the job. You can review it under Monitoring - Site Recovery Jobs at the Recovery Services Vault BackupVault2 blade. 
-   
-    ![An image that depicts Azure Site Recovery settings.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image05.png "ASR replicate source settings")
+12. On the Enable Replication blade, click the **enable replication** button. 
 
-9. Once all the Enable replication jobs are successful, click on **Replicated items** under **Protected Items** to view the status of the initial replication.
+13. Several Site Recovery jobs will be initiated which are creating the replication policy as well as the target resources to be used during a failover. Click on **Site recovery jobs** to view the job progress.
+
+    ![](images/hands-on-lab/2019-03-26-00-52-02.png)
+
+14. Once all the jobs are successful, click on **Replicated items** under **Protected Items** to view the status of the initial replication.
     
-10. While waiting for the initial replication/synchronization, move on to the next task.
+    ![](images/hands-on-lab/2019-03-26-00-53-16.png)
 
-### Task 2: Creating the Recovery Plan
-# need a new task to script a failover gracefully
-In this task, you will create the recovery plan that will be used to orchestrate failover actions, such as the order in which failed-over VMs are powered on.
+15. While waiting for the initial replication/synchronization, move on to the next task.
 
-1. Within the properties of the Recovery Services vault, click on **Recovery Plans (Site Recovery)** under Manage. Click on Step 2: Manage Recovery Plans.
+### Task 3: Creating the Recovery Plan
 
-    ![An image that depicts Azure Recovery Plan for Site Recovery.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image06.png "ASR Recovery Plan")
+In this task, you will create the recovery plan that will be used to orchestrate failover action for the web tier.
 
-2. On the Create recovery plan blade enter the name CloudShopRP. In the Source area select the region where you deployed Cloud Shop. The Target will be automatically selected. Under Allow items with deployment model, select Resource Manager. Click Select items and select the Virtual Machines. Click OK and, back on the Create recovery plan blade, click OK.
+1. Within the properties of the Recovery Services vault, click on **Recovery Plans (Site Recovery)** under Manage.
 
-    ![An image that depicts Azure Recovery Plan Settings.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image07.png "ASR Recovery Plan settings")
+    ![The manage menu is shown with Recovery Plans (Site Recovery) highlighted.](images/hands-on-lab/2019-03-26-00-58-00.png "Recovery Plans")
 
-3. After a minute or two, you should see the CloudShopRP on the Recovery plans blade. This recovery plan would bring up both servers at once during a failover. In an N-tier application, it is often best to have the data tier come up first. So, we will edit the recovery plan to accomplish this. Click the CloudShopRP recovery plan.
+2. Click the **+Recovery Plan** button.
+
+3. On the Create recovery plan blade enter the name **CloudShopRP**. In the Source area select the region where your CloudShop1 resource group is deployed. The Target will be automatically selected. Under Allow items with deployment model, select **Resource Manager**. Click Select items and select the Virtual Machine. Click **OK** and then click **OK** on the Create recovery plan blade.
+
+    ![Create recovery plan settings](images/hands-on-lab/2019-03-26-01-09-00.png "ASR Recovery Plan settings")
+
+4. After a minute or two, you should see the CloudShopRP on the Recovery plans blade. This recovery plan will bring up your web server during a failover. 
    
-4. On the CloudShopRP blade click Customize. Within the Recovery plan blade, click + Group.
-
-    ![An image that depicts Azure Recovery Plan Settings.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image08.png "ASR Recovery Plan settings")
-
-5. Under Group 1: Start click on the ellipse beside WebVM-1 and and WebVM-2 and choose Delete machine. Leave only SQL Server in Group-1.
-
-
-6. Click on the ellipse beside Group 2: Start and choose Add protected item and Add Both Web servers. Then save the changes.
-
-    ![An image that depicts Azure Recovery Plan Group Settings.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image09.png "ASR Recovery Plan Group settings")
-
-7. Now go back to the Recovery Services Vault BackupVault2 - Overview blade. Click on Site Recovery. Notice the two servers that make the Cloud Shop application are replicating. Take note of their status. They should be close to 100%. You will not be able to continue until they are finished replicating. 
+5. Now go back to the Recovery Services vault RSVault - Overview blade. Click on Site Recovery. Notice that the CloudShopWeb virtual machine is replicating. Take note of the status. It should be close to 100%. You will not be able to continue until it is finished replicating. 
    
    **Note**: This may take up to an hour.
 
-### Task 3: Creating the Test Fail Over.
+    ![](images/hands-on-lab/2019-03-26-02-15-27.png)
 
-1. Within the Azure portal, click on Resource Groups and locate the resource group with -asr added to the end of it's name.
-   
-    ![An image that depicts Azure Resource Group.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image10.png "ASR Resource Group")
+## Exercise 5: Failing Over to the Disaster Recovery Site 
 
-2. Click on this resource group and notice the resources created by ASR to support workload protection and failover.
+Duration: 30 minutes
 
-3. Navigate back to the Overview section of your Recovery Services vault via the tile on your dashboard. Under Site Recovery, click on **Replicated items** and ENSURE both Cloud Shop VMs are fully protected before continuing.
-   
-4. Navigate back to the Overview section of the **Recovery Services Vault**. Under Site Recovery click on **Recovery Plans**.
+In this exercise, you will fail over to your disaster recovery site.
 
-    ![An image that depicts Azure ASR Recovery Plan.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image12.png "ASR Recovery plan")
+### Task 1: Failover the Data Tier
 
-5. Right-click the CloudShopRP and click **Test Failover**.
+1.  Login to your CloudShopSQL virtual machine and launch SQL Server Management Studio. 
 
-    ![An image that depicts Azure ASR Recovery Plan.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image13.png "ASR Test failover")
+2.  Open a connection to your CloudShopSQL instance, expand Always On High Availability, Availability Replicas, then righ-click **CloudShopSQL2** and choose **Properties**.
 
-6. On the new Test failover blade, under Choose a recovery point, select Latest processed (low RTO) and under Azure virtual network choose **CloudShopVNET1-asr**. Click OK.
+    ![](images/hands-on-lab/2019-03-25-18-55-26.png)
 
-**Note**: In a 'real-world' recovery test, you should choose an isolated virtual network so as to not impact the production application. 
+3.  On the properties window, change the availability mode to **Synchronous commit** and then click **OK**. Note that in a real outage scenario it may not be possible to use this method and may require a forced failover which may incur some data loss.  
 
-7. From the Recovery Services vault blade, click Jobs under MONITORING AND REPORTS. In the new blade, under General, select **Site recovery jobs**.
-On the Site recovery jobs blade click on the running job (Test failover).
+    ![](images/hands-on-lab/2019-03-25-18-59-46.png)
 
-8. On the Test failover blade, monitor the progress of the failover. Notice each step is executing and you can track the status and execution time. Also notice that the data tier is being started first, then the app tier, as per our recovery plan.
+4.  Repeat the above for **CloudShopSQL**. This will enable synchronous commits between the two replicas allowing us to failover without breaking the Availability Group replication.
 
-9. Navigate back to the Overview section of the **Recovery Services Vault**. Under Site Recovery click back on Recovery plans. Notice the Recovery plan is waiting on your input.
+5.  Right-click the **AdventureWorks** Availability Group and choose **Failover...** from the menu.
 
+    ![](images/hands-on-lab/2019-03-25-19-22-06.png)
 
-10. Under Resource groups in the left-hand navigation bar, navigate to the resource group created for this protected workload, called CloudShopRG1-asr. Note the resources that have been created as a part of the failover action. The compute resources were not provisioned until the failover occurred.
+6.  In the Failover Wizard, click **Next** on the first screen.
 
-### Task 4: Cleaning the Test Fail Over.
+7.  On the Select New Primary Replica window, select **CloudShopSQL2** and then click **Next**.
 
-1. In the Azure portal, navigate back to the **Recovery Services Vault** via the dashboard tile. In the **Overview** section of the Recovery Services Vault, under the **Site Recovery tab**, click on **Recovery plans**.
-   
-2. Notice that the recovery plan has a pending job called **Cleanup test failover** pending. Right-click on the **CloudShopRP recovery plan** and select **Cleanup test failover**.
+    ![](images/hands-on-lab/2019-03-25-19-25-13.png)
 
-3. In the Test failover cleanup blade, enter notes indicating that the test was successful, and click the checkbox indicating the testing is complete. Then click OK.
-   
-4. Navigate back to the Overview section of the **Recovery Services Vault**. Under Site Recovery find the jobs tile and click on In-progress jobs. 
-   
-5. On the Site recovery jobs blade, click on the running job. Monitor the status until the environment is cleaned up (approximately 5 minutes).
+8.  On the Connect to Replica window, connect to **CloudShopSQL2** with the **CONTOSO\demouser** account and click **Next**.
 
-6. In the Azure portal navigate to Resource Groups and click on the **CloudShopRG1-asr** resource group. Notice that the virtual machines and network interfaces have all been deleted, leaving only the resources ASR initial created to support protection and the manually-created public IP address.
-  
-## Exercise 5: Validate resiliency
+    ![](images/hands-on-lab/2019-03-25-19-27-50.png)
 
-# We should first failover ASR. Move validation to the end.
+9.  On the summary window, click **Finish**, then click **Close** on successful completion of the failover.
 
-### Task 1: Validate resiliency for the CloudShop application 
+### Task 2: Failover the Web Tier
 
-1.  In the Azure portal, open the **CloudShopRG** resource group. Click the Load Balancer, **OPSLB**.
+To fail over the entire environment requires the database server to be up, then the web server may come online. After successfully failing over the data tier in the previous step we will now failover the web tier via ASR. 
 
-2.  Click the **Overview** tab and copy the public IP address to the clipboard, and navigate to it in a different browser tab.
+1. From the Azure portal, navigate to your **RSvault** resource.
 
-3.  After the application is loaded, click the Spike CPU button to simulate an auto scale event.
+2. Select **Recovery Plans (Site Recovery)** from the menu on the left.
 
-    ![A screen that shows the web page that allows for spiking the CPU,.](images/Hands-onlabstep-bystep-BuildingaresilientIaaSarchitectureimages/media/image105.png "CPU Spike Demo")
+    ![](images/hands-on-lab/2019-03-26-03-01-20.png)
 
-4.  After 15-20 minutes, refresh the browser and you will see cloud shop site is running and switched from one web server to another one. 
+3. Select your **CloudShopRP** recovery plan.
 
+4. On the CloudShopRP recovery plan blade, click the **...More** button, and then select **Failover** from the dropdown menu.
 
+    ![](images/hands-on-lab/2019-03-26-03-04-07.png)
 
+5. Check the box next to **I understand the risk**.
 
+6. Verify your failover settings and click **OK**.
+
+    ![](images/hands-on-lab/2019-03-26-04-06-02.png)
+
+7. You can monitor the status of your failover by selecting **Site recovery jobs** from the monitoring section of the menu on the left.
+
+8. After the failover completes, navigate to the **CloudShop2** resource group and open your **CloudShopWeb** virtual machine. 
+
+9.  Notice that it does not have a Public IP address. Click on **Networking** on the menu to the left.
+
+    ![](images/hands-on-lab/2019-03-26-04-24-41.png)
+
+10. Select the **CloudShopWebNetworkInterface**.
+
+    ![](images/hands-on-lab/2019-03-26-04-26-18.png)
+
+11. Select **IP Configurations** from the menu.
+
+    ![](images/hands-on-lab/2019-03-26-04-28-08.png)
+
+12. Change the **Public IP address settings** to **Enabled**, then create a new public IP address called **webpubip**. Click **OK** and **Save**.
+
+    ![](images/hands-on-lab/2019-03-26-04-30-12.png)
+
+13. Open a command prompt and issue an **iisreset** to restart the web service.
+
+### Task 3: Validate Failover of the CloudShop application 
+
+1. From the Azure portal, navigate to the **CloudShopWeb** virtual machine.   
+
+2. Copy the **Public IP address** and paste it into a browser to verify that your site is working.
 
 ## After the hands-on lab
 

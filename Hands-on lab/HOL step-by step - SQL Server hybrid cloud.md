@@ -361,7 +361,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 7. View the stretch database report. Note that over time the Eligible Rows, Local Rows, and Rows In Azure numbers will change as data is migrated to your Stretch Database in Azure.
 
-    ![](images/hands-on-lab/2019-03-20-12-21-30.png)
+    ![The stretch database report is shown with ResellerSales highlighted.](images/hands-on-lab/2019-03-20-12-21-30.png "Stretch Configured Tables")
 
 8.	Click the dropdown under Migration State. Notice that you have the option to pause the outbound migration.
 
@@ -706,37 +706,37 @@ browser if you have multiple Microsoft Accounts.
 
 3.  From your CloudShopSQL connection, expand Always On High Availability, Availability Replicas, then righ-click **CloudShopSQL2** and choose **Properties**.
 
-    ![](images/hands-on-lab/2019-03-25-18-55-26.png)
+    ![SQL Server Management Studio object explorer with Availability Groups and Availability Replicas expanded, the CloudShopSQL2 replica is highlighted and properties is highlighted on the right-click menu.](images/hands-on-lab/2019-03-25-18-55-26.png "Replica properties")
 
 4.  On the properties window, change the availability mode to **Synchronous commit** and then click **OK**. 
 
     Switching to synchronous commit allows us to failover without data loss. If we leave it in asynchronous mode, the failover would be "forced" which also implies some loss of data and invalidates the old primary replica. Since we are only testing functionality of our listener we DO NOT want to break the Availability Group replication.  
 
-    ![](images/hands-on-lab/2019-03-25-18-59-46.png)
+    ![The replica properties window with the availability mode set to synchronous commit.](images/hands-on-lab/2019-03-25-18-59-46.png "Replica properties")
 
 5.  Repeat the above for **CloudShopSQL**. This will enable synchronous commits between the two replicas allowing us to failover without breaking the Availability Group replication.
 
 6.  Right-click the **AdventureWorks** Availability Group, and choose **Show Dashboard** from the menu.
 
-    ![](images/hands-on-lab/2019-03-25-19-16-22.png)
+    ![The AdventureWorks availability group is highlighted with show dashboard selected in the right-click menu.](images/hands-on-lab/2019-03-25-19-16-22.png "Show Dashboard")
 
 7.  The dashboard should show both **CloudShopSQL** and **CloudShopSQL2** with a status of **Synchronized**.
 
-    ![](images/hands-on-lab/2019-03-25-19-19-34.png)
+    ![The availability group dashboard is shown with the synchronization state of CloudShopSQL and CloudShopSQL2 set to synchronized.](images/hands-on-lab/2019-03-25-19-19-34.png "Dashboard")
 
 8.  Right-click the **AdventureWorks** Availability Group again and choose **Failover...** from the menu.
 
-    ![](images/hands-on-lab/2019-03-25-19-22-06.png)
+    ![The Adventure Works availability group is highlighted with failover selected in the right-click menu.](images/hands-on-lab/2019-03-25-19-22-06.png "Failover")
 
 9.  In the Failover Wizard, click **Next** on the first screen.
 
 10. On the Select New Primary Replica window, select **CloudShopSQL2** and then click **Next**.
 
-    ![](images/hands-on-lab/2019-03-25-19-25-13.png)
+    ![The select new primary replica window is shown with CloudShopSQL2.](images/hands-on-lab/2019-03-25-19-25-13.png "Select new primary replica")
 
 11. On the Connect to Replica window, connect to **CloudShopSQL2** with the **CONTOSO\demouser** account and click **Next**.
 
-    ![](images/hands-on-lab/2019-03-25-19-27-50.png)
+    ![On the Specify the connection for the secondary replica window, CloudShopSQL2 is highlighted and CONTOSO\demouser is listed under connected as.](images/hands-on-lab/2019-03-25-19-27-50.png "Specify the connection")
 
 12. On the summary window, click **Finish**, then click **Close** on successful completion of the failover.
 
@@ -748,7 +748,7 @@ browser if you have multiple Microsoft Accounts.
     SELECT @@SERVERNAME
     ```
 
-    ![](images/hands-on-lab/2019-03-25-19-41-47.png)
+    ![A query window is shown with select @@version as the query and CloudShopSQL2 as the reuslt.](images/hands-on-lab/2019-03-25-19-41-47.png "Query window")
 
 15. Use the Failover Wizard to fail **AdventureWorks** back to CloudShopSQL. 
 
@@ -762,7 +762,7 @@ browser if you have multiple Microsoft Accounts.
 
 4.  Edit the connection string to connect to the **AdventureWorks** listener.
 
-    ![](images/hands-on-lab/2019-03-26-04-37-23.png)
+    ![The web.config file is shown with the data source set to adventureworks.](images/hands-on-lab/2019-03-26-04-37-23.png "Edit the web.config")
 
 5.  Save the file.
 
@@ -794,7 +794,7 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
     - Resource group: **CloudShop2**
     - Location: ***Use the same location assigned to CloudShop2***
 
-        ![](images/hands-on-lab/2019-03-25-23-30-11.png)
+        ![The recovery services vault creation blade is show.](images/hands-on-lab/2019-03-25-23-30-11.png "Create the Recovery Services Vault")
 
 ### Task 2: Configure Azure Site Recovery
 
@@ -804,11 +804,11 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
 3. Click the **+Add mapping** button. Set your source network to VNET1 and your target network to VNET2.
 
-    ![](images/hands-on-lab/2019-03-26-03-20-41.png)
+    ![Network mapping is shown across VNET1 and VNET2.](images/hands-on-lab/2019-03-26-03-20-41.png "Add network mapping")
 
 4. In the Recovery Services vault blade, click on **Site Recovery** under **Getting started**.
 
-    ![](images/hands-on-lab/2019-03-25-23-46-47.png)
+    ![The recovery services vault blade with site recovery highlighted.](images/hands-on-lab/2019-03-25-23-46-47.png "Setup Site Recovery")
 
 5. Under **FOR ON-PREMISES MACHINES AND AZURE VMS** click **Step 1: Replicate Application**.
 
@@ -826,7 +826,7 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
 7. On the select virtual machines blade, select the **CloudShopWeb** virtual machine for replication. We will only use Azure Site Recovery to protect the web servers. Click the **OK** button.
 
-    ![](images/hands-on-lab/2019-03-26-00-02-35.png)
+    ![CloudShopWeb is highlighted in the select virtual machines window.](images/hands-on-lab/2019-03-26-00-02-35.png "Select virtual machines")
 
 8. On the Configure settings blade, set the Target location to the location of your CloudShop2 resource group. 
 
@@ -876,7 +876,7 @@ In this task, you will create the recovery plan that will be used to orchestrate
    
    **Note**: This may take up to an hour.
 
-    ![](images/hands-on-lab/2019-03-26-02-15-27.png)
+    ![The recovery services vault overview with site recovery selected.](images/hands-on-lab/2019-03-26-02-15-27.png "RSVault - Site Recovery")
 
 ## Exercise 5: Failing Over to the Disaster Recovery Site 
 
@@ -888,29 +888,29 @@ In this exercise, you will fail over to your disaster recovery site.
 
 1.  Login to your CloudShopSQL virtual machine and launch SQL Server Management Studio. 
 
-2.  Open a connection to your CloudShopSQL instance, expand Always On High Availability, Availability Replicas, then righ-click **CloudShopSQL2** and choose **Properties**.
+2.  Open a connection to your CloudShopSQL instance, expand Always On High Availability, Availability Replicas, then right-click **CloudShopSQL2** and choose **Properties**.
 
-    ![](images/hands-on-lab/2019-03-25-18-55-26.png)
+    ![The CloudShop2 availability replica is selected and the properties is highlighted.](images/hands-on-lab/2019-03-25-18-55-26.png "CloudShop2 properties")
 
 3.  On the properties window, change the availability mode to **Synchronous commit** and then click **OK**. Note that in a real outage scenario it may not be possible to use this method and may require a forced failover which may incur some data loss.  
 
-    ![](images/hands-on-lab/2019-03-25-18-59-46.png)
+    ![The properties of CloudShop2 are shown with the availability mode set to synchronous commit.](images/hands-on-lab/2019-03-25-18-59-46.png "Set CloudShop2 to synchronous commit")
 
 4.  Repeat the above for **CloudShopSQL**. This will enable synchronous commits between the two replicas allowing us to failover without breaking the Availability Group replication.
 
 5.  Right-click the **AdventureWorks** Availability Group and choose **Failover...** from the menu.
 
-    ![](images/hands-on-lab/2019-03-25-19-22-06.png)
+    ![The AdventureWorks availability group is highlighted and failover is selected from the right-click menu.](images/hands-on-lab/2019-03-25-19-22-06.png "Failover")
 
 6.  In the Failover Wizard, click **Next** on the first screen.
 
 7.  On the Select New Primary Replica window, select **CloudShopSQL2** and then click **Next**.
 
-    ![](images/hands-on-lab/2019-03-25-19-25-13.png)
+    ![The select new primary window is shown with CloudShopSQL2 highlighted.](images/hands-on-lab/2019-03-25-19-25-13.png "Select New Primary Replica")
 
 8.  On the Connect to Replica window, connect to **CloudShopSQL2** with the **CONTOSO\demouser** account and click **Next**.
 
-    ![](images/hands-on-lab/2019-03-25-19-27-50.png)
+    ![The specify the connection window is shown with CONTOSO\demouser set as the username.](images/hands-on-lab/2019-03-25-19-27-50.png "Connect to replica")
 
 9.  On the summary window, click **Finish**, then click **Close** on successful completion of the failover.
 
@@ -922,19 +922,19 @@ To fail over the entire environment requires the database server to be up, then 
 
 2. Select **Recovery Plans (Site Recovery)** from the menu on the left.
 
-    ![](images/hands-on-lab/2019-03-26-03-01-20.png)
+    ![Recovery Plans Site Recovery is highted on the Manage menu.](images/hands-on-lab/2019-03-26-03-01-20.png "Recovery services vault")
 
 3. Select your **CloudShopRP** recovery plan.
 
 4. On the CloudShopRP recovery plan blade, click the **...More** button, and then select **Failover** from the dropdown menu.
 
-    ![](images/hands-on-lab/2019-03-26-03-04-07.png)
+    ![The CloudShopRP recovery plan blade is shown and the **...More** button is highlighted, and failover is highlighted from the dropdown menu](images/hands-on-lab/2019-03-26-03-04-07.png "CloudShopRP recovery plan")
 
 5. Check the box next to **I understand the risk**.
 
 6. Verify your failover settings and click **OK**.
 
-    ![](images/hands-on-lab/2019-03-26-04-06-02.png)
+    ![Failover window with recovery point set to latest processed, and the shutdown machines checkbox checked.](images/hands-on-lab/2019-03-26-04-06-02.png "Verify failover")
 
 7. You can monitor the status of your failover by selecting **Site recovery jobs** from the monitoring section of the menu on the left.
 
@@ -942,19 +942,19 @@ To fail over the entire environment requires the database server to be up, then 
 
 9.  Notice that it does not have a Public IP address. Click on **Networking** on the menu to the left.
 
-    ![](images/hands-on-lab/2019-03-26-04-24-41.png)
+    ![CloudShopWeb virtual machine overview with missing public ip highlighted.](images/hands-on-lab/2019-03-26-04-24-41.png "Missing public IP")
 
 10. Select the **CloudShopWebNetworkInterface**.
 
-    ![](images/hands-on-lab/2019-03-26-04-26-18.png)
+    ![The CloudShopWebNetworkInterface is shown.](images/hands-on-lab/2019-03-26-04-26-18.png "CloudShopWebNetworkInterface")
 
 11. Select **IP Configurations** from the menu.
 
-    ![](images/hands-on-lab/2019-03-26-04-28-08.png)
+    ![The network interface overview with IP configurations selected from the menu on the left.](images/hands-on-lab/2019-03-26-04-28-08.png "Network Interface overview")
 
 12. Change the **Public IP address settings** to **Enabled**, then create a new public IP address called **webpubip**. Click **OK** and **Save**.
 
-    ![](images/hands-on-lab/2019-03-26-04-30-12.png)
+    ![The CloudShopWeb network interface settings are shown with the public ip address being enabled.](images/hands-on-lab/2019-03-26-04-30-12.png "Update Public IP settings")
 
 13. Open a command prompt and issue an **iisreset** to restart the web service.
 

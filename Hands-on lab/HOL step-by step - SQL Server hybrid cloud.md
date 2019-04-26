@@ -216,7 +216,20 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     GO
     ```
 
-5.  Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and click **Execute**. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
+5.  Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and click **Execute**. An example of the code is below. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
+
+    ```sql
+    CREATE CREDENTIAL [https://<your_storage_account>.blob.core.windows.net/backups]
+    WITH IDENTITY = 'Shared Access Signature',
+    SECRET = '<your_sas_token>'
+    GO
+    
+    EXEC msdb.managed_backup.sp_backup_config_basic
+        enable_backup = 1,
+        @database_name = 'AdventureWorks',
+        @container_url = 'https://<your_storage_account>.blob.core.windows.net/backups',
+        @retention_days = 30
+    ```
 
 6.  Paste the code below into the query window replacing the existing code and click **Execute** to create a custom backup schedule.
 

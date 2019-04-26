@@ -193,7 +193,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
 ### Task 2: Configure managed backup in SQL Server
 
-1.  From within your SQL Server virtual machine, launch SQL Server Management Studio and connect to the local database instance.
+1.  From within your SQL Server virtual machine, launch SQL Server Management Studio and connect to the local database instance, expand databases, and select the **AdventureWorks** database.
 
 2.  From within SQL Server Management Studio, click **New Query**.
 

@@ -108,11 +108,11 @@ In this exercise, you deploy an on-premises environment and the Azure infrastruc
 
 2.  Open the **CloudShopWeb** virtual machine resource.
 
-3.  Copy the **public ip address**.
+3.  Copy the **public IP address**.
 
-    ![The CloudShopWeb virtual machine with the public ip address highlighted.](images/before-the-hands-on-lab/2019-03-24-17-22-38.png "Copy the public ip address of the web server")
+    ![The CloudShopWeb virtual machine with the public IP address highlighted.](images/before-the-hands-on-lab/2019-03-24-17-22-38.png "Copy the public IP address of the web server")
 
-4.  Paste the public ip address into a web browser. You should see the Cloud Shop web page.
+4.  Paste the public IP address into a web browser. You should see the Cloud Shop web page.
 
     ![The CloudShop web page.](images/before-the-hands-on-lab/2019-03-24-17-25-37.png "Cloud Shop")
 

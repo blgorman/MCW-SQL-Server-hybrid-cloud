@@ -40,7 +40,7 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 1: Crete a logical SQL Server to host Stretch DB](#task-1-crete-a-logical-sql-server-to-host-stretch-db)
     - [Task 2: Identify tables that may benefit from Stretch DB](#task-2-identify-tables-that-may-benefit-from-stretch-db)
     - [Task 3: Implement Stretch DB based on date key](#task-3-implement-stretch-db-based-on-date-key)
-    - [Summary](#summary)
+  - [Summary](#summary)
   - [Exercise 3: Build SQL Availability Group for Database Disaster Recovery](#exercise-3-build-sql-availability-group-for-database-disaster-recovery)
     - [Task 1: Create the cluster](#task-1-create-the-cluster)
     - [Task 2: Create the SQL Server Availability Group](#task-2-create-the-sql-server-availability-group)
@@ -295,7 +295,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 8. Add a new firewall rule by clicking **+Add client IP** and then clicking **Save**.
 
-    ![](images/hands-on-lab/2019-03-20-12-01-55.png "Firewall configuration")
+    ![The firewall configuration dialogue with the save and add client IP buttons highlighted.](images/hands-on-lab/2019-03-20-12-01-55.png "Firewall configuration")
 
 ### Task 2: Identify tables that may benefit from Stretch DB 
 
@@ -808,27 +808,27 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
 9. Click on the **Customize** link.
 
-    ![](images/hands-on-lab/2019-03-26-03-26-07.png)
+    ![The configure settings dialogue with the Customize button highlighted.](images/hands-on-lab/2019-03-26-03-26-07.png "Configure settings dialogue")
 
 10. Change the target resource group to **CloudShop2**.
 
-    ![](images/hands-on-lab/2019-03-26-03-27-29.png)
+    ![The customize target resources dialogue with default settings.](images/hands-on-lab/2019-03-26-03-27-29.png "Customize target resources")
 
 11. Click **Create target resources**. 
 
     **Note**: Do not close the blade. It will close by itself after the target resources are created (2-3 minutes).
 
-    ![](images/hands-on-lab/2019-03-26-00-06-44.png)
+    ![The Configure settings dialogues iwth the create target resources button highlighted.](images/hands-on-lab/2019-03-26-00-06-44.png "Create target resources")
 
 12. On the Enable Replication blade, click the **enable replication** button. 
 
 13. Several Site Recovery jobs will be initiated which are creating the replication policy as well as the target resources to be used during a failover. Click on **Site recovery jobs** to view the job progress.
 
-    ![](images/hands-on-lab/2019-03-26-00-52-02.png)
+    ![The site recovery jobs dialogue showing the automatically generated jobs running.](images/hands-on-lab/2019-03-26-00-52-02.png "Site recovery jobs")
 
 14. Once all the jobs are successful, click on **Replicated items** under **Protected Items** to view the status of the initial replication.
     
-    ![](images/hands-on-lab/2019-03-26-00-53-16.png)
+    ![THe replicated items dialogue showing the CloudShop2 replication health as healthy.](images/hands-on-lab/2019-03-26-00-53-16.png "Replicated items")
 
 15. While waiting for the initial replication/synchronization, move on to the next task.
 

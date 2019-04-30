@@ -1,0 +1,577 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUsername": {
+            "type": "string",
+            "minLength": 1,
+            "defaultValue": "demouser",
+            "metadata": {
+              "description": "Username for the Virtual Machines"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "defaultValue": "demo@pass123",
+            "metadata": {
+              "description": "Password for the Virtual Machines"
+            }
+        },
+        "smartHotelName": {
+            "defaultValue": "sh360",
+            "type": "string",
+            "metadata": {
+                "description": "Prefix for SmartHotel assets for a nested deployment"
+            }
+        },
+        "adDomainName": {
+            "type": "string",
+            "defaultValue": "sh360.local",
+            "metadata": {
+                "description": "Name of the AD domain"
+            }
+        },
+        "studentFilesUrl": {
+            "type": "string",
+            "defaultValue": "https://github.com/ciphertxt/cw-smart-hotel-360-iaas/raw/master/support/StudentFiles.zip"
+        },
+          "studentFilesDestination": {
+            "type": "string",
+            "defaultValue": "C:\\OpsgilityTraining"
+        },
+        "postBootScriptUrl": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/ciphertxt/cw-smart-hotel-360-iaas/master/scripts/PostRebootConfigure.ps1"
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The location of resources, such as templates and DSC modules, that the template depends on"
+            },
+            "defaultValue": "https://raw.githubusercontent.com/ciphertxt/cw-smart-hotel-360-iaas/master/"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Auto-generated token to access _artifactsLocation"
+            },
+            "defaultValue": ""
+        }
+    },
+    "variables": {
+        "smarthotelhostVMname": "[concat(parameters('smartHotelName'),'host')]",
+        "smarthotelhostNICname": "[concat(variables('smarthotelhostVMname'),'nic')]",
+        "smarthotelad1VMname": "[concat(parameters('smartHotelName'),'ad1')]",
+        "smarthotelad1NICname": "[concat(variables('smarthotelad1VMname'),'nic')]",
+        "smarthotelhostOSdisk": "[concat(variables('smarthotelhostVMname'),'osdisk')]",
+        "smarthotelad1OSdisk": "[concat(variables('smarthotelad1VMname'),'osdisk')]",
+        "smarthotelhostDATAdisk": "[concat(variables('smarthotelhostVMname'),'datadisk')]",
+        "smarthotelad1DATAdisk": "[concat(variables('smarthotelad1VMname'),'datadisk')]",
+        "publicIPAddressName": "[concat(variables('smarthotelhostVMname'), 'ip')]",
+        "publicIPAddressNameAD": "[concat(variables('smarthotelad1VMname'), 'ip')]",
+        "smarthotelVNETname": "[concat(parameters('smartHotelName'),'vnet')]",
+        "addressPrefix": "10.0.0.0/16",
+        "subnetPrefix": "10.0.0.0/24",
+        "smarthotelad1NICip": "10.0.0.4",
+        "smarthotelSubnetname": "host",
+        "smarthotelhostNSGname": "[concat(parameters('smartHotelName'),'nsg')]",
+        "rdpRulename": "RDP",
+        "webRulename": "HTTP",
+        "smarthotelhostTMName": "[concat(parameters('smartHotelName'),'tm')]",
+        "uniquePublicIPName": "[concat(parameters('smartHotelName'), 'web', '-', uniqueString(resourceGroup().id))]",
+        "uniqueTMName": "[concat(variables('smarthotelhostTMName'), '-', uniqueString(resourceGroup().id))]",
+        "customScriptFolder": "./",
+        "customScriptUriScriptFileName": "BootStrapSmartHotelHost.ps1",
+        "customScriptUri": "https://raw.githubusercontent.com/ciphertxt/cw-smart-hotel-360-iaas/master/scripts/BootStrapSmartHotelHost.ps1",
+        "region": "[resourceGroup().location]",
+        "labName": "MCW-SQL-Server-Hybrid-Cloud"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[variables('smarthotelad1VMname')]",
+            "apiVersion": "2018-06-01",
+            "location": "[variables('region')]",
+            "tags": {
+                "Lab": "[variables('labName')]"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_D2s_v3"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2016-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[variables('smarthotelad1OSdisk')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        },
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "[variables('smarthotelad1DATAdisk')]",
+                            "createOption": "Attach",
+                            "caching": "None",
+                            "managedDisk": {
+                                "id": "[resourceId('Microsoft.Compute/disks/', variables('smarthotelad1DATAdisk'))]"
+                            }
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('smarthotelad1VMname')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('smarthotelad1NICname'))]"
+                        }
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('smarthotelad1NICname'))]",
+                "[resourceId('Microsoft.Compute/disks/', variables('smarthotelad1DATAdisk'))]"
+            ],
+            "resources": [
+                {
+                    "type": "extensions",
+                    "name": "CreateADForest",
+                    "apiVersion": "2017-03-30",
+                    "location": "[variables('region')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('smarthotelad1VMname'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Powershell",
+                        "type": "DSC",
+                        "typeHandlerVersion": "2.19",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "ModulesUrl": "[concat(parameters('_artifactsLocation'), '/dsc/CreateADPDC.zip', parameters('_artifactsLocationSasToken'))]",
+                            "ConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
+                            "Properties": {
+                                "DomainName": "[parameters('adDomainName')]",
+                                "AdminCreds": {
+                                    "UserName": "[parameters('adminUsername')]",
+                                    "Password": "PrivateSettingsRef:AdminPassword"
+                                }
+                            }
+                        },
+                        "protectedSettings": {
+                            "Items": {
+                                "AdminPassword": "[parameters('adminPassword')]"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[variables('smarthotelhostVMname')]",
+            "apiVersion": "2018-06-01",
+            "location": "[variables('region')]",
+            "tags": {
+                "Lab": "[variables('labName')]"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_D8s_v3"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2016-Datacenter",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[variables('smarthotelhostOSdisk')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        },
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": [
+                        {
+                            "lun": 0,
+                            "name": "[variables('smarthotelhostDATAdisk')]",
+                            "createOption": "Attach",
+                            "caching": "None",
+                            "managedDisk": {
+                                "id": "[resourceId('Microsoft.Compute/disks/', variables('smarthotelhostDATAdisk'))]"
+                            }
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('smarthotelhostVMname')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true
+                    },
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('smarthotelhostNICname'))]"
+                        }
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('smarthotelhostNICname'))]",
+                "[resourceId('Microsoft.Compute/disks/', variables('smarthotelhostDATAdisk'))]",
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('smarthotelad1VMname'))]"
+            ],
+            "resources": [
+                {
+                  "name": "BootStrapSmartHotel",
+                  "type": "extensions",
+                  "location": "[variables('region')]",
+                  "apiVersion": "2016-03-30",
+                  "dependsOn": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', variables('smarthotelhostVMname'))]",
+                    "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('smarthotelad1VMname'), 'CreateADForest')]"
+                  ],
+                  "tags": {
+                    "displayName": "ConfigureHost"
+                  },
+                  "properties": {
+                    "publisher": "Microsoft.Compute",
+                    "type": "CustomScriptExtension",
+                    "typeHandlerVersion": "1.4",
+                    "autoUpgradeMinorVersion": false,
+                    "settings": {
+                      "fileUris": [
+                        "[variables('customScriptUri')]"
+                      ],
+                      "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('customScriptFolder'), '/', variables('customScriptUriScriptFileName'), ' -postBootScriptUrl ', parameters('postBootScriptUrl'), ' -sourceFileUrl ', parameters('studentFilesUrl'), ' -destinationFolder ', parameters('studentFilesDestination'), ' -region ', variables('region'))]"
+                    }
+                  }
+                }
+              ]
+        },
+        {
+            "type": "Microsoft.Compute/disks",
+            "name": "[variables('smarthotelhostDATAdisk')]",
+            "apiVersion": "2017-03-30",
+            "location": "[variables('region')]",
+            "sku": {
+                "name": "Premium_LRS"
+            },
+            "properties": {
+                "creationData": {
+                    "createOption": "Empty"
+                },
+                "diskSizeGB": 1023
+            }
+        },
+        {
+            "type": "Microsoft.Compute/disks",
+            "name": "[variables('smarthotelad1DATAdisk')]",
+            "apiVersion": "2017-03-30",
+            "location": "[variables('region')]",
+            "sku": {
+                "name": "Premium_LRS"
+            },
+            "properties": {
+                "creationData": {
+                    "createOption": "Empty"
+                },
+                "diskSizeGB": 20
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('smarthotelhostNICname')]",
+            "apiVersion": "2018-08-01",
+            "location": "[variables('region')]",
+            "tags": {
+                "Lab": "[variables('labName')]"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('smarthotelVNETname'), variables('smarthotelSubnetname'))]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('smarthotelhostNSGname'))]"
+                },
+                "primary": true,
+                "virtualMachine": {
+                    "id": "[resourceId('Microsoft.Compute/virtualMachines', variables('smarthotelhostVMname'))]"
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('smarthotelVNETname'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('smarthotelad1NICname'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('smarthotelad1NICname')]",
+            "apiVersion": "2018-08-01",
+            "location": "[variables('region')]",
+            "tags": {
+                "Lab": "[variables('labName')]"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[variables('smarthotelad1NICip')]",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameAD'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('smarthotelVNETname'), variables('smarthotelSubnetname'))]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('smarthotelhostNSGname'))]"
+                },
+                "primary": true,
+                "virtualMachine": {
+                    "id": "[resourceId('Microsoft.Compute/virtualMachines', variables('smarthotelad1VMname'))]"
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameAD'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/', variables('smarthotelVNETname'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "name": "[variables('publicIPAddressNameAD')]",
+            "apiVersion": "2018-08-01",
+            "location": "[variables('region')]",
+            "tags": {
+                "Lab": "[variables('labName')]"
+            },
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            },
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "name": "[variables('publicIPAddressName')]",
+            "apiVersion": "2018-08-01",
+            "location": "[variables('region')]",
+            "tags": {
+                "Lab": "[variables('labName')]"
+            },
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": [],
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('uniquePublicIPName')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "apiVersion": "2016-03-30",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[variables('smarthotelVNETname')]",
+            "location": "[variables('region')]",
+            "tags": {
+              "displayName": "VirtualNetwork",
+              "Lab": "[variables('labName')]"
+            },
+            "properties": {
+              "addressSpace": {
+                "addressPrefixes": [
+                  "[variables('addressPrefix')]"
+                ]
+              },
+              "subnets": [
+                {
+                  "name": "[variables('smarthotelSubnetname')]",
+                  "properties": {
+                    "addressPrefix": "[variables('subnetPrefix')]"
+                  }
+                }
+              ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[variables('smarthotelhostNSGname')]",
+            "apiVersion": "2018-08-01",
+            "location": "[variables('region')]",
+            "tags": {
+                "Lab": "[variables('labName')]"
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "[variables('rdpRulename')]",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 301,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "[variables('webRulename')]",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            },
+            "dependsOn": []
+        },
+        {
+            "apiVersion": "2015-11-01",
+            "type": "Microsoft.Network/trafficManagerProfiles",
+            "name": "[variables('smarthotelhostTMName')]",
+            "location": "global",
+            "tags": {
+                "Lab": "[variables('labName')]"
+            },
+            "properties": {
+              "profileStatus": "Enabled",
+              "trafficRoutingMethod": "Priority",
+              "dnsConfig": {
+                "relativeName": "[variables('uniqueTMName')]",
+                "ttl": 60
+              },
+              "monitorConfig": {
+                "protocol": "HTTP",
+                "port": 80,
+                "path": "/"
+              },
+              "endpoints": [
+                {
+                  "name": "smarthotel360local",
+                  "type": "Microsoft.Network/trafficManagerProfiles/azureEndpoints",
+                  "properties": {
+                    "targetResourceId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+                    "endpointStatus": "Enabled",
+                    "weight": 1,
+                    "priority": 1
+                  }
+                }
+              ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('smarthotelhostNICname'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "name": "UpdateVNetDNS",
+            "apiVersion": "2016-02-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('smarthotelad1VMname'), 'CreateADForest')]",
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', variables('smarthotelhostVMname'), 'BootStrapSmartHotel')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/vnet-with-dns-server.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "[variables('smarthotelVNETname')]"
+                    },
+                    "virtualNetworkAddressRange": {
+                        "value": "[variables('addressPrefix')]"
+                    },
+                    "subnetName": {
+                        "value": "[variables('smarthotelSubnetname')]"
+                    },
+                    "subnetRange": {
+                        "value": "[variables('subnetPrefix')]"
+                    },
+                    "DNSServerAddress": {
+                        "value": [
+                            "[variables('smarthotelad1NICip')]"
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

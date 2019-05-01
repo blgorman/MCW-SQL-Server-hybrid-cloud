@@ -25,7 +25,9 @@ At the end of this whiteboard design session, you will be better able to design 
  
 ### Hands-on lab
 
-At this time, there is no hands-on lab for this workshop.
+In this hands-on lab, you will build a disaster recovery site for an on-premises environment. You will enhance the existing database solution to support a hybrid cloud-based disaster recovery solution, implement an archiving strategy and a backup/restore strategy designed to protect data.
+
+At the end of the lab, you will be better able to design and use availability sets, Managed Disks, SQL Server Always on Availability Groups, Stretch DB and SQL Server Managed Backup.
 
 ## Azure services and related products
 - SQL Server (On Prem)

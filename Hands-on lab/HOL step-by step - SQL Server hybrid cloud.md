@@ -818,7 +818,7 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
     **Note**: Do not close the blade. It will close by itself after the target resources are created (2-3 minutes).
 
-    ![The Configure settings dialogues iwth the create target resources button highlighted.](images/hands-on-lab/2019-03-26-00-06-44.png "Create target resources")
+    ![The Configure settings dialogues with the create target resources button highlighted.](images/hands-on-lab/2019-03-26-00-06-44.png "Create target resources")
 
 12. On the Enable Replication blade, click the **enable replication** button. 
 

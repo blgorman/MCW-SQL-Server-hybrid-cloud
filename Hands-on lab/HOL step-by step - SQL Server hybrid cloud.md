@@ -77,13 +77,13 @@ Contoso has asked you to deploy their infrastructure in a resilient manner to en
 
 Cloud based disaster recovery site.
 
-    need new diagram
+![Enterprise disaster recovery architecture](images/hands-on-lab/disaster-recovery-diagram.png) "Enterprise disaster recovery architecture")
 
 ## Requirements
 
-1.  Microsoft Azure Subscription
+1. Microsoft Azure Subscription
 
-2.  Virtual Machine Built during this hands-on lab or local machine with the following:
+2. Virtual Machine Built during this hands-on lab or local machine with the following:
 
     - Visual Studio 2017 Community or Enterprise Edition
     - Latest Azure PowerShell cmdlets:
@@ -92,6 +92,7 @@ Cloud based disaster recovery site.
         - Ensure you reboot after installing the SDK or Azure PowerShell may not work correctly.
 
 ### Help references
+
 |    |            |
 |----------|:-------------:|
 | **Description** | **Links** |

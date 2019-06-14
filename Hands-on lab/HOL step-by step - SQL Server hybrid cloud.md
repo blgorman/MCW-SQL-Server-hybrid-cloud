@@ -9,9 +9,8 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-March 2019
+June 2019
 </div>
-
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
 
@@ -106,7 +105,6 @@ Cloud based disaster recovery site.
 | Virtual Network Peering | <https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview> |
 | Azure Backup |  <https://azure.microsoft.com/en-us/services/backup/> |
 
-
 ## Exercise 1: SQL Backup solution
 
 Duration: 30 minutes
@@ -117,7 +115,7 @@ Backups must be maintained offsite from the on-premises environment. The backups
 
 In this task, you will create an Azure Storage Account for use with SQL Managed Backup.
 
-1. Connect to your CloudShopSQL virtual machine by navigating to your **CloudShop1** resource group and then connecting to the **CloudShopSQL** virtual machine.
+1. Connect to your CloudShopSQL virtual machine by navigating to your **CloudShop1** resource group and then connecting to the **CloudShopSQL**  virtual machine.
 
 2. Login with username **demouser** and password **demo@pass123**.
 
@@ -127,19 +125,19 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
 4. From within your SQL Server guest virtual machine, install Azure PowerShell by launching an **administrative PowerShell ISE session** and running the following command. Accept any warnings or authorization to install the components.
 
-    ```
-
+    ```powershell
     Install-Module -Name AzureRM -AllowClobber
-
     ```
 
-5.  From the PowerShell ISE, type the following at the prompt and follow the prompts to login to your Azure subscription:
+5. From the PowerShell ISE, type the following at the prompt and follow the prompts to login to your Azure subscription:
 
-    ```
+    ```powershell
     login-AzureRmAccount
     ```
 
-6.  Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script, change the **$storageAcctName** variable to a unique name and change the location to match the location you are deploying into for this lab.
+6. Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script:
+   - change the **$storageAcctName** variable to a unique name
+   - change the location to match the location you are deploying into for this lab.
 
     ```powershell
     $storageAcctName = "[unique storage account name]"
@@ -169,45 +167,43 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     --------------------
     ---BEGIN TSQL Script
     --------------------
-    CREATE CREDENTIAL [$containerUrl] 
-    WITH IDENTITY = 'Shared Access Signature', 
-         SECRET = '$sasToken' 
+    CREATE CREDENTIAL [$containerUrl]
+    WITH IDENTITY = 'Shared Access Signature',
+         SECRET = '$sasToken'
 
     GO
 
-    EXEC msdb.managed_backup.sp_backup_config_basic   
-     @enable_backup = 1,   
+    EXEC msdb.managed_backup.sp_backup_config_basic
+     @enable_backup = 1,
      @database_name = 'AdventureWorks',  
-     @container_url = '$containerUrl',   
+     @container_url = '$containerUrl',
      @retention_days = 30
-       
+
      --------------------
      ---END TSQL Script
      --------------------
     "@
 
-    Write-Host $enableManagedBackupScript 
+    Write-Host $enableManagedBackupScript
     ```
-
-7.  Execute the code using PowerShell ISE. Make sure you change the **\$storageAcctName = \"\[unique storage account name\]\"** field to a unique storage account name across Azure prior to execution. 
 
     >**Note**: Due to differences between markdown and PowerShell formatting requirements, you may need to remove the white space prior to the **\"\@** near the end of the file.
 
-8.  Save the T-SQL code generated between the **Begin TSQL Script** and **End TSQL Script** in your PowerShell ISE output after execution into a notepad file. This code creates an identity using a Shared Access Signature (SAS) to a container in the storage account and configures managed backup when executed.
+7. Save the T-SQL code generated between the **Begin TSQL Script** and **End TSQL Script** in your PowerShell ISE output after execution into a notepad file. This code creates an identity using a Shared Access Signature (SAS) to a container in the storage account and configures managed backup when executed.
 
 ### Task 2: Configure managed backup in SQL Server
 
-1.  From within your SQL Server virtual machine, launch SQL Server Management Studio and connect to the local database instance, expand databases, and select the **AdventureWorks** database.
+1. From within your SQL Server virtual machine, launch SQL Server Management Studio and connect to the local database instance, expand databases, and select the **AdventureWorks** database.
 
-2.  From within SQL Server Management Studio, click **New Query**.
+2. From within SQL Server Management Studio, click **New Query**.
 
     ![A screen showing how to launch the new query pane in SQL Server Management Studio.](images/hands-on-lab/2019-03-20-11-08-08.png "Launching the new query pane")
 
-3.  Refresh SQL Server Management Studio and if SQL Server Agent is stopped right click on it and click Start.
+3. Refresh SQL Server Management Studio and if SQL Server Agent is stopped right click on it and click Start.
 
     ![SQL Server Management Studio indicating the location of where to see the current status of the SQL Server Agent](images/hands-on-lab/2019-03-24-19-13-52.png "Management Studio")
 
-4. Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures. 
+4. Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures.
 
     ```sql
     EXEC sp_configure 'show advanced options', 1
@@ -220,14 +216,15 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     GO
     ```
 
-5.  Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and click **Execute**. An example of the code is below. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
+5. Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and click **Execute**. An example of the code is below. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
 
     ```sql
+    #sample only do not execute
     CREATE CREDENTIAL [https://<your_storage_account>.blob.core.windows.net/backups]
     WITH IDENTITY = 'Shared Access Signature',
     SECRET = '<your_sas_token>'
     GO
-    
+
     EXEC msdb.managed_backup.sp_backup_config_basic
         enable_backup = 1,
         @database_name = 'AdventureWorks',
@@ -235,7 +232,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
         @retention_days = 30
     ```
 
-6.  Paste the code below into the query window replacing the existing code and click **Execute** to create a custom backup schedule.
+6. Paste the code below into the query window replacing the existing code and click **Execute** to create a custom backup schedule.
 
     ```sql
     USE msdb;  
@@ -250,10 +247,11 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
         ,@log_backup_freq = '00:05'  
     GO
     ```
-7.  Execute the following tSQL in the query window to generate a backup on-demand. You can also specify Log for \@type.
+
+7. Execute the following tSQL in the query window to generate a backup on-demand. You can also specify Log for \@type.
 
     ```sql
-    EXEC msdb.managed_backup.sp_backup_on_demand   
+    EXEC msdb.managed_backup.sp_backup_on_demand
     @database_name  = 'AdventureWorks',
     @type ='Database'
     ```
@@ -266,13 +264,13 @@ Duration: 30 minutes
 
 In this exercise, you will implement SQL Server Stretch Database to stretch data from a table into Azure.
 
-### Task 1: Crete a logical SQL Server to host Stretch DB 
+### Task 1: Crete a logical SQL Server to host Stretch DB
 
-1.  From your **CloudShopSQL** virtual machine, launch a browser, navigate to the Azure portal and login with your Azure credentials.
+1. From your **CloudShopSQL** virtual machine, launch a browser, navigate to the Azure portal and login with your Azure credentials.
 
-2.  Click **+Create a resource** at the top of the left side menu.
+2. Click **+Create a resource** at the top of the left side menu.
 
-3.  Type **SQL Server logical server** into the search box, hit enter and choose **SQL server (logical server)** from the search results.
+3. Type **SQL Server logical server** into the search box, hit enter and choose **SQL server (logical server)** from the search results.
 
     ![Azure Marketplace search for SQL Server logical server](images/hands-on-lab/2019-03-20-11-38-42.png "Search for SQL Server logical server")
 
@@ -292,37 +290,39 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 6. Make note of the server name you chose above. It will be used in a later task.
 
-7. After the SQL Server logical server has deployed, navigate to it and select **Firewalls and virtual networks** from the security menu on the left.
+7. Click **Create**
+
+8. After the SQL Server logical server has deployed, navigate to it and select **Firewalls and virtual networks** from the security menu on the left.
 
     ![Security menu with Firewalls and virtual networks highlighted.](images/hands-on-lab/2019-03-20-11-56-21.png "Security menu")
 
-8. Add a new firewall rule by clicking **+Add client IP** and then clicking **Save**.
+9. Add a new firewall rule by clicking **+Add client IP** and then clicking **Save**.
 
     ![The firewall configuration dialogue with the save and add client IP buttons highlighted.](images/hands-on-lab/2019-03-20-12-01-55.png "Firewall configuration")
 
-### Task 2: Identify tables that may benefit from Stretch DB 
+### Task 2: Identify tables that may benefit from Stretch DB
 
-1.  From your **CloudShopSQL** virtual machine, launch SQL Server Management Studio if it is not already open.
+1. From your **CloudShopSQL** virtual machine, launch SQL Server Management Studio if it is not already open.
 
-2.  In the SQL Server Management Studio Object Explorer, connect to your local SQL Server instance and expand the Databases folder.
+2. In the SQL Server Management Studio Object Explorer, connect to your local SQL Server instance and expand the Databases folder.
 
-3.  Right-click the AdventureWorks database, select Tasks, select Stretch, then choose Enable.
+3. Right-click the AdventureWorks database, select Tasks, select Stretch, then choose Enable.
 
     ![SQL Server Management Studio Object Explorer with the Smart Hotel right-click menu open, tasks is highlighted then stretch is highlighted and Enable is selected.](images/hands-on-lab/2019-03-24-19-38-01.png "Enable Stretch Database")
 
-4.  The Enable Database for Stretch wizard should open automatically. Click **Next** on the Introduction screen.
+4. The Enable Database for Stretch wizard should open automatically. Click **Next** on the Introduction screen.
 
-5.  On the Select tables window all of your tables will be listed. Notice that some tables have warnings and some may be greyed out. Click on the warning icon next to one of the tables. This indicates that the table does not meet the StretchDB eligibility requirements.
+5. On the Select tables window all of your tables will be listed. Notice that some tables have warnings and some may be greyed out. Click on the warning icon next to one of the tables. This indicates that the table does not meet the StretchDB eligibility requirements.
 
     ![Stretch Database Wizard showing error for a table.](images/hands-on-lab/2019-03-24-19-40-15.png "Stretch Database wizard")
 
-6.  Scroll to the right until you see the Migrate column. Clicking Entire Table on an eligible table allows you to define which rows will be migrated to Azure. In this lab, we are going to configure Stretch Database through TSQL. Click Cancel to break out of the wizard.
+6. Scroll to the right until you see the Migrate column. Clicking Entire Table on an eligible table allows you to define which rows will be migrated to Azure. In this lab, we are going to configure Stretch Database through TSQL. Click Cancel to break out of the wizard.
 
 ### Task 3: Implement Stretch DB based on date key  
 
-1.  Launch a new Query tab and execute the following code to prepare the server and the database for Stretch Database: 
+1. Launch a new Query tab and execute the following code to prepare the server and the database for Stretch Database:
 
-    ```
+    ```sql
     --Enable the server for Stretch Database
     EXEC sp_configure 'remote data archive' , '1';
     GO
@@ -341,36 +341,37 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
     GO
     ```
 
-2.  Execute the following code replacing the server name with the name of the SQL Server you created in Exercise 1. This code enables Stretch Database on your database. It may take a few minutes to complete.
+2. Execute the following code replacing the server name with the name of the SQL Server you created in Exercise 1. This code enables Stretch Database on your database. It may take a few minutes to complete.
 
-    ```
+    ```sql
     --Enable the local database for stretch
     --You must change your server name to match your environment
     ALTER DATABASE [AdventureWorks]
     SET REMOTE_DATA_ARCHIVE = ON (SERVER = N'<your server name>.database.windows.net', CREDENTIAL = StretchDB )
     ```
 
-3.  Execute the following code to create the stretch predicate. The stretch predicate allows us to define the conditions under which a row will be stretched. In this case the function leverages a date key column to stretch any rows prior to January 1, 2002. 
+3. Execute the following code to create the stretch predicate. The stretch predicate allows us to define the conditions under which a row will be stretched. In this case the function leverages a date key column to stretch any rows prior to January 1, 2002. 
 
-    ```
+    ```sql
     --Create the stretch predicate
     CREATE FUNCTION dbo.fn_stretch_datekey_predicate(@column1 int)
     RETURNS TABLE
-    WITH SCHEMABINDING 
-    AS 
-    RETURN	SELECT 1 AS is_eligible
-		    WHERE @column1 < '20020101'
+    WITH SCHEMABINDING
+    AS
+    RETURN SELECT 1 AS is_eligible
+        WHERE @column1 < '20020101'
     GO
     ```
 
 4. Execute the following to begin the migration of eligible data to your Azure SQL Database:
 
-    ```
+    ```sql
     --Enable stretch on the table using the stretch predicate with the OrderDateKey
-    ALTER TABLE Sales.ResellerSales 
+    ALTER TABLE Sales.ResellerSales
     SET ( REMOTE_DATA_ARCHIVE = ON (
-	    FILTER_PREDICATE = dbo.fn_stretch_datekey_predicate([OrderDateKey]),
-	    MIGRATION_STATE = OUTBOUND
+        FILTER_PREDICATE =
+        dbo.fn_stretch_datekey_predicate([OrderDateKey]),
+    MIGRATION_STATE = OUTBOUND
     ) )
     ```
 
@@ -382,23 +383,25 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
     ![The stretch database report is shown with ResellerSales highlighted.](images/hands-on-lab/2019-03-20-12-21-30.png "Stretch Configured Tables")
 
-8.	Click the dropdown under Migration State. Notice that you have the option to pause the outbound migration.
+8. Click the dropdown under Migration State. Notice that you have the option to pause the outbound migration.
 
-9.	Launch a new Query tab and execute the following code to programmatically monitor space used in Azure and locally.
+9. Launch a new Query tab and execute the following code to programmatically monitor space used in Azure and locally.
 
-    ```
+    ```sql
     sp_spaceused 'Sales.ResellerSales', @mode = 'REMOTE_ONLY'
     GO
     sp_spaceused 'Sales.ResellerSales', @mode = 'LOCAL_ONLY'
     GO
     ```
+
 10. You may also change the scope of a query.
 
-    ```
+    ```sql
     SELECT COUNT(*) FROM [Sales].[ResellerSales] WITH (REMOTE_DATA_ARCHIVE_OVERRIDE = REMOTE_ONLY)
     ```
 
 ## Summary
+
 In this exercise, you implemented an archive solution with Stretch Database. First, you reviewed the table compatibility by using the Enable Database for Stretch wizard. You then configured your database and table via T-SQL to archive data satisfied by a stretch predicate. Finally, you reviewed the progress, status and space used locally and in Azure via the built-in management tools
 
 ## Exercise 3: Build SQL Availability Group for Database Disaster Recovery
@@ -409,30 +412,30 @@ In this exercise, you will build a SQL Always-On Cluster for resiliency of the d
 
 ### Task 1: Create the cluster
 
-In this task, you will create the underlying Windows Failover Cluster which is the base of your SQL Server Availability Group. You will begin by logging in with an account with administrative privileges on all of the prospective nodes of the cluster, and running a Failover Cluster Validation test. This test verifies that all of the nodes of your cluster are properly configured to support clustering and will flag any best practices that you may not be adhering to in your configuration. Finally, you will create the cluster across the three nodes of you cluster.
+In this task, you will create the underlying Windows Failover Cluster which is the base of your SQL Server Availability Group. You will begin by logging in with an account with administrative privileges on all of the prospective nodes of the cluster and running a Failover Cluster Validation test. This test verifies that all the nodes of your cluster are properly configured to support clustering and will flag any best practices that you may not be adhering to in your configuration. Finally, you will create the cluster across the three nodes of you cluster.
 
-1.  Launch a browser and navigate to <https://portal.azure.com>. Login 
+1. Launch a browser and navigate to <https://portal.azure.com>. Login
     with your Azure credentials if you haven't already.
 
     > **Note**: You may need to launch an \"in-private\" session in your browser if you have multiple Microsoft Accounts.
 
-2.  Navigate to your **CloudShop1** resource group and open your **CloudShopSQL** virtual machine and connect to it via Remote Desktop.
+2. Navigate to your **CloudShop1** resource group and open your **CloudShopSQL** virtual machine and connect to it via Remote Desktop.
 
-3.  Login with the **CONTOSO\demouser** domain account with password **demo@pass123**. Note that this is NOT the same account that you have been using, this is a domain account.
+3. Login with the **CONTOSO\demouser** domain account with password **demo@pass123**. Note that this is NOT the same account that you have been using, this is a domain account.
 
-4.  Launch Server Manager if it does not start automatically. 
+4. Launch Server Manager if it does not start automatically.
 
-5.  Select **Local Server** from the menu on the left and scroll down to **Roles and Features**, click the **Tasks** dropdown and select **Add Roles and Features** from the list.
+5. Select **Local Server** from the menu on the left and scroll down to **Roles and Features**, click the **Tasks** dropdown and select **Add Roles and Features** from the list.
 
     ![Server Administrator Application with local server selected, and add roles and features selected in the tasks dropdown of the Roles and Features section.](images/hands-on-lab/2019-03-20-17-33-21.png "Adding Roles and Features")
 
-6.  On the **Before you begin** page, click **Next**.
+6. On the **Before you begin** page, click **Next**.
 
-7.  On the **Select installation type** page, select **Role-based or feature-based installation** and click **Next**.
+7. On the **Select installation type** page, select **Role-based or feature-based installation** and click **Next**.
 
-8.  On the **Select destination server** page, select the current server and click **Next**.
+8. On the **Select destination server** page, select the current server and click **Next**.
 
-9.  On the **Select server roles** page, accept the defaults and click **Next**.
+9. On the **Select server roles** page, accept the defaults and click **Next**.
 
 10. On the **Select features** page, select **Failover Clustering**, then click **Add Features** on the popup and then click **Next**.
 
@@ -485,35 +488,35 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 ### Task 2: Create the SQL Server Availability Group
 
-1.  On CloudShopSQL, launch **SQL Server 2017 Configuration Manager**.
+1. On CloudShopSQL, launch **SQL Server 2017 Configuration Manager**.
 
-2.  Select **SQL Server Services**, then right-click **SQL Server (MSSQLSERVER)** and select **Properties**.
+2. Select **SQL Server Services**, then right-click **SQL Server (MSSQLSERVER)** and select **Properties**.
 
     ![SQL Server Configuration Manager with SQL Server Services selected and SQL Server service highlighted.](images/hands-on-lab/2019-03-24-21-31-48.png "SQL Server Configuration Manager")
 
-3.  Click on the **Log On** tab. To setup a SQL Server Availability     Group, the SQL Server service account needs to have access to all of the SQL Servers that will participate in the Availability Group. Change the service account to the **CONTOSO\\demouser** domain account using **demo@pass123** for the password.
+3. Click on the **Log On** tab. To setup a SQL Server Availability     Group, the SQL Server service account needs to have access to all of the SQL Servers that will participate in the Availability Group. Change the service account to the **CONTOSO\\demouser** domain account using **demo@pass123** for the password.
 
     ![SQL Server Properties is shown with the account set to the CONTOSO\demouser domain account.](images/hands-on-lab/2019-03-24-21-35-08.png "SQL Server Login Properties")
 
-4.  Select the **AlwaysOn High Availability** tab and check the box for **Enable AlwaysOn Availability Groups**, then click **OK**, then click **Yes** to confirm the account change.
+4. Select the **AlwaysOn High Availability** tab and check the box for **Enable AlwaysOn Availability Groups**, then click **OK**, then click **Yes** to confirm the account change.
 
     ![SQL Server Properties is shown with Enable AlwaysOn High Availability Groups selected.](images/hands-on-lab/2019-03-24-21-37-08.png "SQL Server AlwaysOn High Availability Properties")
 
-5.  Restart the SQL Server service by right-clicking the service and choosing **Restart**.
+5. Restart the SQL Server service by right-clicking the service and choosing **Restart**.
 
     ![SQL Server Configuration Manager with SQL Server Services selected and the SQL Server service being restarted.](images/hands-on-lab/2019-03-24-21-40-59.png "Restart the SQL Server service")
 
-6.  Repeat this configuration for **CloudShopSQL2** and **CloudShopSQL3**.
+6. Repeat this configuration for **CloudShopSQL2** and **CloudShopSQL3**.
 
-7.  The database you will be replicating has its data and log files in the C:\\Data folder and the C:\\Log folder on CloudShopSQL. We need to verify that the same folder structure exists on our secondary servers, CloudShopSQL2 and CloudShopSQL3. Login to **CloudShopSQL2** and **CloudShopSQL3** and verify that these folders exist. If they do not exist, create them.
+7. The database you will be replicating has its data and log files in the C:\\Data folder and the C:\\Logs folder on CloudShopSQL. We need to verify that the same folder structure exists on our secondary servers, CloudShopSQL2 and CloudShopSQL3. Login to **CloudShopSQL2** and **CloudShopSQL3** and verify that these folders exist. If they do not exist, create them.
 
-8.  Open a remote desktop connection to the CloudShopSQL virtual machine and login using the **CONTOSO\\demouser** account. Note that this demouser account is the domain administrator account. You must type the domain name in, otherwise you will be logged in with the local administrator account.
+8. Open a remote desktop connection to the CloudShopSQL virtual machine and login using the **CONTOSO\\demouser** account. Note that this demouser account is the domain administrator account. You must type the domain name in, otherwise you will be logged in with the local administrator account.
 
-9.  Your SQL Server Availability Group will require a file share to be used for the initial synchronization. Open up File Explorer and
+9. Your SQL Server Availability Group will require a file share to be used for the initial synchronization. Open up File Explorer and
     create a new folder in the root of the C: drive called **AG**.
 
 10. Right-click the new folder and select **Share with \> Specific people...**
-    
+
     ![File Explorer is shown with the right-click menu of the AG folder with Share with specific people highlighted.](images/hands-on-lab/2019-03-24-21-57-15.png "File Explorer")
 
 11. On the File Sharing window, select **Administrators** and click **Share**, then click **Done**.
@@ -580,13 +583,13 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 ### Task 3: Create the Internal Load Balancer
 
-1.  In the Azure Portal, navigate to the **CloudShop2** resource group and click **Add**.
+1. In the Azure Portal, navigate to the **CloudShop2** resource group and click **Add**.
 
-2.  Type **Load Balancer** into the search bar then choose the **Load Balancer** and click the **Review + Create** button, then click **Create**.
+2. Type **Load Balancer** into the search bar then choose the **Load Balancer** and click **Create**.
 
     ![Create the load balancer resource.](images/hands-on-lab/2019-03-24-23-37-54.png "Add the load balancer")
 
-3.  On the Create load balancer blade, configure the following options, then click **Create**:
+3. On the Create load balancer blade, configure the following options, then click **Review + Create**:
 
     - Subscription: ***Your subscription***
     - Resource group: **CloudShop2**
@@ -601,13 +604,13 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![Load balancer configuration screen with the configuration options set.](images/hands-on-lab/2019-03-25-17-41-47.png "Creating the load balancer")
 
-4.  Navigate back to your resource group and select the **sqlag** load balancer you just created.
+4. Navigate back to your resource group and select the **sqlag** load balancer you just created.
 
-5.  On the sqlag load balancer blade, select **Backend pools**, then click the **+Add** button.
+5. On the sqlag load balancer blade, select **Backend pools**, then click the **+Add** button.
 
     ![The Load Balancer blade with backend pools selected.](images/hands-on-lab/2019-03-24-23-49-52.png "Add a backend pool")
 
-6.  On the Add backend pool blade, use the following configurations:
+6. On the Add backend pool blade, use the following configurations:
 
     - Name: **sqlpool**
     - IP version: **IPv4** 
@@ -661,12 +664,12 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 15. Copy the following PowerShell script to the script window and execute it to configure your cluster for the probe port:
 
-    ```
-    $ClusterNetworkName = "Cluster Network 2" 
+    ```powershell
+    $ClusterNetworkName = "Cluster Network 2"
 
-    $IPResourceName = "AdventureWorks_172.16.1.8" 
+    $IPResourceName = "AdventureWorks_172.16.1.8"
 
-    $ILBIP = "172.16.1.8" 
+    $ILBIP = "172.16.1.8"
 
     Import-Module FailoverClusters
 
@@ -679,11 +682,11 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 ### Task 4: Validate the Availability Group 
 
-1.  Login to your CloudShopSQL virtual machine and launch SQL Server Management Studio. 
+1. Login to your CloudShopSQL virtual machine and launch SQL Server Management Studio.
 
-2.  From Object Explorer, launch a new connection and connect to the **adventureworks** listener. This is simply to check if your listener is actually working. 
+2. From Object Explorer, launch a new connection and connect to the **adventureworks** listener. This is simply to check if your listener is actually working.
 
-3.  From your CloudShopSQL connection, expand Always On High Availability, Availability Replicas, then right-click **CloudShopSQL2** and choose **Properties**.
+3. From your CloudShopSQL connection, expand Always On High Availability, Availability Replicas, then right-click **CloudShopSQL2** and choose **Properties**.
 
     ![SQL Server Management Studio object explorer with Availability Groups and Availability Replicas expanded, the CloudShopSQL2 replica is highlighted and properties is highlighted on the right-click menu.](images/hands-on-lab/2019-03-25-18-55-26.png "Replica properties")
 
@@ -719,11 +722,11 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 12. On the summary window, click **Finish**, then click **Close** on successful completion of the failover.
 
-13. Connect to your **AdventureWorks** listener and open a new Query Window.
+13. Connect to your **AdventureWorks** listener and open a new Query Window by clicking connect in SSMS and using AdventureWorks for the server name.
 
 14. Run the following code to verify that you are running from CloudShopSQL2:
 
-    ```
+    ```sql
     SELECT @@SERVERNAME
     ```
 
@@ -733,17 +736,17 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 ### Task 5: Update the Web Application to Connect to the Listener 
 
-1.  Login to your CloudShopWeb virtual machine.
+1. Login to your CloudShopWeb virtual machine.
 
-2.  Launch File Explorer and navigate to **C:\inetpub\wwwroot**.
+2. Launch File Explorer and navigate to **C:\inetpub\wwwroot**.
 
-3.  Open the **web.config** file in Notepad. 
+3. Open the **web.config** file in Notepad. 
 
-4.  Edit the connection string to connect to the **AdventureWorks** listener.
+4. Edit the connection string to connect to the **AdventureWorks** listener.
 
     ![The web.config file is shown with the data source set to adventureworks.](images/hands-on-lab/2019-03-26-04-37-23.png "Edit the web.config")
 
-5.  Save the file.
+5. Save the file.
 
 6.  Launch a command prompt and execute **iisreset**. 
 
@@ -952,4 +955,3 @@ To fail over the entire environment requires the database server to be up, then 
 2.  Delete each of the resource groups created in this lab by clicking them followed by clicking the Delete Resource Group button. You will need to confirm the name of the resource group to delete.
 
 You should follow all steps provided *after* attending the hands-on lab.
-

@@ -690,27 +690,27 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     ![SQL Server Management Studio object explorer with Availability Groups and Availability Replicas expanded, the CloudShopSQL2 replica is highlighted and properties is highlighted on the right-click menu.](images/hands-on-lab/2019-03-25-18-55-26.png "Replica properties")
 
-4.  On the properties window, change the availability mode to **Synchronous commit** and then click **OK**. 
+4. On the properties window, change the availability mode to **Synchronous commit** and then click **OK**.
 
     Switching to synchronous commit allows us to failover without data loss. If we leave it in asynchronous mode, the failover would be "forced" which also implies some loss of data and invalidates the old primary replica. Since we are only testing functionality of our listener we DO NOT want to break the Availability Group replication.  
 
     ![The replica properties window with the availability mode set to synchronous commit.](images/hands-on-lab/2019-03-25-18-59-46.png "Replica properties")
 
-5.  Repeat the above for **CloudShopSQL**. This will enable synchronous commits between the two replicas allowing us to failover without breaking the Availability Group replication.
+5. Repeat the above for **CloudShopSQL**. This will enable synchronous commits between the two replicas allowing us to failover without breaking the Availability Group replication.
 
-6.  Right-click the **AdventureWorks** Availability Group, and choose **Show Dashboard** from the menu.
+6. Right-click the **AdventureWorks** Availability Group, and choose **Show Dashboard** from the menu.
 
     ![The AdventureWorks availability group is highlighted with show dashboard selected in the right-click menu.](images/hands-on-lab/2019-03-25-19-16-22.png "Show Dashboard")
 
-7.  The dashboard should show both **CloudShopSQL** and **CloudShopSQL2** with a status of **Synchronized**.
+7. The dashboard should show both **CloudShopSQL** and **CloudShopSQL2** with a status of **Synchronized**.
 
     ![The availability group dashboard is shown with the synchronization state of CloudShopSQL and CloudShopSQL2 set to synchronized.](images/hands-on-lab/2019-03-25-19-19-34.png "Dashboard")
 
-8.  Right-click the **AdventureWorks** Availability Group again and choose **Failover...** from the menu.
+8. Right-click the **AdventureWorks** Availability Group again and choose **Failover...** from the menu.
 
     ![The Adventure Works availability group is highlighted with failover selected in the right-click menu.](images/hands-on-lab/2019-03-25-19-22-06.png "Failover")
 
-9.  In the Failover Wizard, click **Next** on the first screen.
+9. In the Failover Wizard, click **Next** on the first screen.
 
 10. On the Select New Primary Replica window, select **CloudShopSQL2** and then click **Next**.
 
@@ -730,17 +730,17 @@ In this task, you will create the underlying Windows Failover Cluster which is t
     SELECT @@SERVERNAME
     ```
 
-    ![A query window is shown with select @@version as the query and CloudShopSQL2 as the reuslt.](images/hands-on-lab/2019-03-25-19-41-47.png "Query window")
+    ![A query window is shown with select @@version as the query and CloudShopSQL2 as the result.](images/hands-on-lab/2019-03-25-19-41-47.png "Query window")
 
-15. Use the Failover Wizard to fail **AdventureWorks** back to CloudShopSQL. 
+15. Use the Failover Wizard to fail **AdventureWorks** back to CloudShopSQL.
 
-### Task 5: Update the Web Application to Connect to the Listener 
+### Task 5: Update the Web Application to Connect to the Listener
 
 1. Login to your CloudShopWeb virtual machine.
 
 2. Launch File Explorer and navigate to **C:\inetpub\wwwroot**.
 
-3. Open the **web.config** file in Notepad. 
+3. Open the **web.config** file in Notepad.
 
 4. Edit the connection string to connect to the **AdventureWorks** listener.
 
@@ -748,8 +748,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 5. Save the file.
 
-6.  Launch a command prompt and execute **iisreset**. 
-
+6. Launch a command prompt and execute **iisreset**.
 
 ### Summary
 
@@ -820,7 +819,7 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
     ![The customize target resources dialogue with default settings.](images/hands-on-lab/2019-03-26-03-27-29.png "Customize target resources")
 
-11. Click **Create target resources**. 
+11. Click **Create target resources**.
 
     **Note**: Do not close the blade. It will close by itself after the target resources are created (2-3 minutes).
 
@@ -833,7 +832,7 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
     ![The site recovery jobs dialogue showing the automatically generated jobs running.](images/hands-on-lab/2019-03-26-00-52-02.png "Site recovery jobs")
 
 14. Once all the jobs are successful, click on **Replicated items** under **Protected Items** to view the status of the initial replication.
-    
+
     ![THe replicated items dialogue showing the CloudShop2 replication health as healthy.](images/hands-on-lab/2019-03-26-00-53-16.png "Replicated items")
 
 15. While waiting for the initial replication/synchronization, move on to the next task.
@@ -853,9 +852,9 @@ In this task, you will create the recovery plan that will be used to orchestrate
     ![Create recovery plan settings](images/hands-on-lab/2019-03-26-01-09-00.png "ASR Recovery Plan settings")
 
 4. After a minute or two, you should see the CloudShopRP on the Recovery plans blade. This recovery plan will bring up your web server during a failover. 
-   
+
 5. Now go back to the Recovery Services vault RSVault - Overview blade. Click on Site Recovery. Notice that the CloudShopWeb virtual machine is replicating. Take note of the status. It should be close to 100%. You will not be able to continue until it is finished replicating. 
-   
+
    >**Note**: This may take up to an hour.
 
     ![The recovery services vault overview with site recovery selected.](images/hands-on-lab/2019-03-26-02-15-27.png "RSVault - Site Recovery")
@@ -868,33 +867,33 @@ In this exercise, you will fail over to your disaster recovery site.
 
 ### Task 1: Failover the Data Tier
 
-1.  Login to your CloudShopSQL virtual machine and launch SQL Server Management Studio. 
+1. Login to your CloudShopSQL virtual machine and launch SQL Server Management Studio.
 
-2.  Open a connection to your CloudShopSQL instance, expand Always On High Availability, Availability Replicas, then right-click **CloudShopSQL2** and choose **Properties**.
+2. Open a connection to your CloudShopSQL instance, expand Always On High Availability, Availability Replicas, then right-click **CloudShopSQL2** and choose **Properties**.
 
     ![The CloudShop2 availability replica is selected and the properties is highlighted.](images/hands-on-lab/2019-03-25-18-55-26.png "CloudShop2 properties")
 
-3.  On the properties window, change the availability mode to **Synchronous commit** and then click **OK**. Note that in a real outage scenario it may not be possible to use this method and may require a forced failover which may incur some data loss.  
+3. On the properties window, change the availability mode to **Synchronous commit** and then click **OK**. Note that in a real outage scenario it may not be possible to use this method and may require a forced failover which may incur some data loss.  
 
     ![The properties of CloudShop2 are shown with the availability mode set to synchronous commit.](images/hands-on-lab/2019-03-25-18-59-46.png "Set CloudShop2 to synchronous commit")
 
-4.  Repeat the above for **CloudShopSQL**. This will enable synchronous commits between the two replicas allowing us to failover without breaking the Availability Group replication.
+4. Repeat the above for **CloudShopSQL**. This will enable synchronous commits between the two replicas allowing us to failover without breaking the Availability Group replication.
 
-5.  Right-click the **AdventureWorks** Availability Group and choose **Failover...** from the menu.
+5. Right-click the **AdventureWorks** Availability Group and choose **Failover...** from the menu.
 
     ![The AdventureWorks availability group is highlighted and failover is selected from the right-click menu.](images/hands-on-lab/2019-03-25-19-22-06.png "Failover")
 
-6.  In the Failover Wizard, click **Next** on the first screen.
+6. In the Failover Wizard, click **Next** on the first screen.
 
-7.  On the Select New Primary Replica window, select **CloudShopSQL2** and then click **Next**.
+7. On the Select New Primary Replica window, select **CloudShopSQL2** and then click **Next**.
 
     ![The select new primary window is shown with CloudShopSQL2 highlighted.](images/hands-on-lab/2019-03-25-19-25-13.png "Select New Primary Replica")
 
-8.  On the Connect to Replica window, connect to **CloudShopSQL2** with the **CONTOSO\demouser** account and click **Next**.
+8. On the Connect to Replica window, connect to **CloudShopSQL2** with the **CONTOSO\demouser** account and click **Next**.
 
     ![The specify the connection window is shown with CONTOSO\demouser set as the username.](images/hands-on-lab/2019-03-25-19-27-50.png "Connect to replica")
 
-9.  On the summary window, click **Finish**, then click **Close** on successful completion of the failover.
+9. On the summary window, click **Finish**, then click **Close** on successful completion of the failover.
 
 ### Task 2: Failover the Web Tier
 
@@ -920,9 +919,9 @@ To fail over the entire environment requires the database server to be up, then 
 
 7. You can monitor the status of your failover by selecting **Site recovery jobs** from the monitoring section of the menu on the left.
 
-8. After the failover completes, navigate to the **CloudShop2** resource group and open your **CloudShopWeb** virtual machine. 
+8. After the failover completes, navigate to the **CloudShop2** resource group and open your **CloudShopWeb** virtual machine.
 
-9.  Notice that it does not have a Public IP address. Click on **Networking** on the menu to the left.
+9. Notice that it does not have a Public IP address. Click on **Networking** on the menu to the left.
 
     ![CloudShopWeb virtual machine overview with missing public IP highlighted.](images/hands-on-lab/2019-03-26-04-24-41.png "Missing public IP")
 
@@ -950,8 +949,8 @@ To fail over the entire environment requires the database server to be up, then 
 
 ### Task 1: Delete the resource groups created
 
-1.  Within the Azure portal, click Resource Groups on the left navigation.
+1. Within the Azure portal, click Resource Groups on the left navigation.
 
-2.  Delete each of the resource groups created in this lab by clicking them followed by clicking the Delete Resource Group button. You will need to confirm the name of the resource group to delete.
+2. Delete each of the resource groups created in this lab by clicking them followed by clicking the Delete Resource Group button. You will need to confirm the name of the resource group to delete.
 
 You should follow all steps provided *after* attending the hands-on lab.

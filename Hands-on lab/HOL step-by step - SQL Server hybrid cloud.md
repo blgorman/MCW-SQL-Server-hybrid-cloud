@@ -445,6 +445,8 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 12. Repeat the above steps to install Failover Clustering on your remaining SQL Servers (CloudShopSQL2 and CloudShopSQL3).
 
+    >**NOTE**: CloudShopSQL2 and CloudShopSQL3 were deployed to the disaster recovery site which is hosted in the **CloudShopSQL2** resource group.
+
 13. From CloudShopSQL, open **Administrative Tools** and then launch **Failover Cluster Manager**.
 
 14. From the Actions pane on the right, choose **Validate Configuration**.

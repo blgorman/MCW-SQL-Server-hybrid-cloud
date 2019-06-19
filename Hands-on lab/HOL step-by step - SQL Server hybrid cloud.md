@@ -26,37 +26,37 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
 
 <!-- TOC -->
 
-- [SQL Server Hybrid Cloud hands-on lab step-by-step](#sql-server-hybrid-cloud-hands-on-lab-step-by-step)
-  - [Abstract and learning objectives](#abstract-and-learning-objectives)
-  - [Overview](#overview)
-  - [Solution architecture](#solution-architecture)
-  - [Requirements](#requirements)
-    - [Help references](#help-references)
-  - [Exercise 1: SQL Backup solution](#exercise-1-sql-backup-solution)
-    - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account)
-    - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
-  - [Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-2-implement-a-data-archive-strategy-with-sql-server-stretch-database)
-    - [Task 1: Crete a logical SQL Server to host Stretch DB](#task-1-crete-a-logical-sql-server-to-host-stretch-db)
-    - [Task 2: Identify tables that may benefit from Stretch DB](#task-2-identify-tables-that-may-benefit-from-stretch-db)
-    - [Task 3: Implement Stretch DB based on date key](#task-3-implement-stretch-db-based-on-date-key)
-  - [Summary](#summary)
-  - [Exercise 3: Build SQL Availability Group for Database Disaster Recovery](#exercise-3-build-sql-availability-group-for-database-disaster-recovery)
-    - [Task 1: Create the cluster](#task-1-create-the-cluster)
-    - [Task 2: Create the SQL Server Availability Group](#task-2-create-the-sql-server-availability-group)
-    - [Task 3: Create the Internal Load Balancer](#task-3-create-the-internal-load-balancer)
-    - [Task 4: Validate the Availability Group](#task-4-validate-the-availability-group)
-    - [Task 5: Update the Web Application to Connect to the Listener](#task-5-update-the-web-application-to-connect-to-the-listener)
-    - [Summary](#summary-1)
-  - [Exercise 4: Configure Azure Site Recovery for Web Tier DR](#exercise-4-configure-azure-site-recovery-for-web-tier-dr)
-    - [Task 1: Create a Recovery Services Vault](#task-1-create-a-recovery-services-vault)
-    - [Task 2: Configure Azure Site Recovery](#task-2-configure-azure-site-recovery)
-    - [Task 3: Creating the Recovery Plan](#task-3-creating-the-recovery-plan)
-  - [Exercise 5: Failing Over to the Disaster Recovery Site](#exercise-5-failing-over-to-the-disaster-recovery-site)
-    - [Task 1: Failover the Data Tier](#task-1-failover-the-data-tier)
-    - [Task 2: Failover the Web Tier](#task-2-failover-the-web-tier)
-    - [Task 3: Validate Failover of the CloudShop application](#task-3-validate-failover-of-the-cloudshop-application)
-  - [After the hands-on lab](#after-the-hands-on-lab)
-    - [Task 1: Delete the resource groups created](#task-1-delete-the-resource-groups-created)
+- [SQL Server Hybrid Cloud hands-on lab step-by-step](#SQL-Server-Hybrid-Cloud-hands-on-lab-step-by-step)
+  - [Abstract and learning objectives](#Abstract-and-learning-objectives)
+  - [Overview](#Overview)
+  - [Solution architecture](#Solution-architecture)
+  - [Requirements](#Requirements)
+    - [Help references](#Help-references)
+  - [Exercise 1: SQL Backup solution](#Exercise-1-SQL-Backup-solution)
+    - [Task 1: Create an Azure Storage Account](#Task-1-Create-an-Azure-Storage-Account)
+    - [Task 2: Configure managed backup in SQL Server](#Task-2-Configure-managed-backup-in-SQL-Server)
+  - [Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database](#Exercise-2-Implement-a-Data-Archive-Strategy-with-SQL-Server-Stretch-Database)
+    - [Task 1: Crete a logical SQL Server to host Stretch DB](#Task-1-Crete-a-logical-SQL-Server-to-host-Stretch-DB)
+    - [Task 2: Identify tables that may benefit from Stretch DB](#Task-2-Identify-tables-that-may-benefit-from-Stretch-DB)
+    - [Task 3: Implement Stretch DB based on date key](#Task-3-Implement-Stretch-DB-based-on-date-key)
+  - [Summary](#Summary)
+  - [Exercise 3: Build SQL Availability Group for Database Disaster Recovery](#Exercise-3-Build-SQL-Availability-Group-for-Database-Disaster-Recovery)
+    - [Task 1: Create the cluster](#Task-1-Create-the-cluster)
+    - [Task 2: Create the SQL Server Availability Group](#Task-2-Create-the-SQL-Server-Availability-Group)
+    - [Task 3: Create the Internal Load Balancer](#Task-3-Create-the-Internal-Load-Balancer)
+    - [Task 4: Validate the Availability Group](#Task-4-Validate-the-Availability-Group)
+    - [Task 5: Update the Web Application to Connect to the Listener](#Task-5-Update-the-Web-Application-to-Connect-to-the-Listener)
+    - [Summary](#Summary-1)
+  - [Exercise 4: Configure Azure Site Recovery for Web Tier DR](#Exercise-4-Configure-Azure-Site-Recovery-for-Web-Tier-DR)
+    - [Task 1: Create a Recovery Services Vault](#Task-1-Create-a-Recovery-Services-Vault)
+    - [Task 2: Configure Azure Site Recovery](#Task-2-Configure-Azure-Site-Recovery)
+    - [Task 3: Creating the Recovery Plan](#Task-3-Creating-the-Recovery-Plan)
+  - [Exercise 5: Failing Over to the Disaster Recovery Site](#Exercise-5-Failing-Over-to-the-Disaster-Recovery-Site)
+    - [Task 1: Failover the Data Tier](#Task-1-Failover-the-Data-Tier)
+    - [Task 2: Failover the Web Tier](#Task-2-Failover-the-Web-Tier)
+    - [Task 3: Validate Failover of the CloudShop application](#Task-3-Validate-Failover-of-the-CloudShop-application)
+  - [After the hands-on lab](#After-the-hands-on-lab)
+    - [Task 1: Delete the resource groups created](#Task-1-Delete-the-resource-groups-created)
 
 <!-- /TOC -->
 
@@ -510,7 +510,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 6. Repeat this configuration for **CloudShopSQL2** and **CloudShopSQL3**.
 
-7. The database you will be replicating has its data and log files in the C:\\Data folder and the C:\\Logs folder on CloudShopSQL. We need to verify that the same folder structure exists on our secondary servers, CloudShopSQL2 and CloudShopSQL3. Login to **CloudShopSQL2** and **CloudShopSQL3** and verify that these folders exist. If they do not exist, create them.
+7. The database you will be replicating has its data and log files in the **C:\\Data** folder and the **C:\\Logs** folder on CloudShopSQL. We need to verify that the same folder structure exists on our secondary servers, CloudShopSQL2 and CloudShopSQL3. Login to **CloudShopSQL2** and **CloudShopSQL3** and verify that these folders exist. If they do not exist, create them.
 
 8. Open a remote desktop connection to the CloudShopSQL virtual machine and login using the **CONTOSO\\demouser** account. Note that this demouser account is the domain administrator account. You must type the domain name in, otherwise you will be logged in with the local administrator account.
 
@@ -568,7 +568,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![The specify replicas listener tab is selected, create an availability group listener is selected with the correct values entered.](images/hands-on-lab/2019-03-24-23-09-42.png "Specify replicas listener tab")
 
-23. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use 172.16.1.8, then click
+23. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use **172.16.1.8**, then click
     **Next**.
 
     ![The listener ip addresses are now shown in the specify replicas window.](images/hands-on-lab/2019-03-24-23-15-53.png "Specifying listener ip addresses")
@@ -625,7 +625,9 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     ![The add a target network IP configuration button.](images/hands-on-lab/2019-03-24-23-54-54.png "Add a target network IP configuration")
 
-8.  Select **CloudShopSQL2** for the Target virtual machine, and select **ipconfig1 (172.16.1.5)** for the Network IP configuration.
+8.  Select **CloudShopSQL2** for the Target virtual machine, and select **ipconfig1 (172.16.1.5)** for the Network IP configuration. 
+   
+    >**NOTE**: Your IP address may be different than our example.
 
     ![Selecting CloudShopSQL2 ipconfig as a backend target.](images/hands-on-lab/2019-03-24-23-59-23.png "Select the target ip configuration")
 
@@ -635,6 +637,8 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 11. On the Add health probe blade, use the following configuration values then click **OK** and wait for the load balancer to complete
     the update.
+
+    >**NOTE**: If you receive an error your load balancer may still be updating itself from the prior step. Wait a minute and try again.
 
     - Name: **sqlprobe** 
     - Protocol: **TCP** 
@@ -662,9 +666,13 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![Adding load balancer rule for floating IP with all configurations set.](images/hands-on-lab/2019-03-25-17-51-59.png "Load balancer rule configurations")
 
-14. Open an Administrative PowerShell ISE session on **CloudShopSQL2**.
+14. Next we need to verify our cluster's network names. Open the **Failover Cluster Manager**, expand **CLUST01**, select **Networks** then double-click **Cluster Network 2** to open the properties. Verify that Cluster Network 2's subnet is set to **172.16.1.0/24**. In some cases the cluster deployment may reverse the names it assign to the cluster networks. If your subnet does not match here, then you will simply change the name of the cluster network in the script below to reflect this.
+    
+    ![The Failover Cluster Manager with Cluster Network 2 properties page open. The subnet is highlighted](images/hands-on-lab/2019-06-19-12-44-26.png "Cluster Network 2 properties")
 
-15. Copy the following PowerShell script to the script window and execute it to configure your cluster for the probe port:
+15. Open an **Administrative** PowerShell ISE session on **CloudShopSQL2**.
+
+16. Copy the following PowerShell script to the script window. If your Cluster Network 2 did not match the 172.16.1.0/24 subnet, then change the $ClusterNetworkName variable to \"Cluster Network 1\". If your subnet did match then you do not need to make this change. Execute the script to configure your cluster for the probe port:
 
     ```powershell
     $ClusterNetworkName = "Cluster Network 2"
@@ -688,7 +696,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 2. From Object Explorer, launch a new connection and connect to the **adventureworks** listener. This is simply to check if your listener is actually working.
 
-3. From your CloudShopSQL connection, expand Always On High Availability, Availability Replicas, then right-click **CloudShopSQL2** and choose **Properties**.
+3. From your CloudShopSQL connection, expand Always On High Availability, Availability Groups, AdventureWorks, Availability Replicas, then right-click **CloudShopSQL2** and choose **Properties**.
 
     ![SQL Server Management Studio object explorer with Availability Groups and Availability Replicas expanded, the CloudShopSQL2 replica is highlighted and properties is highlighted on the right-click menu.](images/hands-on-lab/2019-03-25-18-55-26.png "Replica properties")
 
@@ -724,7 +732,9 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 12. On the summary window, click **Finish**, then click **Close** on successful completion of the failover.
 
-13. Connect to your **AdventureWorks** listener and open a new Query Window by clicking connect in SSMS and using AdventureWorks for the server name.
+13. From CloudShopSQL2 or CloudShopSQL3, connect to your **AdventureWorks** listener and open a new Query Window by clicking connect in SSMS and using AdventureWorks for the server name.
+
+    >**NOTE**: We must test from the same virtual network as our Internal Load Balancer. Internal Load Balancers do not currently support connectivity across peered networks.
 
 14. Run the following code to verify that you are running from CloudShopSQL2:
 

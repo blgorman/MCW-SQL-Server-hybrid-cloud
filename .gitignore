@@ -288,3 +288,5 @@ __pycache__/
 *.xsd.cs
 .DS_Store
 
+Hands-on lab/.DS_Store
+Hands-on lab/images/.DS_Store

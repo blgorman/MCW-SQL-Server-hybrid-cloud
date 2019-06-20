@@ -1,4 +1,4 @@
-![](https://github.com/Microsoft/MCW-Template-Cloud-Workshop/raw/master/Media/ms-cloud-workshop.png "Microsoft Cloud Workshops")
+![Microsoft Cloud Workshop](https://github.com/Microsoft/MCW-Template-Cloud-Workshop/raw/master/Media/ms-cloud-workshop.png "Microsoft Cloud Workshop")
 
 <div class="MCWHeader1">
 SQL Server hybrid cloud
@@ -9,7 +9,7 @@ Whiteboard design session student guide
 </div>
 
 <div class="MCWHeader3">
-March 2019
+June 2019
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -22,7 +22,7 @@ The names of manufacturers, products, or URLs are provided for informational pur
 
 Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/Usage/General.aspx> are trademarks of the Microsoft group of companies. All other trademarks are property of their respective owners.
 
-**Contents** 
+**Contents**
 
 <!-- TOC -->
 
@@ -44,7 +44,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 <!-- /TOC -->
 
-#  SQL Server hybrid cloud whiteboard design session student guide
+# SQL Server hybrid cloud whiteboard design session student guide
 
 ## Abstract and learning objectives 
 
@@ -62,11 +62,11 @@ Timeframe: 15 minutes
 
 Directions:  With all participants in the session, the facilitator/SME presents an overview of the customer case study along with technical tips.
 
-1.  Meet your table participants and trainer.
+1. Meet your table participants and trainer.
 
-2.  Read all of the directions for steps 1-3 in the student guide.
+2. Read all of the directions for steps 1-3 in the student guide.
 
-3.  As a table team, review the following customer case study.
+3. As a table team, review the following customer case study.
 
 ### Customer situation
 
@@ -91,39 +91,39 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 ### Customer needs 
 
-1.  A full multi-site disaster recovery solution with minimal complexity, orchestrated failover, and near-zero data loss.
+1. A full multi-site disaster recovery solution with minimal complexity, orchestrated failover, and near-zero data loss.
 
-2.  Highly available, fault-tolerant SQL Server service with cross-site disaster recovery and minimal impact on database performance.
+2. Highly available, fault-tolerant SQL Server service with cross-site disaster recovery and minimal impact on database performance.
 
-3.  Scale-out the data platform utilizing SQL Server Availability Groups with readable secondaries to offload the heavy read workloads from the primary replica with minimal changes to the application.
+3. Scale-out the data platform utilizing SQL Server Availability Groups with readable secondaries to offload the heavy read workloads from the primary replica with minimal changes to the application.
 
-4.  The ability to seamlessly scale DR site infrastructure as the environment grows.
+4. The ability to seamlessly scale DR site infrastructure as the environment grows.
 
-5.  Data encryption solution that encrypts only PCI data at the application and database level.
+5. Data encryption solution that encrypts only PCI data at the application and database level.
 
-6.  Key management solution that does not expose the unencrypted keys to unauthorized personnel (including database administrators and developers) and allows for key management by the security administration team.
+6. Key management solution that does not expose the unencrypted keys to unauthorized personnel (including database administrators and developers) and allows for key management by the security administration team.
 
-7.  Data archiving to keep database sizes more manageable and reduce the amount of time needed for database maintenance.
+7. Data archiving to keep database sizes more manageable and reduce the amount of time needed for database maintenance.
 
-8.  Centralized management and monitoring of backups with secure offsite backups.
+8. Centralized management and monitoring of backups with secure offsite backups.
 
-### Customer objections 
+### Customer objections
 
-1.  Solution must support orchestrated failover so that failover does not require an all hands-on deck.
+1. Solution must support orchestrated failover so that failover does not require an all hands-on deck.
 
-2.  Solution must support the existing VMware infrastructure.
+2. Solution must support the existing VMware infrastructure.
 
-3.  Solution must not have a significant impact on database performance.
+3. Solution must not have a significant impact on database performance.
 
-4.  DR infrastructure must be easily scalable to support changes in the workload.
+4. DR infrastructure must be easily scalable to support changes in the workload.
 
-5.  The disaster recovery sites must be highly available after a failover.
+5. The disaster recovery sites must be highly available after a failover.
 
-6.  We have seen some documentation surrounding the use of Availability Zones in Azure. What does Availability Zones provide over and above Availability Sets? Would this be a good option for us?
+6. We have seen some documentation surrounding the use of Availability Zones in Azure. What does Availability Zones provide over and above Availability Sets? Would this be a good option for us?
 
-7.  Archive solution must not impact the current applications that periodically pull historical data from the production system.
+7. Archive solution must not impact the current applications that periodically pull historical data from the production system.
 
-8.  We need to be able to backup databases both on-premises and in the cloud. How will your backup solution support this?
+8. We need to be able to backup databases both on-premises and in the cloud. How will your backup solution support this?
 
 ### Infographic for common scenarios
 
@@ -135,14 +135,13 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 ![Graphic depicting Azure Traffic Manager routing. User submits a DNS query to their DNS server, the DNS server queries Traffic Manager and sends a DNS response back to the user with the DNS name of primary server. The client connects directly to the selected endpoint, not through traffic manager. When the primary fails the client will be routed to the highest priority among the remaining online endpoints.](images/2018-12-17-12-35-23.png "Diagram of the Failover traffic routing method for a set of endpoints")
 
-
 ### SQL Server Always Encrypted
 
 ![On the Trusted side (left), an Apps icon has bidirectional arrows pointing to and from an Enhanced ADO.NET Library icon. At the bottom-left corner is a Column Master Key icon. On the SQL Server side (right), the bidirectional arrows continue and point to and from a database icon. Below this icon is a table with the following columns: Name (dbo.Patients), SSN (ciphertext), and Country. The values in the first row are as follows: Jane Doe, 1x7fg65se2e, and USA. The values in the second row are as follows: Jim Gray, 0x7ff65ae6d, and USA. The values in the third row are as follows: John Smith, 0y8fj75ea2c, and USA. At the bottom-right corner is a Column Encryption Key icon.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image5.jpeg "SQL Server Always Encrypted diagram")
 
 ### SQL Server Stretch Database
 
-![Stretch Database is a feature of SQL Server 2016. On the bottom-left side (on premises) are icons for a Local database (numbered 1) and a User Application (numbered 3 and represented as a monitor). In the Local database icon are tables representing Eligible Data (green) and Local Data (orange). On the top-right side (Azure) is an icon of an Azure SQL database (numbered 2 and labeled Remote Endpoint), and inside this icon is a table representing Remote Data. Two bidirectional arrows (the green one labeled Eligible Data and the orange one labeled T-SQL Queries) point across both sides to and from the local database icon and the Azure SQL database icon. One orange bidirectional arrow labeled T-SQL Queries point to and from the Local database icon and the User Application icon. Below the diagram is the following numbered list: 1. Local database: on-premises instance 2. Remote endpoint: Azure SQL Database holding remote copy 3. Application accessing data](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image6.png "SQL Server Stretch Database diagram")
+![Stretch Database is a feature of SQL Server 2016. On the bottom-left side (on-premises) are icons for a Local database (numbered 1) and a User Application (numbered 3 and represented as a monitor). In the Local database icon are tables representing Eligible Data (green) and Local Data (orange). On the top-right side (Azure) is an icon of an Azure SQL database (numbered 2 and labeled Remote Endpoint), and inside this icon is a table representing Remote Data. Two bidirectional arrows (the green one labeled Eligible Data and the orange one labeled T-SQL Queries) point across both sides to and from the local database icon and the Azure SQL database icon. One orange bidirectional arrow labeled T-SQL Queries point to and from the Local database icon and the User Application icon. Below the diagram is the following numbered list: 1. Local database: on-premises instance 2. Remote endpoint: Azure SQL Database holding remote copy 3. Application accessing data](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image6.png "SQL Server Stretch Database diagram")
 
 ## Step 2: Design a proof of concept solution
 
@@ -156,9 +155,9 @@ Timeframe: 60 minutes
 
 Directions: With all participants at your table, answer the following questions and list the answers on a flip chart:
 
-1.  Who should you present this solution to? Who is your target customer audience? Who are the decision makers?
+1. Who should you present this solution to? Who is your target customer audience? Who are the decision makers?
 
-2.  What customer business needs do you need to address with your solution?
+2. What customer business needs do you need to address with your solution?
 
 **Design**
 
@@ -224,11 +223,11 @@ Directions: With all participants at your table, respond to the following questi
 
 Directions: With all participants at your table:
 
-1.  Identify any customer needs that are not addressed with the proposed solution.
+1. Identify any customer needs that are not addressed with the proposed solution.
 
-2.  Identify the benefits of your solution.
+2. Identify the benefits of your solution.
 
-3.  Determine how you will respond to the customer's objections.
+3. Determine how you will respond to the customer's objections.
 
 Prepare a 15-minute chalk-talk style presentation to the customer.
 
@@ -244,27 +243,27 @@ Timeframe: 30 minutes
 
 Directions:
 
-1.  Pair with another table.
+1. Pair with another table.
 
-2.  One table is the Microsoft team and the other table is the customer.
+2. One table is the Microsoft team and the other table is the customer.
 
-3.  The Microsoft team presents their proposed solution to the customer.
+3. The Microsoft team presents their proposed solution to the customer.
 
-4.  The customer makes one of the objections from the list of objections.
+4. The customer makes one of the objections from the list of objections.
 
-5.  The Microsoft team responds to the objection.
+5. The Microsoft team responds to the objection.
 
-6.  The customer team gives feedback to the Microsoft team.
+6. The customer team gives feedback to the Microsoft team.
 
-7.  Tables switch roles and repeat Steps 2-6.
+7. Tables switch roles and repeat Steps 2-6.
 
-##  Wrap-up 
+## Wrap-up
 
 Timeframe: 15 minutes
 
 Directions: Tables reconvene with the larger group to hear the facilitator/SME share the preferred solution for the case study.
 
-##  Additional references
+## Additional references
 
 |         |            |
 | ------------- |:-------------:|

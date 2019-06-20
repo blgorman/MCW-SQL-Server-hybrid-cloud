@@ -1,7 +1,7 @@
-![](https://github.com/Microsoft/MCW-Template-Cloud-Workshop/raw/master/Media/ms-cloud-workshop.png "Microsoft Cloud Workshops")
+![Microsoft Cloud Workshop](https://github.com/Microsoft/MCW-Template-Cloud-Workshop/raw/master/Media/ms-cloud-workshop.png "Microsoft Cloud Workshop")
 
 <div class="MCWHeader1">
-SQL Server Hybrid Cloud
+SQL Server hybrid cloud
 </div>
 
 <div class="MCWHeader2">
@@ -9,7 +9,7 @@ Before the hands-on lab setup guide
 </div>
 
 <div class="MCWHeader3">
-March 2019
+June 2019
 </div>
 
 
@@ -25,7 +25,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 **Contents**
 
-- [SQL Server Hybrid Cloud before the hands-on lab setup guide](#sql-server-hybrid-cloud-before-the-hands-on-lab-setup-guide)
+- [SQL Server hybrid cloud before the hands-on lab setup guide](#sql-server-hybrid-cloud-before-the-hands-on-lab-setup-guide)
   - [Requirements](#requirements)
   - [Before the hands-on lab](#before-the-hands-on-lab)
     - [Task 1: Deploy the on-premises environment](#task-1-deploy-the-on-premises-environment)
@@ -33,7 +33,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 3: Verify the website is operational](#task-3-verify-the-website-is-operational)
   - [Summary](#summary)
 
-# SQL Server Hybrid Cloud before the hands-on lab setup guide 
+# SQL Server hybrid cloud before the hands-on lab setup guide 
 
 ## Requirements
 
@@ -41,7 +41,6 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 2.  Virtual Machine Built during this hands-on lab or local machine with the following:
 
-    - Visual Studio 2017 Community or Enterprise Edition
     - Latest Azure PowerShell cmdlets:
         - <https://azure.microsoft.com/en-us/downloads/>
         - <https://docs.microsoft.com/en-us/powershell/azure/install-azurerm-ps>
@@ -51,68 +50,68 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 Duration: 60 minutes
 
-In this exercise, you deploy an on-premises environment and the Azure infrastructure necessary to support the disaster recovery site in Azure. The on-premises environment will be hosted in an Azure Resource Group. 
+In this exercise, you deploy an on-premises environment and the Azure infrastructure necessary to support the disaster recovery site in Azure. The on-premises environment will be hosted in an Azure Resource Group.
 
-### Task 1: Deploy the on-premises environment 
+### Task 1: Deploy the on-premises environment
 
-1.  Browse to the Azure portal at <https://portal.azure.com>and verify that you are logged in with the subscription that you wish to use for this lab.
+1. Browse to the Azure portal at <https://portal.azure.com> and verify that you are logged in with the subscription that you wish to use for this lab.
 
     >**Note**: You may need to launch an \"in-private\" session in your browser if you have multiple Microsoft Accounts.
 
-2.  Before we deploy the environment, we must pre-create the resource group that will host our disaster recovery site. Throughout the lab this will be called **CloudShop2**
+2. Before we deploy the environment, we must pre-create the resource group that will host our disaster recovery site. Throughout the lab this will be called **CloudShop2**
 
-3.  Click the **+ Create a resource** button, type **Resource group** into the search bar, and choose **Resource group** from the search results.
+3. Click the **+ Create a resource** button, type **Resource group** into the search bar, and choose **Resource group** from the search results.
 
-4.  On the resource group blade, click **Create**.
+4. On the resource group blade, click **Create**.
 
-5.  This lab will use Azure Site Recovery to replicate VMs to another region. It is not supported to replicate virtual machines to the same region. Choose a region pair to use for this lab. You can see a list of the region pairs at https://docs.microsoft.com/en-us/azure/best-practices-availability-paired-regions 
+5. This lab will use Azure Site Recovery to replicate VMs to another region. It is not supported to replicate virtual machines to the same region. Choose a region pair to use for this lab. You can see a list of the region pairs at https://docs.microsoft.com/en-us/azure/best-practices-availability-paired-regions 
 
-6.  On the create a resource group blade, type **CloudShop2** for the name of the resource group and choose a region one of your region pairs as the location. Click **Review + Create**, then **Create**.
+6. On the create a resource group blade, type **CloudShop2** for the name of the resource group and choose a region one of your region pairs as the location. Click **Review + Create**, then **Create**.
 
     ![Resource group creation page of the Azure portal with the resource group name set to CloudShop2.](images/before-the-hands-on-lab/2019-03-24-14-40-03.png "Create a resource group")
 
-    > **Note**: DO NOT USE ANY OTHER NAME FOR THIS RESOURCE GROUP. Using any other resource group name will cause your deployment to fail.
+    > **Note**: ***Do not use any other name for this resource group***. Using any other resource group name will cause your deployment to fail.
 
-7.  Click the **Deploy to Azure** button below. 
+7. Click the **Deploy to Azure** button below.
 
     <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopsgility%2Fcw-sql-hybrid-cloud%2Fmaster%2Fazure-deploy.json" rel="nofollow">
     <img src="https://camo.githubusercontent.com/9285dd3998997a0835869065bb15e5d500475034/687474703a2f2f617a7572656465706c6f792e6e65742f6465706c6f79627574746f6e2e706e67" data-canonical-src="http://azuredeploy.net/deploybutton.png" style="max-width:100%;"></a>
 
-8.  On the **Custom deployment** blade, select **Create new** under for the resource group and name the resource group ***CloudShop1***. Choose the region pair of your CloudShop2 resource group location. In our lab document we have chosen the **East US 2/Central US** region pair. Accept the terms and conditions and click **Purchase**.
-   
+8. On the **Custom deployment** blade, select **Create new** under the **Resource group**. Name the resource group ***CloudShop1***. Choose the region pair of your CloudShop2 resource group location. In our lab document we have chosen the **East US 2/Central US** region pair. Accept the terms and conditions and click **Purchase**.
+
     ![The Azure custom deployments blade is shown. The setting for resource group has been changed to CloudShop1 and the I agree to the terms and conditions stated above checkbox has been checked. All other values have been left at the defaults.](images/hands-on-lab/2019-03-25-21-15-05.png "Custom deployment blade")
 
     > **Note**: Do not use a different resource group and do not change any of the values listed here or your lab will not deploy correctly.
 
-9.  Wait for the deployment to complete. This may take up to 60 minutes.
+9. Wait for the deployment to complete. This may take up to 60 minutes.
 
-### Task 2: Verify virtual machines domain join status 
+### Task 2: Verify virtual machines domain join status
 
-1.  From the Azure portal, navigate to the CloudShop1 resource group.
+From the Azure portal, navigate to the CloudShop1 resource group.
 
-2.  Open your CloudShopWeb virtual machine and click **Connect** and login with account **demouser** and password **demo@pass123**.
+1. Open your CloudShopWeb virtual machine and click **Connect** and login with account **demouser** and password **demo@pass123**.
 
-3.  After a minute or so, the Server Manager application should launch on its own. 
+2. After a minute or so, the Server Manager application should launch on its own. 
 
-4.  Navigate to **Local Server** on the left side menu. Verify that the domain name is **contoso.com**
+3. Navigate to **Local Server** on the left side menu. Verify that the domain name is **contoso.com**
 
     ![The Windows Server Manager app is shown with Local Server selected and the domain highlighted. The domain name is contoso.com.](images/before-the-hands-on-lab/2019-03-25-22-22-06.png "Server Manager")
 
-5.  If the machine has not joined the domain, click **WORKGROUP** and then joining the contoso.com domain. When joining the domain, use the credentials **CONTOSO\demouser** with a password of **demo@pass123**.
+4. If the machine has not joined the domain, click **WORKGROUP** and then joining the contoso.com domain. When joining the domain, use the credentials **CONTOSO\demouser** with a password of **demo@pass123**.
 
-6.  Repeat the above steps for the remaining servers.
+5. Repeat the above steps for the remaining servers.
 
-### Task 3: Verify the website is operational 
+### Task 3: Verify the website is operational
 
-1.  In the Azure portal, navigate to the **CloudShop1** resource group. 
+1. In the Azure portal, navigate to the **CloudShop1** resource group.
 
-2.  Open the **CloudShopWeb** virtual machine resource.
+2. Open the **CloudShopWeb** virtual machine resource.
 
-3.  Copy the **public IP address**.
+3. Copy the **public IP address**.
 
     ![The CloudShopWeb virtual machine with the public IP address highlighted.](images/before-the-hands-on-lab/2019-03-24-17-22-38.png "Copy the public IP address of the web server")
 
-4.  Paste the public IP address into a web browser. You should see the Cloud Shop web page.
+4. Paste the public IP address into a web browser. You should see the Cloud Shop web page.
 
     ![The CloudShop web page.](images/before-the-hands-on-lab/2019-03-24-17-25-37.png "Cloud Shop")
 

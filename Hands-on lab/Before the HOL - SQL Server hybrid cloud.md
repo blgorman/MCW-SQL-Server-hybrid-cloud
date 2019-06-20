@@ -88,7 +88,7 @@ In this exercise, you deploy an on-premises environment and the Azure infrastruc
 
 ### Task 2: Verify virtual machines domain join status
 
-    From the Azure portal, navigate to the CloudShop1 resource group.
+From the Azure portal, navigate to the CloudShop1 resource group.
 
 1. Open your CloudShopWeb virtual machine and click **Connect** and login with account **demouser** and password **demo@pass123**.
 

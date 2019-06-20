@@ -1,7 +1,7 @@
 `![](https://github.com/Microsoft/MCW-Template-Cloud-Workshop/raw/master/Media/ms-cloud-workshop.png "Microsoft Cloud Workshops")
 
 <div class="MCWHeader1">
-SQL Server Hybrid Cloud
+SQL Server hybrid cloud
 </div>
 
 <div class="MCWHeader2">
@@ -26,7 +26,7 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
 
 <!-- TOC -->
 
-- [SQL Server Hybrid Cloud hands-on lab step-by-step](#SQL-Server-Hybrid-Cloud-hands-on-lab-step-by-step)
+- [SQL Server hybrid cloud hands-on lab step-by-step](#SQL-Server-Hybrid-Cloud-hands-on-lab-step-by-step)
   - [Abstract and learning objectives](#Abstract-and-learning-objectives)
   - [Overview](#Overview)
   - [Solution architecture](#Solution-architecture)
@@ -60,7 +60,7 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
 
 <!-- /TOC -->
 
-# SQL Server Hybrid Cloud hands-on lab step-by-step 
+# SQL Server hybrid cloud hands-on lab step-by-step 
 
 ## Abstract and learning objectives 
 

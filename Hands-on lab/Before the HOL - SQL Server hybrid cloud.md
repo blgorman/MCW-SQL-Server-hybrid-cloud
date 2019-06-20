@@ -41,7 +41,6 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 2.  Virtual Machine Built during this hands-on lab or local machine with the following:
 
-    - Visual Studio 2017 Community or Enterprise Edition
     - Latest Azure PowerShell cmdlets:
         - <https://azure.microsoft.com/en-us/downloads/>
         - <https://docs.microsoft.com/en-us/powershell/azure/install-azurerm-ps>

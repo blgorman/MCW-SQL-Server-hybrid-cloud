@@ -39,7 +39,7 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 1: Crete a logical SQL Server to host Stretch DB](#Task-1-Crete-a-logical-SQL-Server-to-host-Stretch-DB)
     - [Task 2: Identify tables that may benefit from Stretch DB](#Task-2-Identify-tables-that-may-benefit-from-Stretch-DB)
     - [Task 3: Implement Stretch DB based on date key](#Task-3-Implement-Stretch-DB-based-on-date-key)
-  - [Summary](#Summary)
+    - [Summary](#Summary)
   - [Exercise 3: Build SQL Availability Group for Database Disaster Recovery](#Exercise-3-Build-SQL-Availability-Group-for-Database-Disaster-Recovery)
     - [Task 1: Create the cluster](#Task-1-Create-the-cluster)
     - [Task 2: Create the SQL Server Availability Group](#Task-2-Create-the-SQL-Server-Availability-Group)
@@ -76,7 +76,7 @@ Contoso has asked you to deploy their infrastructure in a resilient manner to en
 
 Cloud based disaster recovery site.
 
-![Enterprise disaster recovery architecture](images/hands-on-lab/disaster-recovery-diagram.png) "Enterprise disaster recovery architecture")
+![Enterprise disaster recovery architecture](images/hands-on-lab/disaster-recovery-diagram.png "Enterprise disaster recovery architecture")
 
 ## Requirements
 
@@ -136,8 +136,9 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     ```
 
 6. Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script:
-   - change the **$storageAcctName** variable to a unique name
-   - change the location to match the location you are deploying into for this lab.
+
+   - Change the **$storageAcctName** variable to a unique name.
+   - Change the location to match the location you are deploying into for this lab.
 
     ```powershell
     $storageAcctName = "[unique storage account name]"
@@ -278,19 +279,19 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 5. On the SQL Server (logical server) blade, use the following configurations and click **Create**.
 
-    - Server name: ***Choose a unique server name***
+    - Server name: ***Choose a unique server name***.
     - Server admin login: **demouser**
     - Password: **demo@pass123**
-    - Subscription: ***Your subscription***
+    - Subscription: ***Your subscription***.
     - Resource group: **CloudShop2**
-    - Location: ***Use the same location you used for CloudShop2***
+    - Location: ***Use the same location you used for CloudShop2***.
     - Allow Azure Services: ***Checked***
 
         ![The SQL Server logical server creation blade with the configurations listed previously set to the correct values.](images/hands-on-lab/2019-03-24-19-31-07.png "Create a SQL Server logical server")
 
 6. Make note of the server name you chose above. It will be used in a later task.
 
-7. Click **Create**
+7. Click **Create**.
 
 8. After the SQL Server logical server has deployed, navigate to it and select **Firewalls and virtual networks** from the security menu on the left.
 
@@ -312,7 +313,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 4. The Enable Database for Stretch wizard should open automatically. Click **Next** on the Introduction screen.
 
-5. On the Select tables window all of your tables will be listed. Notice that some tables have warnings and some may be greyed out. Click on the warning icon next to one of the tables. This indicates that the table does not meet the StretchDB eligibility requirements.
+5. On the Select tables window all of your tables will be listed. Notice that some tables have warnings, and some may be greyed out. Click on the warning icon next to one of the tables. This indicates that the table does not meet the StretchDB eligibility requirements.
 
     ![Stretch Database Wizard showing error for a table.](images/hands-on-lab/2019-03-24-19-40-15.png "Stretch Database wizard")
 
@@ -445,7 +446,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 12. Repeat the above steps to install Failover Clustering on your remaining SQL Servers (CloudShopSQL2 and CloudShopSQL3).
 
-    >**NOTE**: CloudShopSQL2 and CloudShopSQL3 were deployed to the disaster recovery site which is hosted in the **CloudShopSQL2** resource group.
+    >**Note**: CloudShopSQL2 and CloudShopSQL3 were deployed to the disaster recovery site which is hosted in the **CloudShopSQL2** resource group.
 
 13. From CloudShopSQL, open **Administrative Tools** and then launch **Failover Cluster Manager**.
 
@@ -459,7 +460,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     ![The select servers or a cluster window with CloudShopSQL, CloudShopSQL2 and CloudShopSQL3 added to the selected servers.](images/hands-on-lab/2019-03-24-20-23-55.png "Validate a Configuration Wizard")
 
-17. On the Testing Options window, select the **Run only tests I select** radio button and click **Next**
+17. On the Testing Options window, select the **Run only tests I select** radio button and click **Next**.
 
     ![The testing options window with run only tests I select selected](images/hands-on-lab/2019-03-24-20-31-41.png "Validate a Configuration Wizard")
 
@@ -568,8 +569,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![The specify replicas listener tab is selected, create an availability group listener is selected with the correct values entered.](images/hands-on-lab/2019-03-24-23-09-42.png "Specify replicas listener tab")
 
-23. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use **172.16.1.8**, then click
-    **Next**.
+23. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use **172.16.1.8**, then click **Next**.
 
     ![The listener ip addresses are now shown in the specify replicas window.](images/hands-on-lab/2019-03-24-23-15-53.png "Specifying listener ip addresses")
 
@@ -593,10 +593,10 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 3. On the Create load balancer blade, configure the following options, then click **Review + Create**:
 
-    - Subscription: ***Your subscription***
+    - Subscription: ***Your subscription***.
     - Resource group: **CloudShop2**
     - Name: **sqlag**
-    - Region: ***Choose the region you have used for this lab.***
+    - Region: ***Choose the region you have used for this lab***.
     - Type: **Internal**
     - SKU: **Basic**
     - Virtual network: **VNET2**
@@ -627,7 +627,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 8.  Select **CloudShopSQL2** for the Target virtual machine, and select **ipconfig1 (172.16.1.5)** for the Network IP configuration. 
    
-    >**NOTE**: Your IP address may be different than our example.
+    >**Note**: Your IP address may be different than our example.
 
     ![Selecting CloudShopSQL2 ipconfig as a backend target.](images/hands-on-lab/2019-03-24-23-59-23.png "Select the target ip configuration")
 
@@ -638,7 +638,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 11. On the Add health probe blade, use the following configuration values then click **OK** and wait for the load balancer to complete
     the update.
 
-    >**NOTE**: If you receive an error your load balancer may still be updating itself from the prior step. Wait a minute and try again.
+    >**Note**: If you receive an error your load balancer may still be updating itself from the prior step. Wait a minute and try again.
 
     - Name: **sqlprobe** 
     - Protocol: **TCP** 
@@ -666,7 +666,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![Adding load balancer rule for floating IP with all configurations set.](images/hands-on-lab/2019-03-25-17-51-59.png "Load balancer rule configurations")
 
-14. Next we need to verify our cluster's network names. Open the **Failover Cluster Manager**, expand **CLUST01**, select **Networks** then double-click **Cluster Network 2** to open the properties. Verify that Cluster Network 2's subnet is set to **172.16.1.0/24**. In some cases the cluster deployment may reverse the names it assign to the cluster networks. If your subnet does not match here, then you will simply change the name of the cluster network in the script below to reflect this.
+14. Next we need to verify our cluster's network names. Open the **Failover Cluster Manager**, expand **CLUST01**, select **Networks** then double-click **Cluster Network 2** to open the properties. Verify that Cluster Network 2's subnet is set to **172.16.1.0/24**. In some cases, the cluster deployment may reverse the names it assign to the cluster networks. If your subnet does not match here, then you will simply change the name of the cluster network in the script below to reflect this.
     
     ![The Failover Cluster Manager with Cluster Network 2 properties page open. The subnet is highlighted](images/hands-on-lab/2019-06-19-12-44-26.png "Cluster Network 2 properties")
 
@@ -694,7 +694,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 1. Login to your CloudShopSQL virtual machine and launch SQL Server Management Studio.
 
-2. From Object Explorer, launch a new connection and connect to the **adventureworks** listener. This is simply to check if your listener is actually working.
+2. From Object Explorer, launch a new connection and connect to the **AdventureWorks** listener. This is simply to check if your listener is actually working.
 
 3. From your CloudShopSQL connection, expand Always On High Availability, Availability Groups, AdventureWorks, Availability Replicas, then right-click **CloudShopSQL2** and choose **Properties**.
 
@@ -734,7 +734,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 13. From CloudShopSQL2 or CloudShopSQL3, connect to your **AdventureWorks** listener and open a new Query Window by clicking connect in SSMS and using AdventureWorks for the server name.
 
-    >**NOTE**: We must test from the same virtual network as our Internal Load Balancer. Internal Load Balancers do not currently support connectivity across peered networks.
+    >**Note**: We must test from the same virtual network as our Internal Load Balancer. Internal Load Balancers do not currently support connectivity across peered networks.
 
 14. Run the following code to verify that you are running from CloudShopSQL2:
 
@@ -783,9 +783,9 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 4. On the Recovery Services vault creation blade, use the following configurations and click **Create**.
 
     - Name: **RSVault**
-    - Subscription: ***Choose your subscription***
+    - Subscription: ***Choose your subscription***.
     - Resource group: **CloudShop2**
-    - Location: ***Use the same location assigned to CloudShop2.***
+    - Location: ***Use the same location assigned to CloudShop2***.
 
         ![The recovery services vault creation blade is show.](images/hands-on-lab/2019-03-25-23-30-11.png "Create the Recovery Services Vault")
 
@@ -810,9 +810,9 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 6. Choose the following configurations and click **OK**.
 
     - Source: **Azure**
-    - Source location: ***The location of your CloudShop1 resource group.***
+    - Source location: ***The location of your CloudShop1 resource group***.
     - Azure virtual machine deployment model: **Resource Manager**
-    - Source subscription: ***Your subscription***
+    - Source subscription: ***Your subscription***.
     - Source resource group: **CloudShop1**
 
         ![An image that depicts Azure Site Recovery settings.](images/hands-on-lab/2019-03-25-23-53-54.png "ASR replicate source settings")

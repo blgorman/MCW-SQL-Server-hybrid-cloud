@@ -1,7 +1,7 @@
 ![](https://github.com/Microsoft/MCW-Template-Cloud-Workshop/raw/master/Media/ms-cloud-workshop.png "Microsoft Cloud Workshops")
 
 <div class="MCWHeader1">
-SQL Server Hybrid Cloud
+SQL Server hybrid cloud
 </div>
 
 <div class="MCWHeader2">
@@ -25,7 +25,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 **Contents**
 
-- [SQL Server Hybrid Cloud before the hands-on lab setup guide](#sql-server-hybrid-cloud-before-the-hands-on-lab-setup-guide)
+- [SQL Server hybrid cloud before the hands-on lab setup guide](#sql-server-hybrid-cloud-before-the-hands-on-lab-setup-guide)
   - [Requirements](#requirements)
   - [Before the hands-on lab](#before-the-hands-on-lab)
     - [Task 1: Deploy the on-premises environment](#task-1-deploy-the-on-premises-environment)
@@ -33,7 +33,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Task 3: Verify the website is operational](#task-3-verify-the-website-is-operational)
   - [Summary](#summary)
 
-# SQL Server Hybrid Cloud before the hands-on lab setup guide 
+# SQL Server hybrid cloud before the hands-on lab setup guide 
 
 ## Requirements
 
@@ -71,7 +71,7 @@ In this exercise, you deploy an on-premises environment and the Azure infrastruc
 
     ![Resource group creation page of the Azure portal with the resource group name set to CloudShop2.](images/before-the-hands-on-lab/2019-03-24-14-40-03.png "Create a resource group")
 
-    > **Note**: DO NOT USE ANY OTHER NAME FOR THIS RESOURCE GROUP. Using any other resource group name will cause your deployment to fail.
+    > **Note**: ***Do not use any other name for this resource group***. Using any other resource group name will cause your deployment to fail.
 
 7. Click the **Deploy to Azure** button below.
 

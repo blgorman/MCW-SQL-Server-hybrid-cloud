@@ -9,7 +9,7 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-June 2019
+September 2019
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -26,37 +26,42 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
 
 <!-- TOC -->
 
-- [SQL Server hybrid cloud hands-on lab step-by-step](#SQL-Server-Hybrid-Cloud-hands-on-lab-step-by-step)
-  - [Abstract and learning objectives](#Abstract-and-learning-objectives)
-  - [Overview](#Overview)
-  - [Solution architecture](#Solution-architecture)
-  - [Requirements](#Requirements)
-    - [Help references](#Help-references)
-  - [Exercise 1: SQL Backup solution](#Exercise-1-SQL-Backup-solution)
-    - [Task 1: Create an Azure Storage Account](#Task-1-Create-an-Azure-Storage-Account)
-    - [Task 2: Configure managed backup in SQL Server](#Task-2-Configure-managed-backup-in-SQL-Server)
-  - [Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database](#Exercise-2-Implement-a-Data-Archive-Strategy-with-SQL-Server-Stretch-Database)
-    - [Task 1: Crete a logical SQL Server to host Stretch DB](#Task-1-Crete-a-logical-SQL-Server-to-host-Stretch-DB)
-    - [Task 2: Identify tables that may benefit from Stretch DB](#Task-2-Identify-tables-that-may-benefit-from-Stretch-DB)
-    - [Task 3: Implement Stretch DB based on date key](#Task-3-Implement-Stretch-DB-based-on-date-key)
-    - [Summary](#Summary)
-  - [Exercise 3: Build SQL Availability Group for Database Disaster Recovery](#Exercise-3-Build-SQL-Availability-Group-for-Database-Disaster-Recovery)
-    - [Task 1: Create the cluster](#Task-1-Create-the-cluster)
-    - [Task 2: Create the SQL Server Availability Group](#Task-2-Create-the-SQL-Server-Availability-Group)
-    - [Task 3: Create the Internal Load Balancer](#Task-3-Create-the-Internal-Load-Balancer)
-    - [Task 4: Validate the Availability Group](#Task-4-Validate-the-Availability-Group)
-    - [Task 5: Update the Web Application to Connect to the Listener](#Task-5-Update-the-Web-Application-to-Connect-to-the-Listener)
-    - [Summary](#Summary-1)
-  - [Exercise 4: Configure Azure Site Recovery for Web Tier DR](#Exercise-4-Configure-Azure-Site-Recovery-for-Web-Tier-DR)
-    - [Task 1: Create a Recovery Services Vault](#Task-1-Create-a-Recovery-Services-Vault)
-    - [Task 2: Configure Azure Site Recovery](#Task-2-Configure-Azure-Site-Recovery)
-    - [Task 3: Creating the Recovery Plan](#Task-3-Creating-the-Recovery-Plan)
-  - [Exercise 5: Failing Over to the Disaster Recovery Site](#Exercise-5-Failing-Over-to-the-Disaster-Recovery-Site)
-    - [Task 1: Failover the Data Tier](#Task-1-Failover-the-Data-Tier)
-    - [Task 2: Failover the Web Tier](#Task-2-Failover-the-Web-Tier)
-    - [Task 3: Validate Failover of the CloudShop application](#Task-3-Validate-Failover-of-the-CloudShop-application)
-  - [After the hands-on lab](#After-the-hands-on-lab)
-    - [Task 1: Delete the resource groups created](#Task-1-Delete-the-resource-groups-created)
+- [SQL Server hybrid cloud hands-on lab step-by-step](#sql-server-hybrid-cloud-hands-on-lab-step-by-step)
+  - [Abstract and learning objectives](#abstract-and-learning-objectives)
+  - [Overview](#overview)
+  - [Solution architecture](#solution-architecture)
+  - [Requirements](#requirements)
+    - [Help references](#help-references)
+  - [Exercise 1: SQL Backup solution](#exercise-1-sql-backup-solution)
+    - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account)
+    - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
+  - [Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-2-implement-a-data-archive-strategy-with-sql-server-stretch-database)
+    - [Task 1: Crete a logical SQL Server to host Stretch DB](#task-1-crete-a-logical-sql-server-to-host-stretch-db)
+    - [Task 2: Identify tables that may benefit from Stretch DB](#task-2-identify-tables-that-may-benefit-from-stretch-db)
+    - [Task 3: Implement Stretch DB based on date key](#task-3-implement-stretch-db-based-on-date-key)
+  - [Summary](#summary)
+  - [Exercise 3: Create an archive solution using table partitioning](#exercise-3-create-an-archive-solution-using-table-partitioning)
+    - [Task 1: Create the archive database](#task-1-create-the-archive-database)
+    - [Task 2: Create the new partitioned table](#task-2-create-the-new-partitioned-table)
+    - [Task 3: Move data from the partitioned table to the archive database](#task-3-move-data-from-the-partitioned-table-to-the-archive-database)
+  - [Summary](#summary-1)
+  - [Exercise 4: Build SQL Availability Group for Database Disaster Recovery](#exercise-4-build-sql-availability-group-for-database-disaster-recovery)
+    - [Task 1: Create the cluster](#task-1-create-the-cluster)
+    - [Task 2: Create the SQL Server Availability Group](#task-2-create-the-sql-server-availability-group)
+    - [Task 3: Create the Internal Load Balancer](#task-3-create-the-internal-load-balancer)
+    - [Task 4: Validate the Availability Group](#task-4-validate-the-availability-group)
+    - [Task 5: Update the Web Application to Connect to the Listener](#task-5-update-the-web-application-to-connect-to-the-listener)
+    - [Summary](#summary-2)
+  - [Exercise 5: Configure Azure Site Recovery for Web Tier DR](#exercise-5-configure-azure-site-recovery-for-web-tier-dr)
+    - [Task 1: Create a Recovery Services Vault](#task-1-create-a-recovery-services-vault)
+    - [Task 2: Configure Azure Site Recovery](#task-2-configure-azure-site-recovery)
+    - [Task 3: Creating the Recovery Plan](#task-3-creating-the-recovery-plan)
+  - [Exercise 6: Failing Over to the Disaster Recovery Site](#exercise-6-failing-over-to-the-disaster-recovery-site)
+    - [Task 1: Failover the Data Tier](#task-1-failover-the-data-tier)
+    - [Task 2: Failover the Web Tier](#task-2-failover-the-web-tier)
+    - [Task 3: Validate Failover of the CloudShop application](#task-3-validate-failover-of-the-cloudshop-application)
+  - [After the hands-on lab](#after-the-hands-on-lab)
+    - [Task 1: Delete the resource groups created](#task-1-delete-the-resource-groups-created)
 
 <!-- /TOC -->
 
@@ -125,13 +130,13 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 4. From within your SQL Server guest virtual machine, install Azure PowerShell by launching an **administrative PowerShell ISE session** and running the following command. Accept any warnings or authorization to install the components.
 
     ```powershell
-    Install-Module -Name AzureRM -AllowClobber
+    Install-Module -Name Az -AllowClobber -Scope AllUsers
     ```
 
 5. From the PowerShell ISE, type the following at the prompt and follow the prompts to login to your Azure subscription:
 
     ```powershell
-    login-AzureRmAccount
+    login-AzAccount
     ```
 
 6. Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script:
@@ -148,18 +153,20 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     $storageSkuName = "Standard_LRS"
 
     "Creating Storage Account $storageAcctName"
-    $sa = New-AzureRmStorageAccount -ResourceGroupName $resourceGroupName  `
+    $sa = New-AzStorageAccount -ResourceGroupName $resourceGroupName  `
         -Name $storageAcctName `
         -Location $location `
-        -SkuName $storageSkuName 
+        -Type $storageSkuName 
 
-    $storageKey = (Get-AzureRmStorageAccountKey -Name $storageAcctName -ResourceGroupName $resourceGroupName )[0].Value
-    $context = New-AzureStorageContext -StorageAccountName $storageAcctName -StorageAccountKey $storageKey
+    
+    $storageKey = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -Name $storageAcctName
+
+    $context = New-AzStorageContext -StorageAccountName $storageAcctName -StorageAccountKey $storageKey[0].Value
 
     Write-Host "Creating New Storage Container  $containerName" 
-    New-AzureStorageContainer -name $containerName -permission container -context $context
+    New-AzStorageContainer -name $containerName -context $context
 
-    $fullSasToken = New-AzureStorageContainerSASToken -Name $containerName -Permission rwdl -FullUri -Context $context  
+    $fullSasToken = New-AzStorageContainerSASToken -Name $containerName -Permission rwdl -FullUri -Context $context  
     $containerUrl = $fullSasToken.Substring(0,$fullSasToken.IndexOf("?"))
     $sasToken = $fullSasToken.Substring($fullSasToken.IndexOf("?")+1)
 
@@ -203,7 +210,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
     ![SQL Server Management Studio indicating the location of where to see the current status of the SQL Server Agent](images/hands-on-lab/2019-03-24-19-13-52.png "Management Studio")
 
-4. Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures.
+4. Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures. After running the code, right click the SQL Server Agent and select **Start**.
 
     ```sql
     EXEC sp_configure 'show advanced options', 1
@@ -248,7 +255,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     GO
     ```
 
-7. Execute the following tSQL in the query window to generate a backup on-demand. You can also specify Log for \@type.
+7. Execute the following T-SQL in the query window to generate a backup on-demand. You can also specify Log for \@type to generate a transaction log backup.
 
     ```sql
     EXEC msdb.managed_backup.sp_backup_on_demand
@@ -261,6 +268,8 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 ## Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database
 
 Duration: 30 minutes
+
+There are numerous ways to implement an archive strategy in SQL Server. The easiest way to do this is through the SQL Server Stretch Database feature. A more common approach is to leverage table partitioning to separate historical data from current data. If you wish to implement table partitioning to archive data skip to **Exercise 3**.
 
 In this exercise, you will implement SQL Server Stretch Database to stretch data from a table into Azure.
 
@@ -276,27 +285,28 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 4. Click **Create** on the SQL Server (logical server) information blade.
 
-5. On the SQL Server (logical server) blade, use the following configurations and click **Create**.
+5. On the Create SQL Database Server Basics tab, use the following configurations and select **Next:Networking**.
 
-    - Server name: ***Choose a unique server name***.
-    - Server admin login: **demouser**
-    - Password: **demo@pass123**
     - Subscription: ***Your subscription***.
     - Resource group: **CloudShop2**
+    - Server name: ***Choose a unique server name***. *Make note of the server name you chose. It will be used in a later task.*
     - Location: ***Use the same location you used for CloudShop2***.
-    - Allow Azure Services: ***Checked***
+    - Server admin login: **demouser**
+    - Password: **demo@pass123**
 
-        ![The SQL Server logical server creation blade with the configurations listed previously set to the correct values.](images/hands-on-lab/2019-03-24-19-31-07.png "Create a SQL Server logical server")
+        ![The SQL Server logical server creation blade with the configurations listed previously set to the correct values.](images/2019-09-24-16-20-26.png "Create a SQL Server logical server")
 
-6. Make note of the server name you chose above. It will be used in a later task.
+6. On the Networking tab, enable the firewall rule to allow Azure services and resources to access this server then select **Review + Create**.
 
-7. Click **Create**.
+    ![](images/2019-09-24-16-26-49.png)
+
+7. Select **Create** on the Review + create tab.
 
 8. After the SQL Server logical server has deployed, navigate to it and select **Firewalls and virtual networks** from the security menu on the left.
 
     ![Security menu with Firewalls and virtual networks highlighted.](images/hands-on-lab/2019-03-20-11-56-21.png "Security menu")
 
-9. Add a new firewall rule by clicking **+Add client IP** and then clicking **Save**.
+9. Add a new firewall rule by selecting **+Add client IP** and then selecting **Save**.
 
     ![The firewall configuration dialogue with the save and add client IP buttons highlighted.](images/hands-on-lab/2019-03-20-12-01-55.png "Firewall configuration")
 
@@ -308,15 +318,15 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 3. Right-click the AdventureWorks database, select Tasks, select Stretch, then choose Enable.
 
-    ![SQL Server Management Studio Object Explorer with the Smart Hotel right-click menu open, tasks is highlighted then stretch is highlighted and Enable is selected.](images/hands-on-lab/2019-03-24-19-38-01.png "Enable Stretch Database")
+    ![SQL Server Management Studio Object Explorer with right-click menu open, tasks is highlighted then stretch is highlighted and Enable is selected.](images/hands-on-lab/2019-03-24-19-38-01.png "Enable Stretch Database")
 
-4. The Enable Database for Stretch wizard should open automatically. Click **Next** on the Introduction screen.
+4. The Enable Database for Stretch wizard should open automatically. Select **Next** on the Introduction screen.
 
-5. On the Select tables window all of your tables will be listed. Notice that some tables have warnings, and some may be greyed out. Click on the warning icon next to one of the tables. This indicates that the table does not meet the StretchDB eligibility requirements.
+5. On the Select tables window all of your tables will be listed. Notice that some tables have warnings, and some may be greyed out. Select the warning icon next to one of the tables. This indicates that the table does not meet the StretchDB eligibility requirements.
 
     ![Stretch Database Wizard showing error for a table.](images/hands-on-lab/2019-03-24-19-40-15.png "Stretch Database wizard")
 
-6. Scroll to the right until you see the Migrate column. Clicking Entire Table on an eligible table allows you to define which rows will be migrated to Azure. In this lab, we are going to configure Stretch Database through TSQL. Click Cancel to break out of the wizard.
+6. Scroll to the right until you see the Migrate column. Selecting Entire Table on an eligible table allows you to define which rows will be migrated to Azure. In this lab, we are going to configure Stretch Database through TSQL. Select Cancel to break out of the wizard.
 
 ### Task 3: Implement Stretch DB based on date key  
 
@@ -375,7 +385,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
     ) )
     ```
 
-5. Refresh the AdventureWorks database in Object Explorer by right clicking it and choosing Refresh.
+5. Refresh the AdventureWorks database in Object Explorer by right-clicking it and choosing Refresh.
 
 6. Right-click the AdventureWorks database, choose Tasks, Stretch, then select Monitor.
 
@@ -383,7 +393,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
     ![The stretch database report is shown with ResellerSales highlighted.](images/hands-on-lab/2019-03-20-12-21-30.png "Stretch Configured Tables")
 
-8. Click the dropdown under Migration State. Notice that you have the option to pause the outbound migration.
+8. Select the dropdown under Migration State. Notice that you have the option to pause the outbound migration.
 
 9. Launch a new Query tab and execute the following code to programmatically monitor space used in Azure and locally.
 
@@ -404,7 +414,279 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 In this exercise, you implemented an archive solution with Stretch Database. First, you reviewed the table compatibility by using the Enable Database for Stretch wizard. You then configured your database and table via T-SQL to archive data satisfied by a stretch predicate. Finally, you reviewed the progress, status and space used locally and in Azure via the built-in management tools
 
-## Exercise 3: Build SQL Availability Group for Database Disaster Recovery
+## Exercise 3: Create an archive solution using table partitioning
+
+Duration: 60 minutes
+
+In this exercise, you will create an archive solution using table partitioning. The goal of partitioning the table is to minimize the impact of the archival process on the production database and to minimize the size of the database overall to improve performance of the maintenance jobs. We will use monthly partitions to accomplish these goals.
+
+> **NOTE**: This is an alternate archive solution. It is not necessary to complete this exercise if you have already completed exercise 2.
+
+### Task 1: Create the archive database
+
+In this task, you will create the archive database to store historical data from large tables in the production database.
+
+1.  From your **CloudShopSQL** virtual machine, launch SQL Server Management Studio and login to the local instance of SQL Server.
+
+2.  Open a new query window, copy and paste the following code into the query window. This code creates the archive database where you will store historical data from the production database.
+
+    ```sql
+    -- Create archive database
+    CREATE DATABASE AdventureWorksArchive
+    ```
+
+3.  Open a new query window, copy and paste the following code into the query window. This creates a table you will store historical data from the **AdventureWorks.Sales.ResellerSales** table. You will copy data into this table in a later step.
+
+    ```sql
+    USE AdventureWorksArchive
+    GO
+    CREATE TABLE ResellerSalesArchive (
+  	    [ProductKey] [int] NOT NULL,
+	    [OrderDateKey] [int] NOT NULL,
+	    [DueDateKey] [int] NOT NULL,
+	    [ShipDateKey] [int] NOT NULL,
+	    [ResellerKey] [int] NOT NULL,
+	    [EmployeeKey] [int] NOT NULL,
+	    [PromotionKey] [int] NOT NULL,
+	    [CurrencyKey] [int] NOT NULL,
+	    [SalesTerritoryKey] [int] NOT NULL,
+	    [SalesOrderNumber] [nvarchar](20) NOT NULL,
+	    [SalesOrderLineNumber] [tinyint] NOT NULL,
+	    [RevisionNumber] [tinyint] NULL,
+    	[OrderQuantity] [smallint] NULL,
+	    [UnitPrice] [money] NULL,
+	    [ExtendedAmount] [money] NULL,
+	    [UnitPriceDiscountPct] [float] NULL,
+	    [DiscountAmount] [float] NULL,
+	    [ProductStandardCost] [money] NULL,
+	    [TotalProductCost] [money] NULL,
+	    [SalesAmount] [money] NULL,
+	    [TaxAmt] [money] NULL,
+	    [Freight] [money] NULL,
+	    [CarrierTrackingNumber] [nvarchar](25) NULL,
+	    [CustomerPONumber] [nvarchar](25) NULL
+    );
+    ```
+
+### Task 2: Create the new partitioned table
+
+In this task, we will create a new partitioned table which will be used to hold the current data. Applications, stored procedures may require updates to be able to use the table.
+
+1.  From SQL Server Management Studio on your **CloudShopSQL** virtual machine, open a new query window.
+
+2.  Create a partition function for the new partitioned table that you will create. For now we will create the table with enough partitions to accommodate all of the data that is currently in the Sales.ResellersSales table. Paste the following code into your query window and execute it.
+
+    ```sql
+    USE AdventureWorks
+    GO
+    CREATE PARTITION FUNCTION pfResellerSales (int)
+    AS RANGE RIGHT FOR VALUES 
+    ('20010801','20010901','20011001','20011101','20011201'
+    ,'20020101','20020201','20020301','20020401','20020501','20020601','20020701','20020801','20020901','20021001','20021101','20021201'
+    ,'20030101','20030201','20030301','20030401','20030501','20030601','20030701','20030801','20030901','20031001','20031101','20031201'
+    ,'20040101','20040201','20040301','20040401','20040501','20040601');
+    ```
+
+3.  Create the partition scheme for your table. Copy, paste and execute the following code into a new query window.
+
+    ```sql
+    CREATE PARTITION SCHEME psResellerSales
+    AS PARTITION pfResellerSales
+    ALL TO ([Primary]);
+    ```
+
+4.  Create the new partitioned table using the partition scheme defined in the previous step. Copy, paste and execute the following code into a new query window.
+
+    ```sql
+    -- Create the new partitioned table on the Partition Scheme
+    CREATE TABLE Sales.ResellerSalesCurrent (
+  	    [ProductKey] [int] NOT NULL,
+	    [OrderDateKey] [int] NOT NULL,
+	    [DueDateKey] [int] NOT NULL,
+	    [ShipDateKey] [int] NOT NULL,
+	    [ResellerKey] [int] NOT NULL,
+	    [EmployeeKey] [int] NOT NULL,
+	    [PromotionKey] [int] NOT NULL,
+	    [CurrencyKey] [int] NOT NULL,
+	    [SalesTerritoryKey] [int] NOT NULL,
+	    [SalesOrderNumber] [nvarchar](20) NOT NULL,
+	    [SalesOrderLineNumber] [tinyint] NOT NULL,
+	    [RevisionNumber] [tinyint] NULL,
+	    [OrderQuantity] [smallint] NULL,
+	    [UnitPrice] [money] NULL,
+	    [ExtendedAmount] [money] NULL,
+	    [UnitPriceDiscountPct] [float] NULL,
+	    [DiscountAmount] [float] NULL,
+	    [ProductStandardCost] [money] NULL,
+	    [TotalProductCost] [money] NULL,
+	    [SalesAmount] [money] NULL,
+	    [TaxAmt] [money] NULL,
+	    [Freight] [money] NULL,
+	    [CarrierTrackingNumber] [nvarchar](25) NULL,
+	    [CustomerPONumber] [nvarchar](25) NULL
+    ) ON psResellerSales(OrderDateKey);
+    ```
+
+5.  Load the data from **Sales.ResellerSales** into your new table by executing the following statement in a new query window in SQL Server Management Studio.
+
+    ```sql
+    -- Load the new partitioned table
+    INSERT INTO Sales.ResellerSalesCurrent
+    SELECT * FROM Sales.ResellerSales
+    ```
+6.  Create a partition aligned clustered index on the new partitioned table.
+
+    ```sql
+    -- Create partition aligned clustered index
+    CREATE CLUSTERED INDEX IX_ResellerSalesCurrent_OrderDateKey
+    ON Sales.ResellerSalesCurrent (OrderDateKey)
+    WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+         ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+    ON psResellerSales(OrderDateKey)
+    ```
+
+### Task 3: Move data from the partitioned table to the archive database
+
+In this task, you will move data from the new partitioned table to the table in your archive database. This will be done by switching out the oldest partition into a work table and copying the data from the work table to the archive table. We could just write a query to accomplish this without partitioning, however, this method minimizes the impact on the production table as the partition switch is very fast.
+
+1.  From SQL Server Management Studio on your **CloudShopSQL** virtual machine, open a new query window.
+
+2.  Copy and paste the following code into the query window and execute it. This code creates the work table that we will switch our oldest partition into. The table must be identical to the original table including indexing.
+
+    ```sql
+    -- Create the work table
+    -- This is the table we will switch out to
+    CREATE TABLE Sales.ResellerSalesWork (
+  	    [ProductKey] [int] NOT NULL,
+	    [OrderDateKey] [int] NOT NULL,
+	    [DueDateKey] [int] NOT NULL,
+	    [ShipDateKey] [int] NOT NULL,
+	    [ResellerKey] [int] NOT NULL,
+	    [EmployeeKey] [int] NOT NULL,
+	    [PromotionKey] [int] NOT NULL,
+	    [CurrencyKey] [int] NOT NULL,
+	    [SalesTerritoryKey] [int] NOT NULL,
+	    [SalesOrderNumber] [nvarchar](20) NOT NULL,
+	    [SalesOrderLineNumber] [tinyint] NOT NULL,
+	    [RevisionNumber] [tinyint] NULL,
+	    [OrderQuantity] [smallint] NULL,
+	    [UnitPrice] [money] NULL,
+	    [ExtendedAmount] [money] NULL,
+	    [UnitPriceDiscountPct] [float] NULL,
+	    [DiscountAmount] [float] NULL,
+	    [ProductStandardCost] [money] NULL,
+	    [TotalProductCost] [money] NULL,
+	    [SalesAmount] [money] NULL,
+	    [TaxAmt] [money] NULL,
+	    [Freight] [money] NULL,
+	    [CarrierTrackingNumber] [nvarchar](25) NULL,
+	    [CustomerPONumber] [nvarchar](25) NULL
+    );
+
+    --Create the clustered index on the work table
+    CREATE CLUSTERED INDEX IX_ResellerSalesWork_OrderDateKey
+    ON Sales.ResellerSalesWork (OrderDateKey)
+    WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+         ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+    ```
+
+3.  Before we move any data let's take a look at how our data is distributed across our existing partitions. Execute the following code in SQL Server Management Studio.
+
+    ```sql
+    -- View partition info
+    SELECT o.name objectname,i.name indexname, partition_id, partition_number, [rows]
+    FROM sys.partitions p 
+    INNER JOIN sys.objects o ON o.object_id=p.object_id
+    INNER JOIN sys.indexes i ON i.object_id=p.object_id and p.index_id=i.index_id
+    WHERE o.name LIKE '%ResellerSales%'
+    ```
+
+4.  Notice that partition number 1 of the ResellerSalesCurrent table has 352 rows and that partition 1 of the ResellerSalesWork table has 0 rows. We will switch these two partitions
+
+    ![Output from the previous query showing there are 352 rows in partition 1.](images/2019-09-25-11-12-26.png "Query output from partion system tables")
+
+    ![Continuation of the previous output showing that the work table partion contains 0 rows.](images/2019-09-25-11-13-10.png "Query output from partion system tables")
+
+5.  To switch the oldest partition from the current table to the work table, execute the following code.
+
+    ```sql
+    -- Execute a switch
+    ALTER TABLE Sales.ResellerSalesCurrent SWITCH PARTITION 1 TO Sales.ResellerSalesWork;
+    ```
+
+6.  Now run the following query again and notice that the work table now contains 352 rows while partition 1 of the ResellerSalesCurrent table now contains 0 rows. This indicates that our switch was successful. 
+
+    ```sql
+    -- View partition info
+    SELECT o.name objectname,i.name indexname, partition_id, partition_number, [rows]
+    FROM sys.partitions p 
+    INNER JOIN sys.objects o ON o.object_id=p.object_id
+    INNER JOIN sys.indexes i ON i.object_id=p.object_id and p.index_id=i.index_id
+    WHERE o.name LIKE '%ResellerSales%'    
+    ```
+
+7.  Now we need to create a new partition for the upcoming month. To do this we execute a split, specifying the new range for the next partition.
+
+    ```sql
+    -- Create new partition
+    ALTER PARTITION FUNCTION pfResellerSales() SPLIT RANGE ('20040701');
+    ```
+
+8.  We need to cleanup the now empty partition. To do this we execute a merge and specify the new lower boundary on our production table.
+
+    ```sql
+    -- Merge empty partition
+    ALTER PARTITION FUNCTION pfResellerSales() MERGE RANGE ('20010801');
+    ```
+
+9.  Now let's copy the data to the archive database and create the necessary indexes by executing the following code. Since we are copying data from the worktable, there should be no adverse impact on the production table.
+
+    ```sql
+    INSERT INTO AdventureWorksArchive..ResellerSalesArchive
+    SELECT * FROM AdventureWorks.Sales.ResellerSalesWork
+
+    USE AdventureWorksArchive
+    GO
+    CREATE CLUSTERED INDEX IX_ResellerSalesWork_OrderDateKey
+    ON ResellerSalesArchive (OrderDateKey)
+    WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF,
+         ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+    ```
+
+10. After the copy completes, you should cleanup the work table so that it can be used to move the other partitions in the future.
+
+    ```sql
+    USE AdventureWorks
+    GO
+    TRUNCATE TABLE Sales.ResellerSalesWork
+    ```
+
+11. To support our legacy reports we will need to create a view that unions both the current table and the archive table using the same table name as the original table. To do this we must first drop the original table (or rename it). Execute the following code to drop the existing Sales.ResellerSales table and create a view to take its place.
+
+    ```sql
+    USE AdventureWorks
+    GO
+
+    DROP TABLE Sales.ResellerSales
+    GO
+
+    CREATE VIEW Sales.ResellerSales
+    AS SELECT * FROM AdventureWorksArchive..ResellerSalesArchive 
+       UNION ALL 
+       SELECT * FROM Sales.ResellerSalesCurrent
+    ```
+
+12. Execute the following code to verify that you are returning the correct number of rows.
+
+    ```sql
+    SELECT COUNT(*) FROM Sales.ResellerSales
+    ```
+
+## Summary
+
+In this exercise, you implemented an archive solution with table partitioning. 
+
+## Exercise 4: Build SQL Availability Group for Database Disaster Recovery
 
 Duration: 60 minutes
 
@@ -765,7 +1047,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 In this exercise, you deployed a Windows Failover Cluster and a SQL Always-On Availability Group for database resiliency. Also, you deployed and configured an internal load balancer to support the Availability Group in Azure. Finally, you validated your configuration by failing over to one of your secondary nodes and connecting to the Availability Group Listener.
 
-## Exercise 4: Configure Azure Site Recovery for Web Tier DR 
+## Exercise 5: Configure Azure Site Recovery for Web Tier DR 
 
 Duration: 15 minutes
 
@@ -870,7 +1152,7 @@ In this task, you will create the recovery plan that will be used to orchestrate
 
     ![The recovery services vault overview with site recovery selected.](images/hands-on-lab/2019-03-26-02-15-27.png "RSVault - Site Recovery")
 
-## Exercise 5: Failing Over to the Disaster Recovery Site 
+## Exercise 6: Failing Over to the Disaster Recovery Site 
 
 Duration: 30 minutes
 

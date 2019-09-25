@@ -202,15 +202,15 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
 1. From within your SQL Server virtual machine, launch SQL Server Management Studio and connect to the local database instance, expand databases, and select the **AdventureWorks** database.
 
-2. From within SQL Server Management Studio, click **New Query**.
+2. From within SQL Server Management Studio, select **New Query**.
 
     ![A screen showing how to launch the new query pane in SQL Server Management Studio.](images/hands-on-lab/2019-03-20-11-08-08.png "Launching the new query pane")
 
-3. Refresh SQL Server Management Studio and if SQL Server Agent is stopped right click on it and click Start.
+3. Refresh SQL Server Management Studio and if SQL Server Agent is stopped right select on it and select Start.
 
     ![SQL Server Management Studio indicating the location of where to see the current status of the SQL Server Agent](images/hands-on-lab/2019-03-24-19-13-52.png "Management Studio")
 
-4. Paste in the following code and click **Execute** to enable SQL Server Agent extended stored procedures. After running the code, right click the SQL Server Agent and select **Start**.
+4. Paste in the following code and select **Execute** to enable SQL Server Agent extended stored procedures. After running the code, right select the SQL Server Agent and select **Start**.
 
     ```sql
     EXEC sp_configure 'show advanced options', 1
@@ -223,7 +223,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     GO
     ```
 
-5. Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and click **Execute**. An example of the code is below. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
+5. Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and select **Execute**. An example of the code is below. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
 
     ```sql
     #sample only do not execute
@@ -239,7 +239,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
         @retention_days = 30
     ```
 
-6. Paste the code below into the query window replacing the existing code and click **Execute** to create a custom backup schedule.
+6. Paste the code below into the query window replacing the existing code and select **Execute** to create a custom backup schedule.
 
     ```sql
     USE msdb;  
@@ -277,13 +277,13 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 1. From your **CloudShopSQL** virtual machine, launch a browser, navigate to the Azure portal and login with your Azure credentials.
 
-2. Click **+Create a resource** at the top of the left side menu.
+2. Select **+Create a resource** at the top of the left side menu.
 
 3. Type **SQL Server logical server** into the search box, hit enter and choose **SQL server (logical server)** from the search results.
 
     ![Azure Marketplace search for SQL Server logical server](images/hands-on-lab/2019-03-20-11-38-42.png "Search for SQL Server logical server")
 
-4. Click **Create** on the SQL Server (logical server) information blade.
+4. Select **Create** on the SQL Server (logical server) information blade.
 
 5. On the Create SQL Database Server Basics tab, use the following configurations and select **Next:Networking**.
 
@@ -316,9 +316,9 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 2. In the SQL Server Management Studio Object Explorer, connect to your local SQL Server instance and expand the Databases folder.
 
-3. Right-click the AdventureWorks database, select Tasks, select Stretch, then choose Enable.
+3. Right-select the AdventureWorks database, select Tasks, select Stretch, then choose Enable.
 
-    ![SQL Server Management Studio Object Explorer with right-click menu open, tasks is highlighted then stretch is highlighted and Enable is selected.](images/hands-on-lab/2019-03-24-19-38-01.png "Enable Stretch Database")
+    ![SQL Server Management Studio Object Explorer with right-select menu open, tasks is highlighted then stretch is highlighted and Enable is selected.](images/hands-on-lab/2019-03-24-19-38-01.png "Enable Stretch Database")
 
 4. The Enable Database for Stretch wizard should open automatically. Select **Next** on the Introduction screen.
 
@@ -385,9 +385,9 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
     ) )
     ```
 
-5. Refresh the AdventureWorks database in Object Explorer by right-clicking it and choosing Refresh.
+5. Refresh the AdventureWorks database in Object Explorer by right-selecting it and choosing Refresh.
 
-6. Right-click the AdventureWorks database, choose Tasks, Stretch, then select Monitor.
+6. Right-select the AdventureWorks database, choose Tasks, Stretch, then select Monitor.
 
 7. View the stretch database report. Note that over time the Eligible Rows, Local Rows, and Rows In Azure numbers will change as data is migrated to your Stretch Database in Azure.
 
@@ -625,6 +625,9 @@ In this task, you will move data from the new partitioned table to the table in 
     WHERE o.name LIKE '%ResellerSales%'    
     ```
 
+    ![output showing that the work table partion now contains 352 rows.](images/2019-09-25-12-40-56.png "Query output from partion system tables")
+    ![Output from the previous query showing there are 0 rows in partition 1.](images/2019-09-25-12-42-01.png "Query output from partion system tables")
+
 7.  Now we need to create a new partition for the upcoming month. To do this we execute a split, specifying the new range for the next partition.
 
     ```sql
@@ -676,7 +679,7 @@ In this task, you will move data from the new partitioned table to the table in 
        SELECT * FROM Sales.ResellerSalesCurrent
     ```
 
-12. Execute the following code to verify that you are returning the correct number of rows.
+12. Execute the following code to verify that you are returning 60855 rows.
 
     ```sql
     SELECT COUNT(*) FROM Sales.ResellerSales
@@ -684,7 +687,7 @@ In this task, you will move data from the new partitioned table to the table in 
 
 ## Summary
 
-In this exercise, you implemented an archive solution with table partitioning. 
+In this exercise, you implemented an archive solution with table partitioning. You created a partitioned table to replace the existing Sales.ResellerSales table. You allowed the legacy reports to maintain access to the current and historical data by creating a view across both the historical archive table and the new current data stored in the partitioned table. 
 
 ## Exercise 4: Build SQL Availability Group for Database Disaster Recovery
 
@@ -707,23 +710,23 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 4. Launch Server Manager if it does not start automatically.
 
-5. Select **Local Server** from the menu on the left and scroll down to **Roles and Features**, click the **Tasks** dropdown and select **Add Roles and Features** from the list.
+5. Select **Local Server** from the menu on the left and scroll down to **Roles and Features**, select the **Tasks** dropdown and select **Add Roles and Features** from the list.
 
     ![Server Administrator Application with local server selected, and add roles and features selected in the tasks dropdown of the Roles and Features section.](images/hands-on-lab/2019-03-20-17-33-21.png "Adding Roles and Features")
 
-6. On the **Before you begin** page, click **Next**.
+6. On the **Before you begin** page, select **Next**.
 
-7. On the **Select installation type** page, select **Role-based or feature-based installation** and click **Next**.
+7. On the **Select installation type** page, select **Role-based or feature-based installation** and select **Next**.
 
-8. On the **Select destination server** page, select the current server and click **Next**.
+8. On the **Select destination server** page, select the current server and select **Next**.
 
-9. On the **Select server roles** page, accept the defaults and click **Next**.
+9. On the **Select server roles** page, accept the defaults and select **Next**.
 
-10. On the **Select features** page, select **Failover Clustering**, then click **Add Features** on the popup and then click **Next**.
+10. On the **Select features** page, select **Failover Clustering**, then select **Add Features** on the popup and then select **Next**.
 
     ![The add roles and features wizard with Failover Clustering selected on the select features page.](images/hands-on-lab/2019-03-24-20-03-47.png "Add Failover Clustering")
 
-11. On the **Confirm installation selections** page, click **Install**.
+11. On the **Confirm installation selections** page, select **Install**.
 
 12. Repeat the above steps to install Failover Clustering on your remaining SQL Servers (CloudShopSQL2 and CloudShopSQL3).
 
@@ -735,13 +738,13 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     ![The Failover Cluster Manager with Validate Configuration highlighted.](images/hands-on-lab/2019-03-24-20-17-48.png "Failover Cluster Manager")
 
-15. Click **Next** on the Before You Begin window.
+15. Select **Next** on the Before You Begin window.
 
-16. On the Select Servers or a Cluster window, enter **CloudShopSQL** and then click the **Add** button. Repeat for **CloudShopSQL2** and **CloudShopSQL3** then click **Next**.
+16. On the Select Servers or a Cluster window, enter **CloudShopSQL** and then select the **Add** button. Repeat for **CloudShopSQL2** and **CloudShopSQL3** then select **Next**.
 
     ![The select servers or a cluster window with CloudShopSQL, CloudShopSQL2 and CloudShopSQL3 added to the selected servers.](images/hands-on-lab/2019-03-24-20-23-55.png "Validate a Configuration Wizard")
 
-17. On the Testing Options window, select the **Run only tests I select** radio button and click **Next**.
+17. On the Testing Options window, select the **Run only tests I select** radio button and select **Next**.
 
     ![The testing options window with run only tests I select selected](images/hands-on-lab/2019-03-24-20-31-41.png "Validate a Configuration Wizard")
 
@@ -749,11 +752,11 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     ![The test selection window with the storage tests unchecked.](images/hands-on-lab/2019-03-24-20-34-43.png "Validate a Configuration Wizard")
 
-19. On the Confirmation window, click **Next** to begin the validation tests.
+19. On the Confirmation window, select **Next** to begin the validation tests.
 
-20. Review the output of the tests by clicking the **View Report** button. This validation test aids you in determining if your server and network configuration is correctly configured for Windows Failover Clustering. You should review any warnings or errors. In our case, the environment was preconfigured to support clustering so there should be no errors. There may be warnings regarding best practices such as multiple network cards etc. In a production environment these warnings must be taken seriously as they may adversely affect the performance and reliability of the cluster. In our lab they will have a negligible impact.
+20. Review the output of the tests by selecting the **View Report** button. This validation test aids you in determining if your server and network configuration is correctly configured for Windows Failover Clustering. You should review any warnings or errors. In our case, the environment was preconfigured to support clustering so there should be no errors. There may be warnings regarding best practices such as multiple network cards etc. In a production environment these warnings must be taken seriously as they may adversely affect the performance and reliability of the cluster. In our lab they will have a negligible impact.
 
-21. Click **Finish** on the Validate a Configuration Wizard.
+21. Select **Finish** on the Validate a Configuration Wizard.
 
 22. On CloudShopSQL, open the PowerShell ISE and execute the following code:
 
@@ -766,7 +769,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
     
     It is also possible to use a wizard for this task, but the resulting cluster will require additional configuration to set the static IP addresses to be viable in Azure. This is due to the manner in which Azure distributes IP addresses causing the cluster to receive the same IP address as the node it is executing on resulting in a duplicate IP address and failure of the cluster service.
 
-23. Open the Failover Cluster Manager on CloudShopSQL from the start menu under Windows Administrative Tools. In the right navigation right-click **Failover Cluster Manager** and click **Connect to Cluster**. Click OK in the pop-up. Expand the **CLUST01** cluster, select **Nodes**, validate that all nodes are online, and that Assigned Vote and Current Vote are 1 for all nodes of the cluster.
+23. Open the Failover Cluster Manager on CloudShopSQL from the start menu under Windows Administrative Tools. In the right navigation right-select **Failover Cluster Manager** and select **Connect to Cluster**. Select OK in the pop-up. Expand the **CLUST01** cluster, select **Nodes**, validate that all nodes are online, and that Assigned Vote and Current Vote are 1 for all nodes of the cluster.
 
     ![Failover Cluster Manager with CLUST01 selected, Nodes selected, and all three nodes of the cluster showing online with 1 assigned and 1 current vote.](images/hands-on-lab/2019-03-24-21-22-18.png "Nodes view of Failover Cluster Manager")
 
@@ -774,19 +777,19 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 1. On CloudShopSQL, launch **SQL Server 2017 Configuration Manager**.
 
-2. Select **SQL Server Services**, then right-click **SQL Server (MSSQLSERVER)** and select **Properties**.
+2. Select **SQL Server Services**, then right-select **SQL Server (MSSQLSERVER)** and select **Properties**.
 
     ![SQL Server Configuration Manager with SQL Server Services selected and SQL Server service highlighted.](images/hands-on-lab/2019-03-24-21-31-48.png "SQL Server Configuration Manager")
 
-3. Click on the **Log On** tab. To setup a SQL Server Availability     Group, the SQL Server service account needs to have access to all of the SQL Servers that will participate in the Availability Group. Change the service account to the **CONTOSO\\demouser** domain account using **demo@pass123** for the password.
+3. Select on the **Log On** tab. To setup a SQL Server Availability     Group, the SQL Server service account needs to have access to all of the SQL Servers that will participate in the Availability Group. Change the service account to the **CONTOSO\\demouser** domain account using **demo@pass123** for the password.
 
     ![SQL Server Properties is shown with the account set to the CONTOSO\demouser domain account.](images/hands-on-lab/2019-03-24-21-35-08.png "SQL Server Login Properties")
 
-4. Select the **AlwaysOn High Availability** tab and check the box for **Enable AlwaysOn Availability Groups**, then click **OK**, then click **Yes** to confirm the account change.
+4. Select the **AlwaysOn High Availability** tab and check the box for **Enable AlwaysOn Availability Groups**, then select **OK**, then select **Yes** to confirm the account change.
 
     ![SQL Server Properties is shown with Enable AlwaysOn High Availability Groups selected.](images/hands-on-lab/2019-03-24-21-37-08.png "SQL Server AlwaysOn High Availability Properties")
 
-5. Restart the SQL Server service by right-clicking the service and choosing **Restart**.
+5. Restart the SQL Server service by right-selecting the service and choosing **Restart**.
 
     ![SQL Server Configuration Manager with SQL Server Services selected and the SQL Server service being restarted.](images/hands-on-lab/2019-03-24-21-40-59.png "Restart the SQL Server service")
 
@@ -799,48 +802,48 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 9. Your SQL Server Availability Group will require a file share to be used for the initial synchronization. Open up File Explorer and
     create a new folder in the root of the C: drive called **AG**.
 
-10. Right-click the new folder and select **Share with \> Specific people...**
+10. Right-select the new folder and select **Share with \> Specific people...**
 
-    ![File Explorer is shown with the right-click menu of the AG folder with Share with specific people highlighted.](images/hands-on-lab/2019-03-24-21-57-15.png "File Explorer")
+    ![File Explorer is shown with the right-select menu of the AG folder with Share with specific people highlighted.](images/hands-on-lab/2019-03-24-21-57-15.png "File Explorer")
 
-11. On the File Sharing window, select **Administrators** and click **Share**, then click **Done**.
+11. On the File Sharing window, select **Administrators** and select **Share**, then select **Done**.
 
 12. Launch **SQL Server Management Studio** and connect to **CloudShopSQL**.
 
-13. Expand the databases folder, right-click the **AdventureWorks** database and select **Properties**.
+13. Expand the databases folder, right-select the **AdventureWorks** database and select **Properties**.
 
-14. On the Database Properties window, select **Options** then set the recovery model to **Full** and click the **OK** button. The full recovery model is required for databases that participate in SQL Server Always On Availability Groups.
+14. On the Database Properties window, select **Options** then set the recovery model to **Full** and select the **OK** button. The full recovery model is required for databases that participate in SQL Server Always On Availability Groups.
 
     ![Database properties with the recovery model option set to full.](images/hands-on-lab/2019-03-24-22-31-59.png "Set the database recovery model to full")
 
-15. Right-click the **AdventureWorks** database, select **Tasks** and choose **Back Up...**.
+15. Right-select the **AdventureWorks** database, select **Tasks** and choose **Back Up...**.
 
     ![The AdventureWorks database is selected, then tasks is selected and backup is selected.](images/hands-on-lab/2019-03-24-22-39-23.png "Backup the database")
 
-16. On the Back Up Database - AdventureWorks window, choose to backup to disk, click **Add**, and set the destination to **C:\\Data\\AdventureWorks.bak**, then click **OK** and click **OK** again to initiate the backup.
+16. On the Back Up Database - AdventureWorks window, choose to backup to disk, select **Add**, and set the destination to **C:\\Data\\AdventureWorks.bak**, then select **OK** and select **OK** again to initiate the backup.
 
     ![Backup destination is selected from the backup wizard.](images/hands-on-lab/2019-03-24-22-46-39.png "Backup the database")
 
-17. From the SQL Server Management Studio CloudShopSQL connection, right-click **AlwaysOn High Availability** then select **New Availability Group Wizard...**
+17. From the SQL Server Management Studio CloudShopSQL connection, right-select **AlwaysOn High Availability** then select **New Availability Group Wizard...**
     
     ![SQL Server Management Studio with the CloudShopSQL instance shown, the Always On High Availability folder highlighted with the New Availability Group Wizard selected.](images/hands-on-lab/2019-03-24-22-21-28.png "Launch the New Availability Group Wizard")
 
-18. Click **Next** on the Introduction screen.
+18. Select **Next** on the Introduction screen.
 
-19. Specify **AdventureWorks** for the name of the availability group and click **Next**.
+19. Specify **AdventureWorks** for the name of the availability group and select **Next**.
 
     ![Specify the availability group options is shown with the availability group name set to AdventureWorks.](images/hands-on-lab/2019-03-24-22-24-47.png "Specify the name of the availability group")
 
-20. Double-click the password field next to the **AdventureWorks** database and enter the password **demo@pass123** and click **Refresh**. The status of the database should state that it \"Meets prerequisites\" meaning that the database is in Full recovery mode and that you have supplied the correct password for the database master key. Click **Next**.
+20. Double-select the password field next to the **AdventureWorks** database and enter the password **demo@pass123** and select **Refresh**. The status of the database should state that it \"Meets prerequisites\" meaning that the database is in Full recovery mode and that you have supplied the correct password for the database master key. Select **Next**.
 
     ![AdventureWorks database is selected, the status shows that it meets prerequisites and the password has been filled in.](images/hands-on-lab/2019-03-24-23-02-02.png "Select database")
 
-21. On the Specify Replicas tab, click the **Add Replica...** button and connect to CloudShopSQL2 and CloudShopSQL3.
+21. On the Specify Replicas tab, select the **Add Replica...** button and connect to CloudShopSQL2 and CloudShopSQL3.
 
-    ![The Specify Replicas window is shown, the add replica button has been clicked and the connection shows a new connection to CloudShopSQL being established.](images/hands-on-lab/2019-03-24-23-05-41.png "Specify Replicas")
+    ![The Specify Replicas window is shown, the add replica button has been selected and the connection shows a new connection to CloudShopSQL being established.](images/hands-on-lab/2019-03-24-23-05-41.png "Specify Replicas")
 
-22. Click on the **Listener** tab, select the **Create an availability group listener** radio button, set the following values for the
-    listener, then click **Add**.
+22. Select on the **Listener** tab, select the **Create an availability group listener** radio button, set the following values for the
+    listener, then select **Add**.
 
     - Listener DNS Name: **AdventureWorks**
 
@@ -850,29 +853,29 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![The specify replicas listener tab is selected, create an availability group listener is selected with the correct values entered.](images/hands-on-lab/2019-03-24-23-09-42.png "Specify replicas listener tab")
 
-23. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use **172.16.1.8**, then click **Next**.
+23. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use **172.16.1.8**, then select **Next**.
 
     ![The listener ip addresses are now shown in the specify replicas window.](images/hands-on-lab/2019-03-24-23-15-53.png "Specifying listener ip addresses")
 
-24. Ensure that **Full database and log backup** is selected and use **\\\\CloudShopSQL\\ag** for the network share. Click **Next** to continue.
+24. Ensure that **Full database and log backup** is selected and use **\\\\CloudShopSQL\\ag** for the network share. Select **Next** to continue.
 
     ![Select the full database and log backup is chosen with the AG fileshare used as the shared backup location.](images/hands-on-lab/2019-03-24-23-19-12.png "Select initial data synchronization")
 
-25. The validation tests will run automatically. They should all show success. Click **Next**.
+25. The validation tests will run automatically. They should all show success. Select **Next**.
 
     ![The validations window is shown with all validation marked as successful.](images/hands-on-lab/2019-03-24-23-21-45.png "Validation")
 
-26. Verify your configuration then click **Finish** to build the Availability Group. Click **Close** after the wizard completes.
+26. Verify your configuration then select **Finish** to build the Availability Group. Select **Close** after the wizard completes.
 
 ### Task 3: Create the Internal Load Balancer
 
-1. In the Azure Portal, navigate to the **CloudShop2** resource group and click **Add**.
+1. In the Azure Portal, navigate to the **CloudShop2** resource group and select **Add**.
 
-2. Type **Load Balancer** into the search bar then choose the **Load Balancer** and click **Create**.
+2. Type **Load Balancer** into the search bar then choose the **Load Balancer** and select **Create**.
 
     ![Create the load balancer resource.](images/hands-on-lab/2019-03-24-23-37-54.png "Add the load balancer")
 
-3. On the Create load balancer blade, configure the following options, then click **Review + Create**:
+3. On the Create load balancer blade, configure the following options, then select **Review + Create**:
 
     - Subscription: ***Your subscription***.
     - Resource group: **CloudShop2**
@@ -889,7 +892,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 4. Navigate back to your resource group and select the **sqlag** load balancer you just created.
 
-5. On the sqlag load balancer blade, select **Backend pools**, then click the **+Add** button.
+5. On the sqlag load balancer blade, select **Backend pools**, then select the **+Add** button.
 
     ![The Load Balancer blade with backend pools selected.](images/hands-on-lab/2019-03-24-23-49-52.png "Add a backend pool")
 
@@ -902,7 +905,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![Adding the backend pool.](images/hands-on-lab/2019-03-24-23-52-15.png "Add backend pool")
 
-7.  Click the **+ Add a target network IP configuration** button.
+7.  select the **+ Add a target network IP configuration** button.
 
     ![The add a target network IP configuration button.](images/hands-on-lab/2019-03-24-23-54-54.png "Add a target network IP configuration")
 
@@ -912,11 +915,11 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     ![Selecting CloudShopSQL2 ipconfig as a backend target.](images/hands-on-lab/2019-03-24-23-59-23.png "Select the target ip configuration")
 
-9.  Repeat steps 7-8 to add **CloudShopSQL3**. DO NOT ADD other machines to the backend pool. Click **OK** then wait for the load balancer to complete the update.
+9.  Repeat steps 7-8 to add **CloudShopSQL3**. DO NOT ADD other machines to the backend pool. Select **OK** then wait for the load balancer to complete the update.
 
-10. On the sqlag load balancer blade, select **Health Probes** and click the **+Add** button.
+10. On the sqlag load balancer blade, select **Health Probes** and select the **+Add** button.
 
-11. On the Add health probe blade, use the following configuration values then click **OK** and wait for the load balancer to complete
+11. On the Add health probe blade, use the following configuration values then select **OK** and wait for the load balancer to complete
     the update.
 
     >**Note**: If you receive an error your load balancer may still be updating itself from the prior step. Wait a minute and try again.
@@ -929,9 +932,9 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![Health probe configuration showing port 59999 as the probe port.](images/hands-on-lab/2019-03-25-00-09-54.png "Health probe configuration")
 
-12. On the sqlag load balancer blade, select **Load balancing rules** and then click the **+Add** button.
+12. On the sqlag load balancer blade, select **Load balancing rules** and then select the **+Add** button.
 
-13. On the Add load balancing rule blade, use the following configuration values then click **OK** and wait for the load balancer to complete the update.
+13. On the Add load balancing rule blade, use the following configuration values then select **OK** and wait for the load balancer to complete the update.
 
     - Name: **sqlrules**
     - IP Version: **IPv4**
@@ -947,7 +950,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![Adding load balancer rule for floating IP with all configurations set.](images/hands-on-lab/2019-03-25-17-51-59.png "Load balancer rule configurations")
 
-14. Next we need to verify our cluster's network names. Open the **Failover Cluster Manager**, expand **CLUST01**, select **Networks** then double-click **Cluster Network 2** to open the properties. Verify that Cluster Network 2's subnet is set to **172.16.1.0/24**. In some cases, the cluster deployment may reverse the names it assign to the cluster networks. If your subnet does not match here, then you will simply change the name of the cluster network in the script below to reflect this.
+14. Next we need to verify our cluster's network names. Open the **Failover Cluster Manager**, expand **CLUST01**, select **Networks** then double-select **Cluster Network 2** to open the properties. Verify that Cluster Network 2's subnet is set to **172.16.1.0/24**. In some cases, the cluster deployment may reverse the names it assign to the cluster networks. If your subnet does not match here, then you will simply change the name of the cluster network in the script below to reflect this.
     
     ![The Failover Cluster Manager with Cluster Network 2 properties page open. The subnet is highlighted](images/hands-on-lab/2019-06-19-12-44-26.png "Cluster Network 2 properties")
 
@@ -977,11 +980,11 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 2. From Object Explorer, launch a new connection and connect to the **AdventureWorks** listener. This is simply to check if your listener is actually working.
 
-3. From your CloudShopSQL connection, expand Always On High Availability, Availability Groups, AdventureWorks, Availability Replicas, then right-click **CloudShopSQL2** and choose **Properties**.
+3. From your CloudShopSQL connection, expand Always On High Availability, Availability Groups, AdventureWorks, Availability Replicas, then right-select **CloudShopSQL2** and choose **Properties**.
 
-    ![SQL Server Management Studio object explorer with Availability Groups and Availability Replicas expanded, the CloudShopSQL2 replica is highlighted and properties is highlighted on the right-click menu.](images/hands-on-lab/2019-03-25-18-55-26.png "Replica properties")
+    ![SQL Server Management Studio object explorer with Availability Groups and Availability Replicas expanded, the CloudShopSQL2 replica is highlighted and properties is highlighted on the right-select menu.](images/hands-on-lab/2019-03-25-18-55-26.png "Replica properties")
 
-4. On the properties window, change the availability mode to **Synchronous commit** and then click **OK**.
+4. On the properties window, change the availability mode to **Synchronous commit** and then select **OK**.
 
     Switching to synchronous commit allows us to failover without data loss. If we leave it in asynchronous mode, the failover would be "forced" which also implies some loss of data and invalidates the old primary replica. Since we are only testing functionality of our listener we DO NOT want to break the Availability Group replication.  
 
@@ -989,31 +992,31 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 5. Repeat the above for **CloudShopSQL**. This will enable synchronous commits between the two replicas allowing us to failover without breaking the Availability Group replication.
 
-6. Right-click the **AdventureWorks** Availability Group, and choose **Show Dashboard** from the menu.
+6. Right-select the **AdventureWorks** Availability Group, and choose **Show Dashboard** from the menu.
 
-    ![The AdventureWorks availability group is highlighted with show dashboard selected in the right-click menu.](images/hands-on-lab/2019-03-25-19-16-22.png "Show Dashboard")
+    ![The AdventureWorks availability group is highlighted with show dashboard selected in the right-select menu.](images/hands-on-lab/2019-03-25-19-16-22.png "Show Dashboard")
 
 7. The dashboard should show both **CloudShopSQL** and **CloudShopSQL2** with a status of **Synchronized**.
 
     ![The availability group dashboard is shown with the synchronization state of CloudShopSQL and CloudShopSQL2 set to synchronized.](images/hands-on-lab/2019-03-25-19-19-34.png "Dashboard")
 
-8. Right-click the **AdventureWorks** Availability Group again and choose **Failover...** from the menu.
+8. Right-select the **AdventureWorks** Availability Group again and choose **Failover...** from the menu.
 
-    ![The Adventure Works availability group is highlighted with failover selected in the right-click menu.](images/hands-on-lab/2019-03-25-19-22-06.png "Failover")
+    ![The Adventure Works availability group is highlighted with failover selected in the right-select menu.](images/hands-on-lab/2019-03-25-19-22-06.png "Failover")
 
-9. In the Failover Wizard, click **Next** on the first screen.
+9. In the Failover Wizard, select **Next** on the first screen.
 
-10. On the Select New Primary Replica window, select **CloudShopSQL2** and then click **Next**.
+10. On the Select New Primary Replica window, select **CloudShopSQL2** and then select **Next**.
 
     ![The select new primary replica window is shown with CloudShopSQL2.](images/hands-on-lab/2019-03-25-19-25-13.png "Select new primary replica")
 
-11. On the Connect to Replica window, connect to **CloudShopSQL2** with the **CONTOSO\demouser** account and click **Next**.
+11. On the Connect to Replica window, connect to **CloudShopSQL2** with the **CONTOSO\demouser** account and select **Next**.
 
     ![On the Specify the connection for the secondary replica window, CloudShopSQL2 is highlighted and CONTOSO\demouser is listed under connected as.](images/hands-on-lab/2019-03-25-19-27-50.png "Specify the connection")
 
-12. On the summary window, click **Finish**, then click **Close** on successful completion of the failover.
+12. On the summary window, select **Finish**, then select **Close** on successful completion of the failover.
 
-13. From CloudShopSQL2 or CloudShopSQL3, connect to your **AdventureWorks** listener and open a new Query Window by clicking connect in SSMS and using AdventureWorks for the server name.
+13. From CloudShopSQL2 or CloudShopSQL3, connect to your **AdventureWorks** listener and open a new Query Window by selecting connect in SSMS and using AdventureWorks for the server name.
 
     >**Note**: We must test from the same virtual network as our Internal Load Balancer. Internal Load Balancers do not currently support connectivity across peered networks.
 
@@ -1057,18 +1060,20 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
 1. From the Azure portal, select **+Create a resource** from the menu on the left.
 
-2. In the search box, type **Backup and site recovery** and then select **Backup and site recovery (OMS)** from the results.
+2. In the search box, type **Backup and site recovery** and then select **Backup and Site Recovery** from the results.
 
-3. Click the **Create** button on the information blade.
+3. Select the **Create** button on the information blade.
 
-4. On the Recovery Services vault creation blade, use the following configurations and click **Create**.
+4. On the Recovery Services vault creation blade, use the following configurations and select **Review + create**.
 
-    - Name: **RSVault**
     - Subscription: ***Choose your subscription***.
     - Resource group: **CloudShop2**
-    - Location: ***Use the same location assigned to CloudShop2***.
+    - Vault name: **RSVault**
+    - Region: ***Use the same region assigned to CloudShop2***.
 
-        ![The recovery services vault creation blade is show.](images/hands-on-lab/2019-03-25-23-30-11.png "Create the Recovery Services Vault")
+        ![The recovery services vault creation blade is shown.](images/2019-09-25-13-10-47.png "Create the Recovery Services Vault")
+
+5. On the Review and create tab select **Create**.
 
 ### Task 2: Configure Azure Site Recovery
 
@@ -1076,19 +1081,19 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
    
 2. Select **Site recovery infrastructure** from the menu on the left and then choose **Network mapping**.
 
-3. Click the **+Add mapping** button. Set your source network to VNET1 and your target network to VNET2.
+3. Select the **+Add mapping** button. Set your source network to VNET1 and your target network to VNET2.
 
     ![Network mapping is shown across VNET1 and VNET2.](images/hands-on-lab/2019-03-26-03-20-41.png "Add network mapping")
 
-4. In the Recovery Services vault blade, click on **Site Recovery** under **Getting started**.
+4. In the Recovery Services vault blade, select **Site Recovery** under **Getting started**.
 
     ![The recovery services vault blade with site recovery highlighted.](images/hands-on-lab/2019-03-25-23-46-47.png "Setup Site Recovery")
 
-5. Under **FOR ON-PREMISES MACHINES AND AZURE VMS** click **Step 1: Replicate Application**.
+5. Under **FOR ON-PREMISES MACHINES AND AZURE VMS** select **Step 1: Replicate Application**.
 
     ![An image that depicts Azure Site Recovery. Step 1: Replicate Application is highlighted.](images/hands-on-lab/2019-03-25-23-48-09.png "Replicate application Settings")
 
-6. Choose the following configurations and click **OK**.
+6. Choose the following configurations and select **OK**.
 
     - Source: **Azure**
     - Source location: ***The location of your CloudShop1 resource group***.
@@ -1098,13 +1103,13 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
         ![An image that depicts Azure Site Recovery settings.](images/hands-on-lab/2019-03-25-23-53-54.png "ASR replicate source settings")
 
-7. On the select virtual machines blade, select the **CloudShopWeb** virtual machine for replication. We will only use Azure Site Recovery to protect the web servers. Click the **OK** button.
+7. On the select virtual machines blade, select the **CloudShopWeb** virtual machine for replication. We will only use Azure Site Recovery to protect the web servers. Select the **OK** button.
 
     ![CloudShopWeb is highlighted in the select virtual machines window.](images/hands-on-lab/2019-03-26-00-02-35.png "Select virtual machines")
 
 8. On the Configure settings blade, set the Target location to the location of your CloudShop2 resource group. 
 
-9. Click on the **Customize** link.
+9. Select on the **Customize** link.
 
     ![The configure settings dialogue with the Customize button highlighted.](images/hands-on-lab/2019-03-26-03-26-07.png "Configure settings dialogue")
 
@@ -1112,19 +1117,19 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
     ![The customize target resources dialogue with default settings.](images/hands-on-lab/2019-03-26-03-27-29.png "Customize target resources")
 
-11. Click **Create target resources**.
+11. Select **Create target resources**.
 
     **Note**: Do not close the blade. It will close by itself after the target resources are created (2-3 minutes).
 
     ![The Configure settings dialogues with the create target resources button highlighted.](images/hands-on-lab/2019-03-26-00-06-44.png "Create target resources")
 
-12. On the Enable Replication blade, click the **enable replication** button. 
+12. On the Enable Replication blade, select the **enable replication** button. 
 
-13. Several Site Recovery jobs will be initiated which are creating the replication policy as well as the target resources to be used during a failover. Click on **Site recovery jobs** to view the job progress.
+13. Several Site Recovery jobs will be initiated which are creating the replication policy as well as the target resources to be used during a failover. Select on **Site recovery jobs** to view the job progress.
 
     ![The site recovery jobs dialogue showing the automatically generated jobs running.](images/hands-on-lab/2019-03-26-00-52-02.png "Site recovery jobs")
 
-14. Once all the jobs are successful, click on **Replicated items** under **Protected Items** to view the status of the initial replication.
+14. Once all the jobs are successful, select on **Replicated items** under **Protected Items** to view the status of the initial replication.
 
     ![THe replicated items dialogue showing the CloudShop2 replication health as healthy.](images/hands-on-lab/2019-03-26-00-53-16.png "Replicated items")
 
@@ -1134,19 +1139,19 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
 In this task, you will create the recovery plan that will be used to orchestrate failover action for the web tier.
 
-1. Within the properties of the Recovery Services vault, click on **Recovery Plans (Site Recovery)** under Manage.
+1. Within the properties of the Recovery Services vault, select on **Recovery Plans (Site Recovery)** under Manage.
 
     ![The manage menu is shown with Recovery Plans (Site Recovery) highlighted.](images/hands-on-lab/2019-03-26-00-58-00.png "Recovery Plans")
 
-2. Click the **+Recovery Plan** button.
+2. Select the **+Recovery Plan** button.
 
-3. On the Create recovery plan blade enter the name **CloudShopRP**. In the Source area select the region where your CloudShop1 resource group is deployed. The Target will be automatically selected. Under Allow items with deployment model, select **Resource Manager**. Click Select items and select the Virtual Machine. Click **OK** and then click **OK** on the Create recovery plan blade.
+3. On the Create recovery plan blade enter the name **CloudShopRP**. In the Source area select the region where your CloudShop1 resource group is deployed. The Target will be automatically selected. Under Allow items with deployment model, select **Resource Manager**. Select Select items and select the Virtual Machine. Select **OK** and then select **OK** on the Create recovery plan blade.
 
     ![Create recovery plan settings](images/hands-on-lab/2019-03-26-01-09-00.png "ASR Recovery Plan settings")
 
 4. After a minute or two, you should see the CloudShopRP on the Recovery plans blade. This recovery plan will bring up your web server during a failover. 
 
-5. Now go back to the Recovery Services vault RSVault - Overview blade. Click on Site Recovery. Notice that the CloudShopWeb virtual machine is replicating. Take note of the status. It should be close to 100%. You will not be able to continue until it is finished replicating. 
+5. Now go back to the Recovery Services vault RSVault - Overview blade. Select on Site Recovery. Notice that the CloudShopWeb virtual machine is replicating. Take note of the status. It should be close to 100%. You will not be able to continue until it is finished replicating. 
 
    >**Note**: This may take up to an hour.
 
@@ -1162,31 +1167,31 @@ In this exercise, you will fail over to your disaster recovery site.
 
 1. Login to your CloudShopSQL virtual machine and launch SQL Server Management Studio.
 
-2. Open a connection to your CloudShopSQL instance, expand Always On High Availability, Availability Replicas, then right-click **CloudShopSQL2** and choose **Properties**.
+2. Open a connection to your CloudShopSQL instance, expand Always On High Availability, Availability Replicas, then right-select **CloudShopSQL2** and choose **Properties**.
 
     ![The CloudShop2 availability replica is selected and the properties is highlighted.](images/hands-on-lab/2019-03-25-18-55-26.png "CloudShop2 properties")
 
-3. On the properties window, change the availability mode to **Synchronous commit** and then click **OK**. Note that in a real outage scenario it may not be possible to use this method and may require a forced failover which may incur some data loss.  
+3. On the properties window, change the availability mode to **Synchronous commit** and then select **OK**. Note that in a real outage scenario it may not be possible to use this method and may require a forced failover which may incur some data loss.  
 
     ![The properties of CloudShop2 are shown with the availability mode set to synchronous commit.](images/hands-on-lab/2019-03-25-18-59-46.png "Set CloudShop2 to synchronous commit")
 
 4. Repeat the above for **CloudShopSQL**. This will enable synchronous commits between the two replicas allowing us to failover without breaking the Availability Group replication.
 
-5. Right-click the **AdventureWorks** Availability Group and choose **Failover...** from the menu.
+5. Right-select the **AdventureWorks** Availability Group and choose **Failover...** from the menu.
 
-    ![The AdventureWorks availability group is highlighted and failover is selected from the right-click menu.](images/hands-on-lab/2019-03-25-19-22-06.png "Failover")
+    ![The AdventureWorks availability group is highlighted and failover is selected from the right-select menu.](images/hands-on-lab/2019-03-25-19-22-06.png "Failover")
 
-6. In the Failover Wizard, click **Next** on the first screen.
+6. In the Failover Wizard, select **Next** on the first screen.
 
-7. On the Select New Primary Replica window, select **CloudShopSQL2** and then click **Next**.
+7. On the Select New Primary Replica window, select **CloudShopSQL2** and then select **Next**.
 
     ![The select new primary window is shown with CloudShopSQL2 highlighted.](images/hands-on-lab/2019-03-25-19-25-13.png "Select New Primary Replica")
 
-8. On the Connect to Replica window, connect to **CloudShopSQL2** with the **CONTOSO\demouser** account and click **Next**.
+8. On the Connect to Replica window, connect to **CloudShopSQL2** with the **CONTOSO\demouser** account and select **Next**.
 
     ![The specify the connection window is shown with CONTOSO\demouser set as the username.](images/hands-on-lab/2019-03-25-19-27-50.png "Connect to replica")
 
-9. On the summary window, click **Finish**, then click **Close** on successful completion of the failover.
+9. On the summary window, select **Finish**, then select **Close** on successful completion of the failover.
 
 ### Task 2: Failover the Web Tier
 
@@ -1200,13 +1205,13 @@ To fail over the entire environment requires the database server to be up, then 
 
 3. Select your **CloudShopRP** recovery plan.
 
-4. On the CloudShopRP recovery plan blade, click the **...More** button, and then select **Failover** from the dropdown menu.
+4. On the CloudShopRP recovery plan blade, select the **...More** button, and then select **Failover** from the dropdown menu.
 
     ![The CloudShopRP recovery plan blade is shown and the **...More** button is highlighted, and failover is highlighted from the dropdown menu](images/hands-on-lab/2019-03-26-03-04-07.png "CloudShopRP recovery plan")
 
 5. Check the box next to **I understand the risk**.
 
-6. Verify your failover settings and click **OK**.
+6. Verify your failover settings and select **OK**.
 
     ![Failover window with recovery point set to latest processed, and the shutdown machines checkbox checked.](images/hands-on-lab/2019-03-26-04-06-02.png "Verify failover")
 
@@ -1214,7 +1219,7 @@ To fail over the entire environment requires the database server to be up, then 
 
 8. After the failover completes, navigate to the **CloudShop2** resource group and open your **CloudShopWeb** virtual machine.
 
-9. Notice that it does not have a Public IP address. Click on **Networking** on the menu to the left.
+9. Notice that it does not have a Public IP address. Select on **Networking** on the menu to the left.
 
     ![CloudShopWeb virtual machine overview with missing public IP highlighted.](images/hands-on-lab/2019-03-26-04-24-41.png "Missing public IP")
 
@@ -1226,7 +1231,7 @@ To fail over the entire environment requires the database server to be up, then 
 
     ![The network interface overview with IP configurations selected from the menu on the left.](images/hands-on-lab/2019-03-26-04-28-08.png "Network Interface overview")
 
-12. Change the **Public IP address settings** to **Enabled**, then create a new public IP address called **webpubip**. Click **OK** and **Save**.
+12. Change the **Public IP address settings** to **Enabled**, then create a new public IP address called **webpubip**. Select **OK** and **Save**.
 
     ![The CloudShopWeb network interface settings are shown with the public IP address being enabled.](images/hands-on-lab/2019-03-26-04-30-12.png "Update Public IP settings")
 
@@ -1242,8 +1247,8 @@ To fail over the entire environment requires the database server to be up, then 
 
 ### Task 1: Delete the resource groups created
 
-1. Within the Azure portal, click Resource Groups on the left navigation.
+1. Within the Azure portal, select Resource Groups on the left navigation.
 
-2. Delete each of the resource groups created in this lab by clicking them followed by clicking the Delete Resource Group button. You will need to confirm the name of the resource group to delete.
+2. Delete each of the resource groups created in this lab by selecting them followed by selecting the Delete Resource Group button. You will need to confirm the name of the resource group to delete.
 
 You should follow all steps provided *after* attending the hands-on lab.

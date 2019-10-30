@@ -4,7 +4,7 @@ Fabrikam Publishing is a media and publishing company in Seattle, Washington wit
 
 They are interested in increasing the availability of their e-commerce application and have selected using Microsoft Azure as a fail-over target. They are interested in designing a solution where their application can be deployed on-premises as well as in the cloud, so if either location has an outage their application is available.
 
-September 2019
+June 2019
 
 ## Target audience
 

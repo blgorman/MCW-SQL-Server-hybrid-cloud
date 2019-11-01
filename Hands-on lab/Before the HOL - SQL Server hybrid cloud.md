@@ -9,7 +9,7 @@ Before the hands-on lab setup guide
 </div>
 
 <div class="MCWHeader3">
-September 2019
+October 2019
 </div>
 
 
@@ -58,13 +58,13 @@ In this exercise, you deploy an on-premises environment and the Azure infrastruc
 
     >**Note**: You may need to launch an \"in-private\" session in your browser if you have multiple Microsoft Accounts.
 
-2. Before we deploy the environment, we must pre-create the resource group that will host our disaster recovery site. Throughout the lab this will be called **CloudShop2**
+2. Before we deploy the environment, we must pre-create the resource group that will host our disaster recovery site. Throughout the lab this will be called **CloudShop2**.
 
 3. Select the **+ Create a resource** button, type **Resource group** into the search bar, and choose **Resource group** from the search results.
 
 4. On the resource group blade, select **Create**.
 
-5. This lab will use Azure Site Recovery to replicate VMs to another region. It is not supported to replicate virtual machines to the same region. Choose a region pair to use for this lab. You can see a list of the region pairs at https://docs.microsoft.com/en-us/azure/best-practices-availability-paired-regions 
+5. This lab will use Azure Site Recovery to replicate VMs to another region. It is not supported to replicate virtual machines to the same region. Choose a region pair to use for this lab. You can see a list of the region pairs at: https://docs.microsoft.com/en-us/azure/best-practices-availability-paired-regions. 
 
 6. On the create a resource group blade, type **CloudShop2** for the name of the resource group and choose a region one of your region pairs as the location. Select **Review + Create**, then **Create**.
 

@@ -273,7 +273,7 @@ There are numerous ways to implement an archive strategy in SQL Server. The easi
 
 In this exercise, you will implement SQL Server Stretch Database to stretch data from a table into Azure.
 
-### Task 1: Crete a logical SQL Server to host Stretch DB
+### Task 1: Create a logical SQL Server to host Stretch DB
 
 1. From your **CloudShopSQL** virtual machine, launch a browser, navigate to the Azure portal and login with your Azure credentials.
 

@@ -9,7 +9,7 @@ Whiteboard design session trainer guide
 </div>
 
 <div class="MCWHeader3">
-October 2019
+June 2020
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -18,7 +18,7 @@ Microsoft may have patents, patent applications, trademarks, copyrights, or othe
 
 The names of manufacturers, products, or URLs are provided for informational purposes only and Microsoft makes no representations and warranties, either expressed, implied, or statutory, regarding these manufacturers or the use of the products with any Microsoft technologies. The inclusion of a manufacturer or product does not imply endorsement of Microsoft of the manufacturer or product. Links may be provided to third party sites. Such sites are not under the control of Microsoft and Microsoft is not responsible for the contents of any linked site or any link contained in a linked site, or any changes or updates to such sites. Microsoft is not responsible for webcasting or any other form of transmission received from any linked site. Microsoft is providing these links to you only as a convenience, and the inclusion of any link does not imply endorsement of Microsoft of the site or the products contained therein.
 
-© 2019 Microsoft Corporation. All rights reserved.
+© 2020 Microsoft Corporation. All rights reserved.
 
 Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/Usage/General.aspx> are trademarks of the Microsoft group of companies. All other trademarks are property of their respective owners.
 
@@ -37,6 +37,10 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Customer needs](#customer-needs)
     - [Customer objections](#customer-objections)
     - [Infographic for common scenarios](#infographic-for-common-scenarios)
+      - [Azure Site Recovery](#azure-site-recovery)
+      - [Azure Traffic Manager](#azure-traffic-manager)
+      - [SQL Server Always Encrypted](#sql-server-always-encrypted)
+      - [SQL Server Stretch Database](#sql-server-stretch-database)
   - [Step 2: Design a proof of concept solution](#step-2-design-a-proof-of-concept-solution)
   - [Step 3: Present the solution](#step-3-present-the-solution)
   - [Wrap-up](#wrap-up)
@@ -192,7 +196,7 @@ Directions:  With all participants in the session, the facilitator/SME presents 
 ### Customer situation
 
 Fabrikam Publishing is a media and publishing company in Seattle, Washington with approximately 5000 employees. They have a successful direct-to-consumer e-commerce site built with .NET, and they use SQL Server to store customer profile and order information.
-Fabrikam has a single data center for both internal and customer-facing applications. Most servers are virtualized on VMware. Application servers primarily run Microsoft server software, including Active Directory (AD) Domain Services and a number of AD-integrated services including Exchange 2013 as well as multi-tier, internal, and AD-integrated Microsoft Internet Information Services (IIS) based web applications with SQL Server 2017 as the database platform.
+Fabrikam has a single data center for both internal and customer-facing applications. Most servers are virtualized on VMware. Application servers primarily run Microsoft server software, including Active Directory (AD) Domain Services and a number of AD-integrated services including Exchange 2013 as well as multi-tier, internal, and AD-integrated Microsoft Internet Information Services (IIS) based web applications with SQL Server 2019 as the database platform.
 
 Recently, the site experienced a multi-day outage due to a lightning strike that disabled both the primary and secondary cooling systems at the data center. In order to avoid such long outages in the future, Fabrikam is investing in a secondary site for disaster recovery. "A disaster recovery site has been on our project proposals for the last four years, but it has always been shelved due to budget constraints," says Michelle Jenkins, Chief Information Officer (CIO). "The recent outage combined with the new capabilities in the cloud have finally encouraged the board to approve the additional budget necessary to build out our disaster recover (DR) capabilities." To keep capital expenditures in check, Fabrikam would like to use the public cloud to host its DR site.
 
@@ -208,7 +212,7 @@ An additional concern is that the database maintenance jobs are exceeding the cu
 
 Finally, Fabrikam has a requirement to store the database backups offsite in an encrypted format within two hours of backup completion and they need insight into when backups are not occurring across all databases in the environment, they currently rely on manual configuration of SQL Agent jobs to run backups and management is concerned that not all databases are being backed up appropriately. The current backup strategy consists of SQL Server backups to an on-premises file server; the backups are then copied to tape and shipped offsite. This process can take up to 24 hours to secure the tapes offsite. In addition to being slow, the tape backups are notoriously unreliable and are generally not available for ad hoc access in the case that a restore becomes necessary. Fabrikam would like to have these backups secured offsite within two hours of the backup completing and a centralized backup management and monitoring solution.
 
-![Fabrikam's datacenter is represented as icons that are labeled Web Farm, Application Servers, VMWare, and vCenter. Below that is another icon that is labeled SQL Server 2016, which is Fabrikam\'s database platform.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image2.png "Fabrikam Publishing data center illustration")
+![Fabrikam's datacenter is represented as icons that are labeled Web Farm, Application Servers, VMWare, and vCenter. Below that is another icon that is labeled SQL Server 2019, which is Fabrikam\'s database platform.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image2.png "Fabrikam Publishing data center illustration")
 
 ### Customer needs 
 
@@ -263,7 +267,7 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 #### SQL Server Stretch Database
 
-![Stretch Database is a feature of SQL Server 2016. On the bottom-left side (on premises) are icons for a Local database (numbered 1) and a User Application (numbered 3 and represented as a monitor). In the Local database icon are tables representing Eligible Data (green) and Local Data (orange). On the top-right side (Azure) is an icon of an Azure SQL database (numbered 2 and labeled Remote Endpoint), and inside this icon is a table representing Remote Data. Two bidirectional arrows (the green one labeled Eligible Data and the orange one labeled T-SQL Queries) point across both sides to and from the local database icon and the Azure SQL database icon. One orange bidirectional arrow labeled T-SQL Queries point to and from the Local database icon and the User Application icon. Below the diagram is the following numbered list: 1. Local database: on-premises instance, 2. Remote endpoint: Azure SQL Database holding remote copy, 3. Application accessing data.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image6.png "SQL Server Stretch Database diagram")
+![Stretch Database is a feature of SQL Server. On the bottom-left side (on premises) are icons for a Local database (numbered 1) and a User Application (numbered 3 and represented as a monitor). In the Local database icon are tables representing Eligible Data (green) and Local Data (orange). On the top-right side (Azure) is an icon of an Azure SQL database (numbered 2 and labeled Remote Endpoint), and inside this icon is a table representing Remote Data. Two bidirectional arrows (the green one labeled Eligible Data and the orange one labeled T-SQL Queries) point across both sides to and from the local database icon and the Azure SQL database icon. One orange bidirectional arrow labeled T-SQL Queries point to and from the Local database icon and the User Application icon. Below the diagram is the following numbered list: 1. Local database: on-premises instance, 2. Remote endpoint: Azure SQL Database holding remote copy, 3. Application accessing data.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image6.png "SQL Server Stretch Database diagram")
 
 ## Step 2: Design a proof of concept solution
 

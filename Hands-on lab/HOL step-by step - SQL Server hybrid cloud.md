@@ -9,7 +9,7 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-October 2019
+June 2020
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -18,7 +18,7 @@ Microsoft may have patents, patent applications, trademarks, copyrights, or othe
 
 The names of manufacturers, products, or URLs are provided for informational purposes only and Microsoft makes no representations and warranties, either expressed, implied, or statutory, regarding these manufacturers or the use of the products with any Microsoft technologies. The inclusion of a manufacturer or product does not imply endorsement of Microsoft of the manufacturer or product. Links may be provided to third party sites. Such sites are not under the control of Microsoft and Microsoft is not responsible for the contents of any linked site or any link contained in a linked site, or any changes or updates to such sites. Microsoft is not responsible for webcasting or any other form of transmission received from any linked site. Microsoft is providing these links to you only as a convenience, and the inclusion of any link does not imply endorsement of Microsoft of the site or the products contained therein.
 
-© 2019 Microsoft Corporation. All rights reserved.
+© 2020 Microsoft Corporation. All rights reserved.
 
 Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/Usage/General.aspx are trademarks of the Microsoft group of companies. All other trademarks are property of their respective owners.
 
@@ -36,7 +36,7 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account)
     - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
   - [Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-2-implement-a-data-archive-strategy-with-sql-server-stretch-database)
-    - [Task 1: Crete a logical SQL Server to host Stretch DB](#task-1-crete-a-logical-sql-server-to-host-stretch-db)
+    - [Task 1: Create a logical SQL Server to host Stretch DB](#task-1-create-a-logical-sql-server-to-host-stretch-db)
     - [Task 2: Identify tables that may benefit from Stretch DB](#task-2-identify-tables-that-may-benefit-from-stretch-db)
     - [Task 3: Implement Stretch DB based on date key](#task-3-implement-stretch-db-based-on-date-key)
   - [Summary](#summary)
@@ -554,6 +554,8 @@ In this task, you will move data from the new partitioned table to the table in 
 2.  Copy and paste the following code into the query window and execute it. This code creates the work table that we will switch our oldest partition into. The table must be identical to the original table including indexing.
 
     ```sql
+    USE AdventureWorks
+    GO
     -- Create the work table
     -- This is the table we will switch out to
     CREATE TABLE Sales.ResellerSalesWork (
@@ -706,7 +708,8 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 2. Navigate to your **CloudShop1** resource group and open your **CloudShopSQL** virtual machine and connect to it via Remote Desktop.
 
-3. Login with the **CONTOSO\demouser** domain account with password **demo@pass123**. Note that this is NOT the same account that you have been using, this is a domain account.
+3. Login with the **CONTOSO\demouser** domain account with password **demo@pass123**. 
+    > **Note**: This is NOT the same account that you have been using, this is a domain account. You must use a domain account that is an local administrator on all nodes of the cluster to properly configure Windows Failover Clustering.
 
 4. Launch Server Manager if it does not start automatically.
 
@@ -720,9 +723,9 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 8. On the **Select destination server** page, select the current server and select **Next**.
 
-9. On the **Select server roles** page, accept the defaults and select **Next**.
+9.  On the **Select server roles** page, accept the defaults and select **Next**.
 
-10. On the **Select features** page, select **Failover Clustering**, then select **Add Features** on the popup and then select **Next**.
+10. On the **Select features** page, select **Failover Clustering**, then verify that **Include management tools** is checked and select **Add Features** on the popup and then select **Next**.
 
     ![The add roles and features wizard with Failover Clustering selected on the select features page.](images/hands-on-lab/2019-03-24-20-03-47.png "Add Failover Clustering")
 
@@ -761,7 +764,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 22. On CloudShopSQL, open the PowerShell ISE and execute the following code:
 
     ```
-    New-Cluster -Name CLUST01 -Node CloudShopSQL, CloudShopSQL2, CloudShopSQl3 -StaticAddress 10.0.1.7, 172.16.1.7  -NoStorage
+    New-Cluster -Name CLUST01 -Node CloudShopSQL, CloudShopSQL2, CloudShopSQL3 -StaticAddress 10.0.1.7, 172.16.1.7  -NoStorage
     ```
     > **Note**: This command requires that you be logged in with an account that is an administrator on all nodes specified. For this lab you should use **CONTOSO\demouser**.
 
@@ -775,7 +778,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 ### Task 2: Create the SQL Server Availability Group
 
-1. On CloudShopSQL, launch **SQL Server 2017 Configuration Manager**.
+1. On CloudShopSQL, launch **SQL Server Configuration Manager**.
 
 2. Select **SQL Server Services**, then right-click **SQL Server (MSSQLSERVER)** and select **Properties**.
 

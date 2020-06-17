@@ -764,7 +764,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 22. On CloudShopSQL, open the PowerShell ISE and execute the following code:
 
     ```
-    New-Cluster -Name CLUST01 -Node CloudShopSQL, CloudShopSQL2, CloudShopSQL3 -StaticAddress 10.0.1.7, 172.16.1.7  -NoStorage
+    New-Cluster -Name CLUST01 -Node CloudShopSQL, CloudShopSQL2, CloudShopSQL3 -StaticAddress 10.0.1.7, 172.16.1.7 -NoStorage
     ```
     > **Note**: This command requires that you be logged in with an account that is an administrator on all nodes specified. For this lab you should use **CONTOSO\demouser**.
 
@@ -778,7 +778,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 ### Task 2: Create the SQL Server Availability Group
 
-1. On CloudShopSQL, launch **SQL Server Configuration Manager**.
+1. On CloudShopSQL, launch **SQL Server 2019 Configuration Manager**.
 
 2. Select **SQL Server Services**, then right-click **SQL Server (MSSQLSERVER)** and select **Properties**.
 
@@ -805,9 +805,9 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 9. Your SQL Server Availability Group will require a file share to be used for the initial synchronization. Open up File Explorer and
     create a new folder in the root of the C: drive called **AG**.
 
-10. Right-click the new folder and select **Share with \> Specific people...**
+10. Right-click the new folder and select **Give access to \> Specific people...**
 
-    ![File Explorer is shown with the right-click menu of the AG folder with Share with specific people highlighted.](images/hands-on-lab/2019-03-24-21-57-15.png "File Explorer")
+    ![File Explorer is shown with the right-click menu of the AG folder with Share with specific people highlighted.](images/2020-06-17-13-42-37.png "File Explorer")
 
 11. On the File Sharing window, select **Administrators** and select **Share**, then select **Done**.
 
@@ -860,9 +860,9 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     ![The listener IP addresses are now shown in the specify replicas window.](images/hands-on-lab/2019-03-24-23-15-53.png "Specifying listener ip addresses")
 
-24. Ensure that **Full database and log backup** is selected and use **\\\\CloudShopSQL\\ag** for the network share. Select **Next** to continue.
+24. Ensure that **Automatic seeding** is selected. Select **Next** to continue.
 
-    ![Select the full database and log backup is chosen with the AG fileshare used as the shared backup location.](images/hands-on-lab/2019-03-24-23-19-12.png "Select initial data synchronization")
+    ![Select Initial Data Synchronization window with autommatic seeding selected.](images/2020-06-17-14-42-14.png "Select initial data synchronization")
 
 25. The validation tests will run automatically. They should all show success. Select **Next**.
 
@@ -878,12 +878,12 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     ![Create the load balancer resource.](images/hands-on-lab/2019-03-24-23-37-54.png "Add the load balancer")
 
-3. On the Create load balancer blade, configure the following options, then select **Review + Create**:
+3. On the Create load balancer blade, configure the following options, then select **Review + Create** and **Create** to deploy the load balancer:
 
     - Subscription: ***Your subscription***.
     - Resource group: **CloudShop2**
     - Name: **sqlag**
-    - Region: ***Choose the region you have used for this lab***.
+    - Region: ***Choose the region where you deployed CloudShopSQL2 and CloudShopSQL3***.
     - Type: **Internal**
     - SKU: **Basic**
     - Virtual network: **VNET2**
@@ -895,6 +895,8 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 4. Navigate back to your resource group and select the **sqlag** load balancer you just created.
 
+    ![List of resources in the CloudShop2 resource group are shown with the sqlag load balancer resource highlighted.](images/2020-06-17-14-00-18.png "Load balancer")
+
 5. On the sqlag load balancer blade, select **Backend pools**, then select the **+Add** button.
 
     ![The Load Balancer blade with backend pools selected.](images/hands-on-lab/2019-03-24-23-49-52.png "Add a backend pool")
@@ -903,26 +905,23 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     - Name: **sqlpool**
     - IP version: **IPv4** 
-    - Associated to: **Availability set**
-    - Availability set: **SQLAvSet2**
+    - Associated to: **Virtual machines**
 
-        ![Adding the backend pool.](images/hands-on-lab/2019-03-24-23-52-15.png "Add backend pool")
+        ![Adding the backend pool.](images/2020-06-17-14-03-33.png "Add backend pool")
 
-7.  select the **+ Add a target network IP configuration** button.
+7.  Under the **Virtual machines** section, select the **+ Add** button.
 
-    ![The add a target network IP configuration button.](images/hands-on-lab/2019-03-24-23-54-54.png "Add a target network IP configuration")
+    ![The add a target network IP configuration button.](images/2020-06-17-14-05-53.png "Add a virtual machine")
 
-8.  Select **CloudShopSQL2** for the Target virtual machine, and select **ipconfig1 (172.16.1.5)** for the Network IP configuration. 
+8.  Select **CloudShopSQL2** and **CloudShopSQL3** virtual machines, and select **Add**. 
    
     >**Note**: Your IP address may be different than our example.
 
-    ![Selecting CloudShopSQL2 ipconfig as a backend target.](images/hands-on-lab/2019-03-24-23-59-23.png "Select the target ip configuration")
+    ![Selecting CloudShopSQL2 ipconfig as a backend target.](images/2020-06-17-14-16-44.png "Select the target ip configuration")
 
-9.  Repeat steps 7-8 to add **CloudShopSQL3**. DO NOT ADD other machines to the backend pool. Select **OK** then wait for the load balancer to complete the update.
+9.  On the sqlag load balancer blade, select **Health Probes** and select the **+Add** button.
 
-10. On the sqlag load balancer blade, select **Health Probes** and select the **+Add** button.
-
-11. On the Add health probe blade, use the following configuration values then select **OK** and wait for the load balancer to complete
+10. On the Add health probe blade, use the following configuration values then select **OK** and wait for the load balancer to complete
     the update.
 
     >**Note**: If you receive an error your load balancer may still be updating itself from the prior step. Wait a minute and try again.
@@ -935,9 +934,11 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![Health probe configuration showing port 59999 as the probe port.](images/hands-on-lab/2019-03-25-00-09-54.png "Health probe configuration")
 
-12. On the sqlag load balancer blade, select **Load balancing rules** and then select the **+Add** button.
+11. On the sqlag load balancer blade, select **Load balancing rules** and then select the **+Add** button.
 
-13. On the Add load balancing rule blade, use the following configuration values then select **OK** and wait for the load balancer to complete the update.
+    >**Note**: If your add button is greyed out and you have a message that states *Updating* then your load balancer is still configuring the prior steps. If it does not complete in a few minutes you can refresh the browser until it is available.
+
+12. On the Add load balancing rule blade, use the following configuration values then select **OK** and wait for the load balancer to complete the update.
 
     - Name: **sqlrules**
     - IP Version: **IPv4**
@@ -953,13 +954,13 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![Adding load balancer rule for floating IP with all configurations set.](images/hands-on-lab/2019-03-25-17-51-59.png "Load balancer rule configurations")
 
-14. Next we need to verify our cluster's network names. Open the **Failover Cluster Manager**, expand **CLUST01**, select **Networks** then double-select **Cluster Network 2** to open the properties. Verify that Cluster Network 2's subnet is set to **172.16.1.0/24**. In some cases, the cluster deployment may reverse the names it assign to the cluster networks. If your subnet does not match here, then you will simply change the name of the cluster network in the script below to reflect this.
+13. Next we need to verify our cluster's network names. Open the **Failover Cluster Manager**, expand **CLUST01**, select **Networks** then double-click **Cluster Network 2** to open the properties. Verify that Cluster Network 2's subnet is set to **172.16.1.0/24**. In some cases, the cluster deployment may reverse the names it assigns to the cluster networks. If your subnet does not match here, then you will simply change the name of the cluster network in the script below to reflect this.
     
     ![The Failover Cluster Manager with Cluster Network 2 properties page open. The subnet is highlighted.](images/hands-on-lab/2019-06-19-12-44-26.png "Cluster Network 2 properties")
 
-15. Open an **Administrative** PowerShell ISE session on **CloudShopSQL2**.
+14. Open an **Administrative** PowerShell ISE session on **CloudShopSQL2**.
 
-16. Copy the following PowerShell script to the script window. If your Cluster Network 2 did not match the 172.16.1.0/24 subnet, then change the $ClusterNetworkName variable to \"Cluster Network 1\". If your subnet did match then you do not need to make this change. Execute the script to configure your cluster for the probe port:
+15. Copy the following PowerShell script to the script window. If your Cluster Network 2 did not match the 172.16.1.0/24 subnet, then change the $ClusterNetworkName variable to \"Cluster Network 1\". If your subnet did match then you do not need to make this change. Execute the script to configure your cluster for the probe port:
 
     ```powershell
     $ClusterNetworkName = "Cluster Network 2"
@@ -1019,7 +1020,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 12. On the summary window, select **Finish**, then select **Close** on successful completion of the failover.
 
-13. From CloudShopSQL2 or CloudShopSQL3, connect to your **AdventureWorks** listener and open a new Query Window by selecting connect in SSMS and using AdventureWorks for the server name.
+13. From CloudShopSQL2, connect to your **AdventureWorks** listener and open a new Query Window by selecting connect in SSMS and using AdventureWorks for the server name.
 
     >**Note**: We must test from the same virtual network as our Internal Load Balancer. Internal Load Balancers do not currently support connectivity across peered networks.
 
@@ -1084,7 +1085,7 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
    
 2. Select **Site recovery infrastructure** from the menu on the left and then choose **Network mapping**.
 
-3. Select the **+Add mapping** button. Set your source network to VNET1 and your target network to VNET2.
+3. Select the **+ Network mapping** button. Set your source network to VNET1 and your target network to VNET2.
 
     ![Network mapping is shown across VNET1 and VNET2.](images/hands-on-lab/2019-03-26-03-20-41.png "Add network mapping")
 

@@ -1093,9 +1093,9 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
     ![The recovery services vault blade with site recovery highlighted.](images/hands-on-lab/2019-03-25-23-46-47.png "Setup Site Recovery")
 
-5. Under **FOR ON-PREMISES MACHINES AND AZURE VMS** select **Step 1: Replicate Application**.
+5. Under **For on-premises machines and Azure VMs** select **Step 1: Replicate Application**.
 
-    ![An image that depicts Azure Site Recovery. Step 1: Replicate Application is highlighted.](images/hands-on-lab/2019-03-25-23-48-09.png "Replicate application Settings")
+    ![The Azure Site Recovery blade. Step 1: Replicate Application is highlighted.](images/hands-on-lab/2019-03-25-23-48-09.png "Replicate application Settings")
 
 6. Choose the following configurations and select **OK**.
 
@@ -1117,7 +1117,7 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
     ![The configure settings dialogue with the Customize button highlighted.](images/hands-on-lab/2019-03-26-03-26-07.png "Configure settings dialogue")
 
-10. Change the target resource group to **CloudShop2**.
+10. Change the target resource group to **CloudShop2** and select **OK**.
 
     ![The customize target resources dialogue with default settings.](images/hands-on-lab/2019-03-26-03-27-29.png "Customize target resources")
 
@@ -1155,7 +1155,7 @@ In this task, you will create the recovery plan that will be used to orchestrate
 
 4. After a minute or two, you should see the CloudShopRP on the Recovery plans blade. This recovery plan will bring up your web server during a failover. 
 
-5. Now go back to the Recovery Services vault RSVault - Overview blade. Select Site Recovery. Notice that the CloudShopWeb virtual machine is replicating. Take note of the status. It should be close to 100%. You will not be able to continue until it is finished replicating. 
+5. Now go back to the Recovery Services vault RSVault - Overview blade. Select **Site Recovery** and then select the **Virtual Machine** tile. Notice that the CloudShopWeb virtual machine is replicating. Take note of the status. You will not be able to continue until it is finished replicating. 
 
    >**Note**: This may take up to an hour.
 

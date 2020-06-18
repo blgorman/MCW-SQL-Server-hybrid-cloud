@@ -38,8 +38,9 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 3: Register an application in Azure Active Directory](#task-3-register-an-application-in-azure-active-directory)
     - [Task 4: Create the Azure Key Vault](#task-4-create-the-azure-key-vault)
     - [Task 5: Enabling and configuring Key Vault integration](#task-5-enabling-and-configuring-key-vault-integration)
+    - [Task 6: Enable TDE](#task-6-enable-tde)
   - [Exercise 2: SQL Backup solution](#exercise-2-sql-backup-solution)
-    - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account)
+    - [Task 1: Configure automated backup](#task-1-configure-automated-backup)
     - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
   - [Exercise 3: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-3-implement-a-data-archive-strategy-with-sql-server-stretch-database)
     - [Task 1: Create a logical SQL Server to host Stretch DB](#task-1-create-a-logical-sql-server-to-host-stretch-db)
@@ -119,7 +120,7 @@ Cloud based disaster recovery site.
 
 Duration: 60 minutes
 
-Backups must be maintained offsite from the on-premises environment. The backups must be online and accessible by the DBA team. To accomplish this, you will configure SQL Managed Backup.
+To help protect and manage encryption keys, you need to leverage Azure Key Vault. To minimize the administrative overhead, you will use the SQL Server virtual machine resource provider to allow the SQL Servers to integrate with the Key Vault. You will then enable TDE on the database leveraging keys stored in Azure Key Vault.
 
 ### Task 1: Install Azure PowerShell cmdlets
 
@@ -135,7 +136,7 @@ In this task, you will install the Azure PowerShell cmdlets on your SQL Servers.
 
 4. Execute the following code (approve any popups about NuGet or untrusted repositories):
 
-    ```
+    ```powershell
     Install-Module -Name Az -AllowClobber -Scope AllUsers
     ```
 
@@ -147,7 +148,7 @@ In this task, you will register the SQL VM resource provider in full mode for al
 
 1. From a machine with Azure PowerShell cmdlets installed, launch the PowerShell ISE and login to Azure using the Az-LoginAccount command.
 
-    ```
+    ```powershell
     Login-AzAccount
     ```
 
@@ -155,7 +156,7 @@ In this task, you will register the SQL VM resource provider in full mode for al
 
 3. Execute the following script to register the SQL VM resource provider in your subscriptions and register your VMs.
 
-    ```
+    ```powershell
     Register-AzResourceProvider -ProviderNamespace Microsoft.SqlVirtualMachine
 
     $vm = Get-AzVM -Name CloudShopSQL -ResourceGroupName CloudShop1
@@ -241,47 +242,130 @@ In this task, you will enable Key Vault integration on your SQL Servers.
 
 3. Run the following script to configure your Key Vault to allow the application access to the vault.
 
-    ```
+    ```powershell
     $vaultName = "<your key vault name>"
     $appId = "<the application id you saved previously>"
 
-    Set-AzKeyVaultAccessPolicy -VaultName $vaultName -ServicePrincipalName $appId -PermissionsToKeys get,wrapkey,unwrapkey
+    Set-AzKeyVaultAccessPolicy -VaultName $vaultName -ServicePrincipalName $appId -PermissionsToKeys get,list,wrapkey,unwrapkey
     ```
+
+### Task 6: Enable TDE 
+
+In this task, you will enable TDE leveraging your integrated key vault to store the keys.
+
+1. Enable the EKM provider for SQL.
+
+    ```sql
+    -- Enable advanced options.  
+    USE master;  
+    GO  
+
+    EXEC sp_configure 'show advanced options', 1;  
+    GO  
+    RECONFIGURE;  
+    GO  
+
+    -- Enable EKM provider  
+    EXEC sp_configure 'EKM provider enabled', 1;  
+    GO  
+    RECONFIGURE;
+    ```
+2. Create a cryptographic provider by using the SQL Server Connector, which is an EKM provider for the Azure key vault. In this example, the provider name is AzureKeyVault_EKM.
+
+    ```sql
+    CREATE CRYPTOGRAPHIC PROVIDER AzureKeyVault_EKM   
+    FROM FILE = 'C:\Program Files\SQL Server Connector for Microsoft Azure Key Vault\Microsoft.AzureKeyVaultService.EKM.dll';  
+    GO
+    ```
+3. Create the credential and associate it with your login by executing the following script
+
+    ```sql
+    USE master;  
+    CREATE CREDENTIAL TDE_vault_cred   
+        WITH IDENTITY = '<your key vault name>', 
+        SECRET = '<client secret that you copied in a previous task>'   
+    FOR CRYPTOGRAPHIC PROVIDER AzureKeyVault_EKM;
+
+    ALTER LOGIN [CONTOSO\demouser]  
+    ADD CREDENTIAL TDE_vault_cred;
+    ```
+
+4. Create a key in your Azure Key Vault and open the key by executing the following T-SQL code.
+
+    ```sql
+    CREATE ASYMMETRIC KEY TDEKey   
+    FROM PROVIDER [AzureKeyVault_EKM]  
+    WITH PROVIDER_KEY_NAME = 'TDEKey',  
+    CREATION_DISPOSITION = OPEN_EXISTING;
+    ```
+
+5. Create a SQL Server login and add the credential from above to it. This Transact-SQL example uses the same key that was imported earlier.
+
+    ```sql
+    USE master;  
+    -- Create a SQL Server login associated with the asymmetric key   
+    -- for the Database engine to use when it loads a database   
+    -- encrypted by TDE.  
+    CREATE LOGIN TDE_Login   
+    FROM ASYMMETRIC KEY TDEKey;  
+    GO   
+
+    -- Alter the TDE Login to add the credential for use by the   
+    -- Database Engine to access the key vault  
+    ALTER LOGIN TDE_Login   
+    ADD CREDENTIAL TDE_vault_cred;  
+    GO
+    ```
+
+6. Create the database encryption key (DEK) by executing the following query. The DEK will encrypt your data and log files in the database instance, and in turn be encrypted by the Azure Key Vault asymmetric key.
+
+    ```sql
+    USE AdventureWorks;  
+    GO  
+
+    CREATE DATABASE ENCRYPTION KEY   
+    WITH ALGORITHM = AES_256   
+    ENCRYPTION BY SERVER ASYMMETRIC KEY TDEKey;  
+    GO
+    ```
+
+7. Turn on TDE by executing the following query.
+
+    ```sql
+    -- Alter the database to enable transparent data encryption.  
+    ALTER DATABASE AdventureWorks   
+    SET ENCRYPTION ON;  
+    GO
+    ```
+
+8. Using Management Studio, verify that TDE has been turned on by connecting to your database with Object Explorer. Right-click your database, point to **Tasks**, and then choose **Manage Database Encryption**.
+
+9.  In the Manage Database Encryption dialog box, confirm that TDE is on, and that your asymmetric key is encrypting the DEK.
 
 ## Exercise 2: SQL Backup solution
 
 Duration: 30 minutes
 
-Backups must be maintained offsite from the on-premises environment. The backups must be online and accessible by the DBA team. To accomplish this, you will configure SQL Managed Backup.
+Backups must be maintained offsite from the on-premises environment. The backups must be online and accessible by the DBA team. To accomplish this, you will leverage the automated backup feature provided by the SQL Server resource provider. 
 
-### Task 1: Create an Azure Storage Account
+### Task 1: Configure automated backup
 
-In this task, you will create an Azure Storage Account for use with SQL Managed Backup.
+In this task, you will configure automated backup using the SQL Server resource provider.
 
 1. Connect to your CloudShopSQL virtual machine by navigating to your **CloudShop1** resource group and then connecting to the **CloudShopSQL**  virtual machine.
 
 2. Login with username **demouser** and password **demo@pass123**.
 
-3. Launch **Server Manager**, select **Local Server** from the menu on the left and verify that **IE Enhanced Security Configuration** is set to **Off**.
-
-    ![Server manager application with local server selected and IE Enhanced Security Configuration set to Off.](images/hands-on-lab/2019-03-24-18-38-33.png "Server Manager local server configuration")
-
-4. From within your SQL Server guest virtual machine, install Azure PowerShell by launching an **administrative PowerShell ISE session** and running the following command. Accept any warnings or authorization to install the components.
-
-    ```powershell
-    Install-Module -Name Az -AllowClobber -Scope AllUsers
-    ```
-
-5. From the PowerShell ISE, type the following at the prompt and follow the prompts to login to your Azure subscription:
+3. From within your SQL Server guest virtual machine, launch an **administrative PowerShell ISE session** type the following at the prompt and follow the prompts to login to your Azure subscription:
 
     ```powershell
     login-AzAccount
     ```
 
-6. Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script:
+4. Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script:
 
    - Change the **$storageAcctName** variable to a unique name.
-   - Change the location to match the location you are deploying into for this lab.
+   - Change the **$location** to match the location you are deploying into for this lab.
 
     ```powershell
     $storageAcctName = "[unique storage account name]"
@@ -297,7 +381,6 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
         -Location $location `
         -Type $storageSkuName 
 
-    
     $storageKey = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -Name $storageAcctName
 
     $context = New-AzStorageContext -StorageAccountName $storageAcctName -StorageAccountKey $storageKey[0].Value
@@ -316,7 +399,13 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
     CREATE CREDENTIAL [$containerUrl]
     WITH IDENTITY = 'Shared Access Signature',
          SECRET = '$sasToken'
+    GO
 
+    EXEC msdb.managed_backup.sp_backup_config_advanced  
+      @database_name = 'AdventureWorks'                
+      ,@encryption_algorithm ='AES_256'  
+      ,@encryptor_type = 'ASYMMETRIC_KEY'  
+      ,@encryptor_name = 'Name of asymmetric key';  
     GO
 
     EXEC msdb.managed_backup.sp_backup_config_basic
@@ -335,7 +424,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
     >**Note**: Due to differences between markdown and PowerShell formatting requirements, you may need to remove the white space prior to the **\"\@** near the end of the file.
 
-7. Save the T-SQL code generated between the **Begin TSQL Script** and **End TSQL Script** in your PowerShell ISE output after execution into a notepad file. This code creates an identity using a Shared Access Signature (SAS) to a container in the storage account and configures managed backup when executed.
+1. Save the T-SQL code generated between the **Begin TSQL Script** and **End TSQL Script** in your PowerShell ISE output after execution into a notepad file. This code creates an identity using a Shared Access Signature (SAS) to a container in the storage account and configures managed backup when executed.
 
 ### Task 2: Configure managed backup in SQL Server
 

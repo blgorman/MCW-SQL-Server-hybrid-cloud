@@ -32,31 +32,37 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
   - [Solution architecture](#solution-architecture)
   - [Requirements](#requirements)
     - [Help references](#help-references)
-  - [Exercise 1: SQL Backup solution](#exercise-1-sql-backup-solution)
+  - [Exercise 1: Configure Azure Key Vault integration with the SQL VM resource provider.](#exercise-1-configure-azure-key-vault-integration-with-the-sql-vm-resource-provider)
+    - [Task 1: Install Azure PowerShell cmdlets](#task-1-install-azure-powershell-cmdlets)
+    - [Task 2: Register the SQL VM resource provider](#task-2-register-the-sql-vm-resource-provider)
+    - [Task 3: Register an application in Azure Active Directory](#task-3-register-an-application-in-azure-active-directory)
+    - [Task 4: Create the Azure Key Vault](#task-4-create-the-azure-key-vault)
+    - [Task 5: Enabling and configuring Key Vault integration](#task-5-enabling-and-configuring-key-vault-integration)
+  - [Exercise 2: SQL Backup solution](#exercise-2-sql-backup-solution)
     - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account)
     - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
-  - [Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-2-implement-a-data-archive-strategy-with-sql-server-stretch-database)
+  - [Exercise 3: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-3-implement-a-data-archive-strategy-with-sql-server-stretch-database)
     - [Task 1: Create a logical SQL Server to host Stretch DB](#task-1-create-a-logical-sql-server-to-host-stretch-db)
     - [Task 2: Identify tables that may benefit from Stretch DB](#task-2-identify-tables-that-may-benefit-from-stretch-db)
     - [Task 3: Implement Stretch DB based on date key](#task-3-implement-stretch-db-based-on-date-key)
   - [Summary](#summary)
-  - [Exercise 3: Create an archive solution using table partitioning](#exercise-3-create-an-archive-solution-using-table-partitioning)
+  - [Exercise 4: Create an archive solution using table partitioning](#exercise-4-create-an-archive-solution-using-table-partitioning)
     - [Task 1: Create the archive database](#task-1-create-the-archive-database)
     - [Task 2: Create the new partitioned table](#task-2-create-the-new-partitioned-table)
     - [Task 3: Move data from the partitioned table to the archive database](#task-3-move-data-from-the-partitioned-table-to-the-archive-database)
   - [Summary](#summary-1)
-  - [Exercise 4: Build SQL Availability Group for Database Disaster Recovery](#exercise-4-build-sql-availability-group-for-database-disaster-recovery)
+  - [Exercise 5: Build SQL Availability Group for Database Disaster Recovery](#exercise-5-build-sql-availability-group-for-database-disaster-recovery)
     - [Task 1: Create the cluster](#task-1-create-the-cluster)
     - [Task 2: Create the SQL Server Availability Group](#task-2-create-the-sql-server-availability-group)
     - [Task 3: Create the Internal Load Balancer](#task-3-create-the-internal-load-balancer)
     - [Task 4: Validate the Availability Group](#task-4-validate-the-availability-group)
     - [Task 5: Update the Web Application to Connect to the Listener](#task-5-update-the-web-application-to-connect-to-the-listener)
     - [Summary](#summary-2)
-  - [Exercise 5: Configure Azure Site Recovery for Web Tier DR](#exercise-5-configure-azure-site-recovery-for-web-tier-dr)
+  - [Exercise 6: Configure Azure Site Recovery for Web Tier DR](#exercise-6-configure-azure-site-recovery-for-web-tier-dr)
     - [Task 1: Create a Recovery Services Vault](#task-1-create-a-recovery-services-vault)
     - [Task 2: Configure Azure Site Recovery](#task-2-configure-azure-site-recovery)
     - [Task 3: Creating the Recovery Plan](#task-3-creating-the-recovery-plan)
-  - [Exercise 6: Failing Over to the Disaster Recovery Site](#exercise-6-failing-over-to-the-disaster-recovery-site)
+  - [Exercise 7: Failing Over to the Disaster Recovery Site](#exercise-7-failing-over-to-the-disaster-recovery-site)
     - [Task 1: Failover the Data Tier](#task-1-failover-the-data-tier)
     - [Task 2: Failover the Web Tier](#task-2-failover-the-web-tier)
     - [Task 3: Validate Failover of the CloudShop application](#task-3-validate-failover-of-the-cloudshop-application)
@@ -109,7 +115,140 @@ Cloud based disaster recovery site.
 | Virtual Network Peering | <https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview> |
 | Azure Backup |  <https://azure.microsoft.com/en-us/services/backup/> |
 
-## Exercise 1: SQL Backup solution
+## Exercise 1: Configure Azure Key Vault integration with the SQL VM resource provider.
+
+Duration: 60 minutes
+
+Backups must be maintained offsite from the on-premises environment. The backups must be online and accessible by the DBA team. To accomplish this, you will configure SQL Managed Backup.
+
+### Task 1: Install Azure PowerShell cmdlets
+
+In this task, you will install the Azure PowerShell cmdlets on your SQL Servers.
+
+1. Connect to your **CloudShopSQL** virtual machine by navigating to your **CloudShop1** resource group and then connecting to the **CloudShopSQL**  virtual machine.
+
+2. Login with username **demouser** and password **demo@pass123**.
+
+3. Launch an administrative PowerShell ISE session  
+
+    ![The Windows Start menu with the PowerShell ISE tile highlighted, the More option highlighted from the menu and the Run as administrator option chosen.](images/2020-06-17-16-33-22.png "PowerShell ISE Run as administrator menu item.")
+
+4. Execute the following code (approve any popups about NuGet or untrusted repositories):
+
+    ```
+    Install-Module -Name Az -AllowClobber -Scope AllUsers
+    ```
+
+5. Repeat the above steps for **CloudShopSQL2** and **CloudShopSQL3**.
+
+### Task 2: Register the SQL VM resource provider
+
+In this task, you will register the SQL VM resource provider in full mode for all of your existing SQL Server virtual machines.
+
+1. From a machine with Azure PowerShell cmdlets installed, launch the PowerShell ISE and login to Azure using the Az-LoginAccount command.
+
+    ```
+    Login-AzAccount
+    ```
+
+2. If your account has access to multiple subscriptions, verify that you are in the correct subscription. If not, you can use **Select-AzureSubscription** to change the Azure subscription context of your PowerShell session.
+
+3. Execute the following script to register the SQL VM resource provider in your subscriptions and register your VMs.
+
+    ```
+    Register-AzResourceProvider -ProviderNamespace Microsoft.SqlVirtualMachine
+
+    $vm = Get-AzVM -Name CloudShopSQL -ResourceGroupName CloudShop1
+    New-AzSqlVM -Name $vm.Name -ResourceGroupName $vm.ResourceGroupName -SqlManagementType Full -LicenseType PAYG -Location $vm.Location 
+
+    $vm = Get-AzVM -Name CloudShopSQL2 -ResourceGroupName CloudShop2
+    New-AzSqlVM -Name $vm.Name -ResourceGroupName $vm.ResourceGroupName -SqlManagementType Full -LicenseType PAYG -Location $vm.Location
+
+    $vm = Get-AzVM -Name CloudShopSQL3 -ResourceGroupName CloudShop2
+    New-AzSqlVM -Name $vm.Name -ResourceGroupName $vm.ResourceGroupName -SqlManagementType Full -LicenseType PAYG -Location $vm.Location
+    ```
+
+    These commands will add the SQL virtual machine resource for each of your SQL Servers. They will also install the SQL IaaS extension and the SQL Connector for Azure Key Vault. The servers will be rebooted as part of the installation process.
+
+    ![Listing of all of the resources in the CloudShop1 resource group with the new SQL virtual machine resource highlighted.](images/2020-06-17-18-32-11.png "The SQL virtual machine resource.")
+
+    4. Restart each of the SQL virtual machines to complete the installation.
+
+### Task 3: Register an application in Azure Active Directory
+
+In this task, you will register an application in Azure Active Directory so that you can leverage a Service Principal account to access your Key Vault.
+
+1. From the Azure portal, navigate to **Azure Active Directory**.
+
+2. From the Azure Active Directory blade, under the Manage menu, select **App registrations**.
+
+    ![The Azure AD Manage menu with App registrations highlighted.](images/2020-06-17-16-55-39.png "The Azure AD Manage menu")
+
+3. On the App registrations page, select the **+ New registration** button.
+
+4. On the Register an application page, type **SQLKeyVaultIntegration** for the name, leave **Accounts in this organizational directory only** radio button selected, and type **https://sqlkeyvault** for the Redirect URI then select **Register**.
+
+    ![The register an application window with the name and redirect URI fields filled in.](images/2020-06-17-17-05-39.png "Register an application")
+
+5. On the SQLKeyVaultIntegration page, copy the **Application (client) ID** and save it in a text editor for later use.
+
+    ![The SQLKeyVaultIntegration app registration page with the application ID highlighted.](images/2020-06-17-17-12-34.png "The application id.")
+
+6. Select the **Certificates & secrets** from the menu and then choose the **+ New client secret** button.
+
+    ![The certificates and secrets page with certificates and secrets and the new client secret button highlighted.](images/2020-06-17-17-18-47.png "The Certificates and secrets page.")
+
+7. On the Add a client secret popup, type **SQL Server/Key Vault integration** for the description, leave the expiration set to **1 year** and select **Add**.
+
+    ![The add a client secret page with the description filled in and 1 year is selected.](images/2020-06-17-17-21-57.png "Add a client secret.")
+
+8. The new client secret is now listed under **Client secrets**. Copy the **Value** and save it to Notepad, once you navigate away from this page you will no longer be able to retrieve this secret.
+
+    ![The Certificates and secrets page, the new secret is listed under client secrets and the secret value is highlighted.](images/2020-06-17-17-28-15.png "Client secrets")
+
+### Task 4: Create the Azure Key Vault
+
+In this task, you will create the Azure Key Vault resource that will store and protect secrets used by your SQL Server virtual machines.
+
+1. From the Azure portal, navigate to your **CloudShop2** resource group and select the **+ Add** button.
+
+2. Type **Key Vault** into the search box, choose **Key Vault** from the list and then select **Create**.
+
+3. On the Create key vault blade, use the following configurations and then choose **Review + Create**.
+
+    - Subscription: *Your subscription*
+    - Resource group: **CloudShop2**
+    - Key vault name: *A unique name for your key vault*
+    - Region: *The region you used for the CloudShop2 resources*
+    - Pricing tier: **Standard**
+    - Soft delete: **Disable**
+
+    ![The basics tab of the create key vault blade with the parameters configured.](images/2020-06-17-17-45-05.png "Create key vault.")
+
+4. On the review and create page, select **Create** to deploy your key vault.
+
+5. After your Key Vault deployment completes, navigate to the resource, copy the **DNS Name** from the overview page and save it to Notepad for later use.
+
+    ![The Azure Key Vault overview page with the DNS name highlighted.](images/2020-06-17-18-46-02.png "Key vault overview.")
+
+### Task 5: Enabling and configuring Key Vault integration
+
+In this task, you will enable Key Vault integration on your SQL Servers.
+
+1. From PowerShell ISE, login to Azure using the **Login-AzAccount** cmdlet.
+
+2. If your account has access to multiple subscriptions, verify that you are in the correct subscription. If not, you can use **Select-AzureSubscription** to change the Azure subscription context of your PowerShell session.
+
+3. Run the following script to configure your Key Vault to allow the application access to the vault.
+
+    ```
+    $vaultName = "<your key vault name>"
+    $appId = "<the application id you saved previously>"
+
+    Set-AzKeyVaultAccessPolicy -VaultName $vaultName -ServicePrincipalName $appId -PermissionsToKeys get,wrapkey,unwrapkey
+    ```
+
+## Exercise 2: SQL Backup solution
 
 Duration: 30 minutes
 
@@ -265,7 +404,7 @@ In this task, you will create an Azure Storage Account for use with SQL Managed 
 
 8. To verify that your backups are working, go to the Azure portal, navigate to your **CloudShop2** resource group. Open the storage account you just created, select the **Blobs** tile, then the **backups** container. You should see your backups here.
 
-## Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database
+## Exercise 3: Implement a Data Archive Strategy with SQL Server Stretch Database
 
 Duration: 30 minutes
 
@@ -414,7 +553,7 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 In this exercise, you implemented an archive solution with Stretch Database. First, you reviewed the table compatibility by using the Enable Database for Stretch wizard. You then configured your database and table via T-SQL to archive data satisfied by a stretch predicate. Finally, you reviewed the progress, status and space used locally and in Azure via the built-in management tools
 
-## Exercise 3: Create an archive solution using table partitioning
+## Exercise 4: Create an archive solution using table partitioning
 
 Duration: 60 minutes
 
@@ -692,7 +831,7 @@ In this task, you will move data from the new partitioned table to the table in 
 
 In this exercise, you implemented an archive solution with table partitioning. You created a partitioned table to replace the existing Sales.ResellerSales table. You allowed the legacy reports to maintain access to the current and historical data by creating a view across both the historical archive table and the new current data stored in the partitioned table. 
 
-## Exercise 4: Build SQL Availability Group for Database Disaster Recovery
+## Exercise 5: Build SQL Availability Group for Database Disaster Recovery
 
 Duration: 60 minutes
 
@@ -1054,7 +1193,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 In this exercise, you deployed a Windows Failover Cluster and a SQL Always-On Availability Group for database resiliency. Also, you deployed and configured an internal load balancer to support the Availability Group in Azure. Finally, you validated your configuration by failing over to one of your secondary nodes and connecting to the Availability Group Listener.
 
-## Exercise 5: Configure Azure Site Recovery for Web Tier DR 
+## Exercise 6: Configure Azure Site Recovery for Web Tier DR 
 
 Duration: 15 minutes
 
@@ -1161,7 +1300,7 @@ In this task, you will create the recovery plan that will be used to orchestrate
 
     ![The recovery services vault overview with site recovery selected.](images/hands-on-lab/2019-03-26-02-15-27.png "RSVault - Site Recovery")
 
-## Exercise 6: Failing Over to the Disaster Recovery Site 
+## Exercise 7: Failing Over to the Disaster Recovery Site 
 
 Duration: 30 minutes
 

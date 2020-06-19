@@ -212,7 +212,7 @@ An additional concern is that the database maintenance jobs are exceeding the cu
 
 Finally, Fabrikam has a requirement to store the database backups offsite in an encrypted format within two hours of backup completion and they need insight into when backups are not occurring across all databases in the environment, they currently rely on manual configuration of SQL Agent jobs to run backups and management is concerned that not all databases are being backed up appropriately. The current backup strategy consists of SQL Server backups to an on-premises file server; the backups are then copied to tape and shipped offsite. This process can take up to 24 hours to secure the tapes offsite. In addition to being slow, the tape backups are notoriously unreliable and are generally not available for ad hoc access in the case that a restore becomes necessary. Fabrikam would like to have these backups secured offsite within two hours of the backup completing and a centralized backup management and monitoring solution.
 
-![Fabrikam's datacenter is represented as icons that are labeled Web Farm, Application Servers, VMWare, and vCenter. Below that is another icon that is labeled SQL Server 2019, which is Fabrikam\'s database platform.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image2.png "Fabrikam Publishing data center illustration")
+![Fabrikam's datacenter is represented as icons that are labeled Web Farm, Application Servers, VMWare, and vCenter. Below that is another icon that is labeled SQL Server 2019, which is Fabrikam\'s database platform.](images/2020-06-18-22-55-14.png "Fabrikam Publishing data center illustration")
 
 ### Customer needs 
 
@@ -224,7 +224,7 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 4. The ability to seamlessly scale DR site infrastructure as the environment grows.
 
-5. Data encryption solution that encrypts only PCI data at the application and database level.
+5. Data encryption solution that encrypts PCI data at the application and database level and all other data at rest.
 
 6. Key management solution that does not expose the unencrypted keys to unauthorized personnel (including database administrators and developers) and allows for key management by the security administration team.
 
@@ -404,6 +404,7 @@ Directions: Tables reconvene with the larger group to hear the facilitator/SME s
 | Azure Key Vault | <https://docs.microsoft.com/en-us/azure/key-vault>  |
 | SQL Server Stretch Database  | <https://docs.microsoft.com/en-us/sql/sql-server/stretch-database/stretch-database>  |
 | Azure Backup   | <https://docs.microsoft.com/en-us/azure/backup/>   |
+| SQL Server on Azure VM   | <https://docs.microsoft.com/en-us/azure/azure-sql/virtual-machines/>   |
 | Azure Traffic Manager  | <https://docs.microsoft.com/en-us/azure/traffic-manager/traffic-manager-overview>   |
 | Reduce RTO with Traffic Manager and Azure Site Recovery  | <https://docs.microsoft.com/en-us/azure/traffic-manager/traffic-manager-overview>  |
 
@@ -536,7 +537,9 @@ The solution for Fabrikam's scenario involved several technologies.
 
 1. **Encrypt PCI data:** Choose an appropriate encryption technology to protect credit card related data.
 
-   Since we need to protect data in-flight, we will use SQL Server Always Encrypted. Always Encrypted allows clients to encrypt sensitive data inside client applications. An Always Encrypted-enabled driver installed on the client computer achieves this by automatically encrypting and decrypting sensitive data in the client application. The driver encrypts the data in sensitive columns before passing the data to the Database Engine, and the driver automatically rewrites queries, so the semantics to the application are preserved. Similarly, the driver transparently decrypts data stored in encrypted database columns and contained in query results.
+   Since we need to protect data in-flight, we will use SQL Server Always Encrypted. Always Encrypted allows clients to encrypt sensitive data inside client applications. An Always Encrypted-enabled driver installed on the client computer achieves this by automatically encrypting and decrypting sensitive data in the client application. The driver encrypts the data in sensitive columns before passing the data to the Database Engine, and the driver automatically rewrites queries, so the semantics to the application are preserved. Similarly, the driver transparently decrypts data stored in encrypted database columns and contained in query results. 
+
+   For all other data we can leverage Transparent Data Encryption (TDE). TDE will allow us to encrypt the entire database at rest. Key management can still leverage Azure Key Vault and we can minimize the administrative overhead by leveraging SQL Server virtual machine resource provider's Key Vault integration feature.
 
 2. **Key management**: How are the encryption keys managed in your design?
 
@@ -602,6 +605,8 @@ The solution for Fabrikam's scenario involved several technologies.
 
    Azure Backup is a natural fit for Fabrikam's requirements. Azure Backup stores backups in an Azure Recovery Services vault. Database backups leverage the native SQL APIs so that customers get the benefit of SQL backup compression, full fidelity backup and restore including full, differential and log backups. Customers can monitor backups through SQL Server Management Studio or the Recovery Services Vault dashboard. 
 
+   We can also leverage SQL Server virtual machine resource provider benefits to automate backups. SQL Server virtual machine resource provider can provide automated or manually scheduled backups, backups of both system and user databases and backup encryption. The backups will be stored in a geo-redundant storage account further enhancing protection of the database backups.
+
 2. **Provide the following configuration details:** What configuration will be required for this backup solution to support both cloud and on-premises SQL Servers?
 
     - For backup of cloud-based SQL Server virtual machines, Azure Backup will require a Recovery Services vault in the same region. You can have only one backup solution at a time to back up SQL Server databases. All other backups must be disabled otherwise they will interfere with Azure Backup generated backups causing failures.
@@ -614,7 +619,7 @@ The solution for Fabrikam's scenario involved several technologies.
 
     - On-premises servers will need to have the Data Protection Manager protection agent installed. This can be installed via Backup Server Administration Console.
 
-   If a backup of a TDE encrypted database needs to be restored, you will first need to restore the certificate used by TDE.
+   If a backup of a TDE encrypted database needs to be restored, you will first need to restore the certificate used by TDE (which should be stored in Azure Key Vault).
 
    Restore times will be influenced by network throughput. Restore times for databases on on-premises servers may be slower than restoring from a local disk, but faster than restoring from a remote tape archive. To optimize restore times, it is recommended that you adhere to the following best practices:
 

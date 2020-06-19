@@ -37,11 +37,11 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 2: Register the SQL VM resource provider](#task-2-register-the-sql-vm-resource-provider)
     - [Task 3: Register an application in Azure Active Directory](#task-3-register-an-application-in-azure-active-directory)
     - [Task 4: Create the Azure Key Vault](#task-4-create-the-azure-key-vault)
-    - [Task 5: Enabling and configuring Key Vault integration](#task-5-enabling-and-configuring-key-vault-integration)
+    - [Task 5: Configure the SQL Server resource provider integrated key vault](#task-5-configure-the-sql-server-resource-provider-integrated-key-vault)
     - [Task 6: Enable TDE](#task-6-enable-tde)
   - [Exercise 2: SQL Backup solution](#exercise-2-sql-backup-solution)
-    - [Task 1: Configure automated backup](#task-1-configure-automated-backup)
-    - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
+    - [Task 1: Create an Azure Storage account to hold backups](#task-1-create-an-azure-storage-account-to-hold-backups)
+    - [Task 2: Configure automated backup](#task-2-configure-automated-backup)
   - [Exercise 3: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-3-implement-a-data-archive-strategy-with-sql-server-stretch-database)
     - [Task 1: Create a logical SQL Server to host Stretch DB](#task-1-create-a-logical-sql-server-to-host-stretch-db)
     - [Task 2: Identify tables that may benefit from Stretch DB](#task-2-identify-tables-that-may-benefit-from-stretch-db)
@@ -169,11 +169,11 @@ In this task, you will register the SQL VM resource provider in full mode for al
     New-AzSqlVM -Name $vm.Name -ResourceGroupName $vm.ResourceGroupName -SqlManagementType Full -LicenseType PAYG -Location $vm.Location
     ```
 
-    These commands will add the SQL virtual machine resource for each of your SQL Servers. They will also install the SQL IaaS extension and the SQL Connector for Azure Key Vault. The servers will be rebooted as part of the installation process.
+    These commands will add the SQL virtual machine resource for each of your SQL Servers. They will also install the SQL IaaS extension and the SQL Connector for Azure Key Vault. The servers will need to be rebooted as part of the installation process.
 
     ![Listing of all of the resources in the CloudShop1 resource group with the new SQL virtual machine resource highlighted.](images/2020-06-17-18-32-11.png "The SQL virtual machine resource.")
 
-    4. Restart each of the SQL virtual machines to complete the installation.
+4. Restart each of the SQL virtual machines to complete the installation.
 
 ### Task 3: Register an application in Azure Active Directory
 
@@ -215,7 +215,7 @@ In this task, you will create the Azure Key Vault resource that will store and p
 
 2. Type **Key Vault** into the search box, choose **Key Vault** from the list and then select **Create**.
 
-3. On the Create key vault blade, use the following configurations and then choose **Review + Create**.
+3. On the Create key vault blade, use the following configurations and then choose **Next: Access policy**.
 
     - Subscription: *Your subscription*
     - Resource group: **CloudShop2**
@@ -226,68 +226,73 @@ In this task, you will create the Azure Key Vault resource that will store and p
 
     ![The basics tab of the create key vault blade with the parameters configured.](images/2020-06-17-17-45-05.png "Create key vault.")
 
-4. On the review and create page, select **Create** to deploy your key vault.
+4. On the access policy tab, select the **+ Add Access Policy** button.
 
-5. After your Key Vault deployment completes, navigate to the resource, copy the **DNS Name** from the overview page and save it to Notepad for later use.
+    ![The access policy tab with the + add access policy button highlighted.](images/2020-06-18-17-02-16.png "Access policy.")
+
+5. On the Add access policy screen, select the **Configure from template** dropdown and choose **SQL Server Connector** from the list.
+
+    ![The add access policy screen with the SQL Server Connector option selected in the  configure from template dropdown.](images/2020-06-18-17-05-43.png "Configure from template.")
+
+6. Choose **Select principal**, then type **SQLKeyVaultIntegration**, select it from the list and then choose the **Select** button. 
+
+    ![The select a principal blade with SQLKeyVaultIntegration chosen.](images/2020-06-18-17-10-19.png "Select a principal.")
+
+7. On the add access policy page, select **Add**, then select **Review + create**.
+
+8. On the review and create page, select **Create** to deploy your key vault.
+
+9.  After your Key Vault deployment completes, navigate to the resource, copy the **DNS Name** from the overview page and save it to Notepad for later use.
 
     ![The Azure Key Vault overview page with the DNS name highlighted.](images/2020-06-17-18-46-02.png "Key vault overview.")
 
-### Task 5: Enabling and configuring Key Vault integration
+10. Create a key by selecting **Keys** from the settings menu, then selecting the **+Generate/Import** button. Use the following options to create the key and select **Create**.
 
-In this task, you will enable Key Vault integration on your SQL Servers.
+    ![](images/2020-06-18-18-49-48.png)
 
-1. From PowerShell ISE, login to Azure using the **Login-AzAccount** cmdlet.
+### Task 5: Configure the SQL Server resource provider integrated key vault
 
-2. If your account has access to multiple subscriptions, verify that you are in the correct subscription. If not, you can use **Select-AzureSubscription** to change the Azure subscription context of your PowerShell session.
+1. Navigate to the CloudShop resource group and open the **CloudShopSQL SQL virtual machine** resource.
 
-3. Run the following script to configure your Key Vault to allow the application access to the vault.
+    ![The CloudShopSQL Virtual machine and the CloudShopSQL SQL virtual machine resource are shown with the CloudShop SQL virtual machine resource highlighted.](images/2020-06-18-18-02-35.png "SQL virtual machine resource.")
 
-    ```powershell
-    $vaultName = "<your key vault name>"
-    $appId = "<the application id you saved previously>"
+2. Select **Security** from the settings menu.
 
-    Set-AzKeyVaultAccessPolicy -VaultName $vaultName -ServicePrincipalName $appId -PermissionsToKeys get,list,wrapkey,unwrapkey
-    ```
+    ![](images/2020-06-18-18-05-23.png)
 
-### Task 6: Enable TDE 
+3. On the Security page, use the following configurations and select **Apply**.
+
+    - Azure Key Vault integration: **Enabled**
+    - Principal name: *The application id for the application registration you created earlier*
+    - Principal secret: *The client secret you created in Azure AD*
+    - Credential name: **CloudShopSQL**
+
+4. Wait for the VM to be updated before proceeding.
+
+### Task 6: Enable TDE
 
 In this task, you will enable TDE leveraging your integrated key vault to store the keys.
 
-1. Enable the EKM provider for SQL.
+1. Login to your **CloudShopSQL** virtual machine with the **CONTOSO\demouser** account and launch **Microsoft SQL Server Management Studio**.
 
-    ```sql
-    -- Enable advanced options.  
-    USE master;  
-    GO  
-
-    EXEC sp_configure 'show advanced options', 1;  
-    GO  
-    RECONFIGURE;  
-    GO  
-
-    -- Enable EKM provider  
-    EXEC sp_configure 'EKM provider enabled', 1;  
-    GO  
-    RECONFIGURE;
-    ```
-2. Create a cryptographic provider by using the SQL Server Connector, which is an EKM provider for the Azure key vault. In this example, the provider name is AzureKeyVault_EKM.
-
-    ```sql
-    CREATE CRYPTOGRAPHIC PROVIDER AzureKeyVault_EKM   
-    FROM FILE = 'C:\Program Files\SQL Server Connector for Microsoft Azure Key Vault\Microsoft.AzureKeyVaultService.EKM.dll';  
-    GO
-    ```
-3. Create the credential and associate it with your login by executing the following script
+2. From a new query window, create the credential by executing the following script replacing the **IDENTITY** value with the name of your key vault (not the URL), and replacing the **SECRET** value with the the Application ID without hyphens and the client secret to be passed together without a space between them. 
 
     ```sql
     USE master;  
-    CREATE CREDENTIAL TDE_vault_cred   
+    CREATE CREDENTIAL TDEcred   
         WITH IDENTITY = '<your key vault name>', 
-        SECRET = '<client secret that you copied in a previous task>'   
-    FOR CRYPTOGRAPHIC PROVIDER AzureKeyVault_EKM;
+        SECRET = '<app id and client secret that you copied in a previous task>'   
+    FOR CRYPTOGRAPHIC PROVIDER AzureKeyVault_EKM_Prov;
+    ```
 
+    Your completed script should look similar to this:
+    ![T-SQL query window with the script above filled in with example values for identity and secret.](images/2020-06-18-18-36-37.png "Create the credential.")
+
+3. Associate the credential with your administrative login.
+
+    ```
     ALTER LOGIN [CONTOSO\demouser]  
-    ADD CREDENTIAL TDE_vault_cred;
+    ADD CREDENTIAL TDEcred;
     ```
 
 4. Create a key in your Azure Key Vault and open the key by executing the following T-SQL code.
@@ -295,25 +300,19 @@ In this task, you will enable TDE leveraging your integrated key vault to store 
     ```sql
     CREATE ASYMMETRIC KEY TDEKey   
     FROM PROVIDER [AzureKeyVault_EKM]  
-    WITH PROVIDER_KEY_NAME = 'TDEKey',  
+    WITH PROVIDER_KEY_NAME = 'CloudShopSQL',  
     CREATION_DISPOSITION = OPEN_EXISTING;
     ```
 
-5. Create a SQL Server login and add the credential from above to it. This Transact-SQL example uses the same key that was imported earlier.
+5. Create a SQL Server login and add the credential from above to it. This credential will be used by the database engine when it loads a database encrypted by TDE. This Transact-SQL example uses the same key that was imported earlier.
 
     ```sql
-    USE master;  
-    -- Create a SQL Server login associated with the asymmetric key   
-    -- for the Database engine to use when it loads a database   
-    -- encrypted by TDE.  
-    CREATE LOGIN TDE_Login   
+    CREATE LOGIN EKM_Login   
     FROM ASYMMETRIC KEY TDEKey;  
     GO   
-
-    -- Alter the TDE Login to add the credential for use by the   
-    -- Database Engine to access the key vault  
-    ALTER LOGIN TDE_Login   
-    ADD CREDENTIAL TDE_vault_cred;  
+  
+    ALTER LOGIN EKM_Login   
+    ADD CREDENTIAL CloudShopSQL;  
     GO
     ```
 
@@ -324,15 +323,14 @@ In this task, you will enable TDE leveraging your integrated key vault to store 
     GO  
 
     CREATE DATABASE ENCRYPTION KEY   
-    WITH ALGORITHM = AES_256   
+    WITH ALGORITHM = AES_128   
     ENCRYPTION BY SERVER ASYMMETRIC KEY TDEKey;  
     GO
     ```
 
 7. Turn on TDE by executing the following query.
 
-    ```sql
-    -- Alter the database to enable transparent data encryption.  
+    ```sql 
     ALTER DATABASE AdventureWorks   
     SET ENCRYPTION ON;  
     GO
@@ -340,7 +338,11 @@ In this task, you will enable TDE leveraging your integrated key vault to store 
 
 8. Using Management Studio, verify that TDE has been turned on by connecting to your database with Object Explorer. Right-click your database, point to **Tasks**, and then choose **Manage Database Encryption**.
 
+    ![The right-click menu is shown with tasks sub-menu open and the Manage Database Encryption task highlighted.](images/2020-06-18-19-43-30.png "Database Tasks menu.")
+
 9.  In the Manage Database Encryption dialog box, confirm that TDE is on, and that your asymmetric key is encrypting the DEK.
+
+    ![The Manage Database Encryption window is open with the asymmetric key and the set database encryption fields highlighted.](images/2020-06-18-19-44-38.png "Manage Database Encryption.")
 
 ## Exercise 2: SQL Backup solution
 
@@ -348,7 +350,17 @@ Duration: 30 minutes
 
 Backups must be maintained offsite from the on-premises environment. The backups must be online and accessible by the DBA team. To accomplish this, you will leverage the automated backup feature provided by the SQL Server resource provider. 
 
-### Task 1: Configure automated backup
+### Task 1: Create an Azure Storage account to hold backups
+
+In this task, you will create an Azure storage account that will be used as a target for the automated backups.
+
+1. From the Azure portal, select **+ Create a resource** and choose **Storage account** from the Azure Marketplace.
+
+2. Set the resource group to **CloudShop1**, choose a unique storage account name, set the location to the same location you deployed CloudShop1 into and verify that replication is set to **Read-access geo-redundant storage (RA-GRS)**. Leave all other settings at the default and choose **Review + create** then select **Create** on the validation screen.
+
+    ![The create storage account window with the resource group set to CloudShop1, a unique storage account name, the location set to the same region that CloudShop1 was deployed to and all other settings left at the default.](images/2020-06-18-20-57-17.png "Create storage account.")
+
+### Task 2: Configure automated backup
 
 In this task, you will configure automated backup using the SQL Server resource provider.
 
@@ -356,142 +368,26 @@ In this task, you will configure automated backup using the SQL Server resource 
 
 2. Login with username **demouser** and password **demo@pass123**.
 
-3. From within your SQL Server guest virtual machine, launch an **administrative PowerShell ISE session** type the following at the prompt and follow the prompts to login to your Azure subscription:
+3. Launch **SQL Server Management Studio** and connect to **CloudShopSQL**.
 
-    ```powershell
-    login-AzAccount
-    ```
+4.  Expand the databases folder, right-click the **AdventureWorks** database and select **Properties**.
 
-4. Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script:
+5.  On the Database Properties window, select **Options** then set the recovery model to **Full** and select the **OK** button. The full recovery model is required for databases that participate in automated backup and SQL Server Always On Availability Groups.
 
-   - Change the **$storageAcctName** variable to a unique name.
-   - Change the **$location** to match the location you are deploying into for this lab.
+    ![Database properties with the recovery model option set to full.](images/hands-on-lab/2019-03-24-22-31-59.png "Set the database recovery model to full")
 
-    ```powershell
-    $storageAcctName = "[unique storage account name]"
+6. From the Azure portal, navigate to your **CloudShop1** resource group and open the **CloudShopSQL SQL virtual machine** resource.
 
-    $resourceGroupName = "CloudShop2"
-    $containerName= "backups"
-    $location = "[choose the same region you used to deploy the CloudShop2 resource group]"
-    $storageSkuName = "Standard_LRS"
+    ![The CloudShopSQL Virtual machine and the CloudShopSQL SQL virtual machine resource are shown with the CloudShop SQL virtual machine resource highlighted.](images/2020-06-18-18-02-35.png "SQL virtual machine resource.")
 
-    "Creating Storage Account $storageAcctName"
-    $sa = New-AzStorageAccount -ResourceGroupName $resourceGroupName  `
-        -Name $storageAcctName `
-        -Location $location `
-        -Type $storageSkuName 
+7. From the SQL virtual machine blade, select **Backups** then use the following configurations and select **Apply**.
 
-    $storageKey = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -Name $storageAcctName
+    - Automated backup: **Enable**
+    - Retention period (days): **1**
+    - Storage account: ***Select the storage account you created in the previous task***
+    - Leave the other settings at the default settings. Note that you have options for encryption, backup of system databases and choosing either manual or automated backups. 
 
-    $context = New-AzStorageContext -StorageAccountName $storageAcctName -StorageAccountKey $storageKey[0].Value
-
-    Write-Host "Creating New Storage Container  $containerName" 
-    New-AzStorageContainer -name $containerName -context $context
-
-    $fullSasToken = New-AzStorageContainerSASToken -Name $containerName -Permission rwdl -FullUri -Context $context  
-    $containerUrl = $fullSasToken.Substring(0,$fullSasToken.IndexOf("?"))
-    $sasToken = $fullSasToken.Substring($fullSasToken.IndexOf("?")+1)
-
-    $enableManagedBackupScript = @"
-    --------------------
-    ---BEGIN TSQL Script
-    --------------------
-    CREATE CREDENTIAL [$containerUrl]
-    WITH IDENTITY = 'Shared Access Signature',
-         SECRET = '$sasToken'
-    GO
-
-    EXEC msdb.managed_backup.sp_backup_config_advanced  
-      @database_name = 'AdventureWorks'                
-      ,@encryption_algorithm ='AES_256'  
-      ,@encryptor_type = 'ASYMMETRIC_KEY'  
-      ,@encryptor_name = 'Name of asymmetric key';  
-    GO
-
-    EXEC msdb.managed_backup.sp_backup_config_basic
-     @enable_backup = 1,
-     @database_name = 'AdventureWorks',  
-     @container_url = '$containerUrl',
-     @retention_days = 30
-
-     --------------------
-     ---END TSQL Script
-     --------------------
-    "@
-
-    Write-Host $enableManagedBackupScript
-    ```
-
-    >**Note**: Due to differences between markdown and PowerShell formatting requirements, you may need to remove the white space prior to the **\"\@** near the end of the file.
-
-1. Save the T-SQL code generated between the **Begin TSQL Script** and **End TSQL Script** in your PowerShell ISE output after execution into a notepad file. This code creates an identity using a Shared Access Signature (SAS) to a container in the storage account and configures managed backup when executed.
-
-### Task 2: Configure managed backup in SQL Server
-
-1. From within your SQL Server virtual machine, launch SQL Server Management Studio and connect to the local database instance, expand databases, and select the **AdventureWorks** database.
-
-2. From within SQL Server Management Studio, select **New Query**.
-
-    ![A screen showing how to launch the new query pane in SQL Server Management Studio.](images/hands-on-lab/2019-03-20-11-08-08.png "Launching the new query pane")
-
-3. Refresh SQL Server Management Studio and if SQL Server Agent is stopped right-click on it and select Start.
-
-    ![SQL Server Management Studio indicating the location of where to see the current status of the SQL Server Agent.](images/hands-on-lab/2019-03-24-19-13-52.png "Management Studio")
-
-4. Paste in the following code and select **Execute** to enable SQL Server Agent extended stored procedures. After running the code, right-click the SQL Server Agent and select **Start**.
-
-    ```sql
-    EXEC sp_configure 'show advanced options', 1
-    GO
-    RECONFIGURE
-    GO
-    EXEC sp_configure 'Agent XPs', 1
-    GO
-    RECONFIGURE
-    GO
-    ```
-
-5. Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and select **Execute**. An example of the code is below. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
-
-    ```sql
-    #sample only do not execute
-    CREATE CREDENTIAL [https://<your_storage_account>.blob.core.windows.net/backups]
-    WITH IDENTITY = 'Shared Access Signature',
-    SECRET = '<your_sas_token>'
-    GO
-
-    EXEC msdb.managed_backup.sp_backup_config_basic
-        enable_backup = 1,
-        @database_name = 'AdventureWorks',
-        @container_url = 'https://<your_storage_account>.blob.core.windows.net/backups',
-        @retention_days = 30
-    ```
-
-6. Paste the code below into the query window replacing the existing code and select **Execute** to create a custom backup schedule.
-
-    ```sql
-    USE msdb;  
-    GO  
-    EXEC managed_backup.sp_backup_config_schedule   
-         @database_name =  'AdventureWorks'  
-        ,@scheduling_option = 'Custom'  
-        ,@full_backup_freq_type = 'Weekly'  
-        ,@days_of_week = 'Monday'  
-        ,@backup_begin_time =  '17:30'  
-        ,@backup_duration = '02:00'  
-        ,@log_backup_freq = '00:05'  
-    GO
-    ```
-
-7. Execute the following T-SQL in the query window to generate a backup on-demand. You can also specify Log for \@type to generate a transaction log backup.
-
-    ```sql
-    EXEC msdb.managed_backup.sp_backup_on_demand
-    @database_name  = 'AdventureWorks',
-    @type ='Database'
-    ```
-
-8. To verify that your backups are working, go to the Azure portal, navigate to your **CloudShop2** resource group. Open the storage account you just created, select the **Blobs** tile, then the **backups** container. You should see your backups here.
+    ![The SQL virtual machine backups configuration page with settings configured per the instructions.](images/2020-06-18-20-47-52.png "SQL virtual machine backup configuration.")
 
 ## Exercise 3: Implement a Data Archive Strategy with SQL Server Stretch Database
 
@@ -1030,50 +926,25 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 8. Open a remote desktop connection to the CloudShopSQL virtual machine and login using the **CONTOSO\\demouser** account. Note that this demouser account is the domain administrator account. You must type the domain name in, otherwise you will be logged in with the local administrator account.
 
-9. Your SQL Server Availability Group will require a file share to be used for the initial synchronization. Open up File Explorer and
-    create a new folder in the root of the C: drive called **AG**.
-
-10. Right-click the new folder and select **Give access to \> Specific people...**
-
-    ![File Explorer is shown with the right-click menu of the AG folder with Share with specific people highlighted.](images/2020-06-17-13-42-37.png "File Explorer")
-
-11. On the File Sharing window, select **Administrators** and select **Share**, then select **Done**.
-
-12. Launch **SQL Server Management Studio** and connect to **CloudShopSQL**.
-
-13. Expand the databases folder, right-click the **AdventureWorks** database and select **Properties**.
-
-14. On the Database Properties window, select **Options** then set the recovery model to **Full** and select the **OK** button. The full recovery model is required for databases that participate in SQL Server Always On Availability Groups.
-
-    ![Database properties with the recovery model option set to full.](images/hands-on-lab/2019-03-24-22-31-59.png "Set the database recovery model to full")
-
-15. Right-click the **AdventureWorks** database, select **Tasks** and choose **Back Up...**.
-
-    ![The AdventureWorks database is selected, then tasks is selected and backup is selected.](images/hands-on-lab/2019-03-24-22-39-23.png "Backup the database")
-
-16. On the Back Up Database - AdventureWorks window, choose to backup to disk, select **Add**, and set the destination to **C:\\Data\\AdventureWorks.bak**, then select **OK** and select **OK** again to initiate the backup.
-
-    ![Backup destination is selected from the backup wizard.](images/hands-on-lab/2019-03-24-22-46-39.png "Backup the database")
-
-17. From the SQL Server Management Studio CloudShopSQL connection, right-click **AlwaysOn High Availability** then select **New Availability Group Wizard...**
+9.  From within SQL Server Management Studio, right-click **AlwaysOn High Availability** then select **New Availability Group Wizard...**
     
     ![SQL Server Management Studio with the CloudShopSQL instance shown, the Always On High Availability folder highlighted with the New Availability Group Wizard selected.](images/hands-on-lab/2019-03-24-22-21-28.png "Launch the New Availability Group Wizard")
 
-18. Select **Next** on the Introduction screen.
+10. Select **Next** on the Introduction screen.
 
-19. Specify **AdventureWorks** for the name of the availability group and select **Next**.
+11. Specify **AdventureWorks** for the name of the availability group and select **Next**.
 
     ![Specify the availability group options is shown with the availability group name set to AdventureWorks.](images/hands-on-lab/2019-03-24-22-24-47.png "Specify the name of the availability group")
 
-20. Double-click the password field next to the **AdventureWorks** database and enter the password **demo@pass123** and select **Refresh**. The status of the database should state that it \"Meets prerequisites\" meaning that the database is in Full recovery mode and that you have supplied the correct password for the database master key. Select **Next**.
+12. Double-click the password field next to the **AdventureWorks** database and enter the password **demo@pass123** and select **Refresh**. The status of the database should state that it \"Meets prerequisites\" meaning that the database is in Full recovery mode and that you have supplied the correct password for the database master key. Select **Next**.
 
     ![AdventureWorks database is selected, the status shows that it meets prerequisites and the password has been filled in.](images/hands-on-lab/2019-03-24-23-02-02.png "Select database")
 
-21. On the Specify Replicas tab, select the **Add Replica...** button and connect to CloudShopSQL2 and CloudShopSQL3.
+13. On the Specify Replicas tab, select the **Add Replica...** button and connect to CloudShopSQL2 and CloudShopSQL3.
 
     ![The Specify Replicas window is shown, the add replica button has been selected and the connection shows a new connection to CloudShopSQL being established.](images/hands-on-lab/2019-03-24-23-05-41.png "Specify Replicas")
 
-22. Select the **Listener** tab, select the **Create an availability group listener** radio button, set the following values for the
+14. Select the **Listener** tab, select the **Create an availability group listener** radio button, set the following values for the
     listener, then select **Add**.
 
     - Listener DNS Name: **AdventureWorks**
@@ -1084,19 +955,19 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![The specify replicas listener tab is selected, create an availability group listener is selected with the correct values entered.](images/hands-on-lab/2019-03-24-23-09-42.png "Specify replicas listener tab")
 
-23. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use **172.16.1.8**, then select **Next**.
+15. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use **172.16.1.8**, then select **Next**.
 
     ![The listener IP addresses are now shown in the specify replicas window.](images/hands-on-lab/2019-03-24-23-15-53.png "Specifying listener ip addresses")
 
-24. Ensure that **Automatic seeding** is selected. Select **Next** to continue.
+16. Ensure that **Automatic seeding** is selected. Select **Next** to continue.
 
     ![Select Initial Data Synchronization window with autommatic seeding selected.](images/2020-06-17-14-42-14.png "Select initial data synchronization")
 
-25. The validation tests will run automatically. They should all show success. Select **Next**.
+17. The validation tests will run automatically. They should all show success. Select **Next**.
 
     ![The validations window is shown with all validation marked as successful.](images/hands-on-lab/2019-03-24-23-21-45.png "Validation")
 
-26. Verify your configuration then select **Finish** to build the Availability Group. Select **Close** after the wizard completes.
+18. Verify your configuration then select **Finish** to build the Availability Group. Select **Close** after the wizard completes.
 
 ### Task 3: Create the Internal Load Balancer
 

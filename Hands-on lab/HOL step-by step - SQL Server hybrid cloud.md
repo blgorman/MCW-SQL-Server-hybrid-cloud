@@ -207,6 +207,8 @@ In this task, you will register an application in Azure Active Directory so that
 
     ![The Certificates and secrets page, the new secret is listed under client secrets and the secret value is highlighted.](images/2020-06-17-17-28-15.png "Client secrets")
 
+9. **`Verify that your client secret does not contain hyphens. The command that is used to parse and store this secret in SQL Server cannot currently parse hyphens. If the client secret that is generated does contain hyphens, you must generate a new client secret`**.
+
 ### Task 4: Create the Azure Key Vault
 
 In this task, you will create the Azure Key Vault resource that will store and protect secrets used by your SQL Server virtual machines.
@@ -262,6 +264,8 @@ In this task, you will create the Azure Key Vault resource that will store and p
 
 3. On the Security page, use the following configurations and select **Apply**.
 
+    >**NOTE**: The create credential command used in the next task cannot parse hyphens. If your client secret has hyphens you must go back to your App registration in Azure AD and generate a new client secret.
+
     - Azure Key Vault integration: **Enabled**
     - Principal name: *The application id for the application registration you created earlier*
     - Principal secret: *The client secret you created in Azure AD*
@@ -272,6 +276,8 @@ In this task, you will create the Azure Key Vault resource that will store and p
 ### Task 6: Enable TDE
 
 In this task, you will enable TDE leveraging your integrated key vault to store the keys.
+
+>**NOTE**: The create credential command used in the steps below cannot parse hyphens. If your client secret has hyphens you must go back to your App registration in Azure AD and generate a new client secret.
 
 1. Login to your **CloudShopSQL** virtual machine with the **CONTOSO\demouser** account and launch **Microsoft SQL Server Management Studio**.
 
@@ -286,6 +292,7 @@ In this task, you will enable TDE leveraging your integrated key vault to store 
     ```
 
     Your completed script should look similar to this:
+    
     ![T-SQL query window with the script above filled in with example values for identity and secret.](images/2020-06-18-18-36-37.png "Create the credential.")
 
 3. Associate the credential with your administrative login.

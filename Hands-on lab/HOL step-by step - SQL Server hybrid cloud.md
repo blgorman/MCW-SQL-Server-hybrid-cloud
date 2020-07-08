@@ -127,7 +127,7 @@ In this task, you will install the Azure PowerShell cmdlets on your SQL Servers.
 
 2. Login with username **demouser** and password **demo@pass123**.
 
-3. Launch an administrative PowerShell ISE session  
+3. Launch an administrative PowerShell ISE session.  
 
     ![The Windows Start menu with the PowerShell ISE tile highlighted, the More option highlighted from the menu and the Run as administrator option chosen.](images/2020-06-17-16-33-22.png "PowerShell ISE Run as administrator menu item.")
 
@@ -151,7 +151,7 @@ In this task, you will register the SQL VM resource provider in full mode for al
 
 2. If your account has access to multiple subscriptions, verify that you are in the correct subscription. If not, you can use **Select-AzureSubscription** to change the Azure subscription context of your PowerShell session.
 
-3. Execute the following script to register the SQL VM resource provider in your subscriptions and register your VMs.
+3. Execute the following script to register the SQL VM resource provider in your subscriptions and register your VMs:
 
     ```powershell
     Register-AzResourceProvider -ProviderNamespace Microsoft.SqlVirtualMachine
@@ -190,21 +190,21 @@ In this task, you will register an application in Azure Active Directory so that
 
 5. On the SQLKeyVaultIntegration page, copy the **Application (client) ID** and save it in a text editor for later use.
 
-    ![The SQLKeyVaultIntegration app registration page with the application ID highlighted.](images/2020-06-17-17-12-34.png "The application id.")
+    ![The SQLKeyVaultIntegration app registration page with the application ID highlighted.](images/2020-06-17-17-12-34.png "The application ID")
 
 6. Select the **Certificates & secrets** from the menu and then choose the **+ New client secret** button.
 
-    ![The certificates and secrets page with certificates and secrets and the new client secret button highlighted.](images/2020-06-17-17-18-47.png "The Certificates and secrets page.")
+    ![The certificates and secrets page with certificates and secrets and the new client secret button highlighted.](images/2020-06-17-17-18-47.png "Certificates and secrets page")
 
 7. On the Add a client secret popup, type **SQL Server/Key Vault integration** for the description, leave the expiration set to **1 year** and select **Add**.
 
-    ![The add a client secret page with the description filled in and 1 year is selected.](images/2020-06-17-17-21-57.png "Add a client secret.")
+    ![The add a client secret page with the description filled in and 1 year is selected.](images/2020-06-17-17-21-57.png "Add a client secret")
 
 8. The new client secret is now listed under **Client secrets**. Copy the **Value** and save it to Notepad, once you navigate away from this page you will no longer be able to retrieve this secret.
 
     ![The Certificates and secrets page, the new secret is listed under client secrets and the secret value is highlighted.](images/2020-06-17-17-28-15.png "Client secrets")
 
-9. **`Verify that your client secret does not contain hyphens. The command that is used to parse and store this secret in SQL Server cannot currently parse hyphens. If the client secret that is generated does contain hyphens, you must generate a new client secret`**.
+9. **Verify that your client secret does not contain hyphens**. The command that is used to parse and store this secret in SQL Server cannot currently parse hyphens. If the client secret that is generated does contain hyphens, you must generate a new client secret.
 
 ### Task 4: Create the Azure Key Vault
 
@@ -218,24 +218,24 @@ In this task, you will create the Azure Key Vault resource that will store and p
 
     - Subscription: *Your subscription*
     - Resource group: **CloudShop2**
-    - Key vault name: *A unique name for your key vault*
-    - Region: *The region you used for the CloudShop2 resources*
+    - Key vault name: *A unique name for your key vault*.
+    - Region: *The region you used for the CloudShop2 resources*.
     - Pricing tier: **Standard**
     - Soft delete: **Disable**
 
-    ![The basics tab of the create key vault blade with the parameters configured.](images/2020-06-17-17-45-05.png "Create key vault.")
+    ![The basics tab of the create key vault blade with the parameters configured.](images/2020-06-17-17-45-05.png "Create key vault")
 
 4. On the access policy tab, select the **+ Add Access Policy** button.
 
-    ![The access policy tab with the + add access policy button highlighted.](images/2020-06-18-17-02-16.png "Access policy.")
+    ![The access policy tab with the + add access policy button highlighted.](images/2020-06-18-17-02-16.png "Access policy")
 
 5. On the Add access policy screen, select the **Configure from template** dropdown and choose **SQL Server Connector** from the list.
 
-    ![The add access policy screen with the SQL Server Connector option selected in the  configure from template dropdown.](images/2020-06-18-17-05-43.png "Configure from template.")
+    ![The add access policy screen with the SQL Server Connector option selected in the  configure from template dropdown.](images/2020-06-18-17-05-43.png "Configure from template")
 
 6. Choose **Select principal**, then type **SQLKeyVaultIntegration**, select it from the list and then choose the **Select** button. 
 
-    ![The select a principal blade with SQLKeyVaultIntegration chosen.](images/2020-06-18-17-10-19.png "Select a principal.")
+    ![The select a principal blade with SQLKeyVaultIntegration chosen.](images/2020-06-18-17-10-19.png "Select a principal")
 
 7. On the add access policy page, select **Add**, then select **Review + create**.
 
@@ -261,11 +261,11 @@ In this task, you will create the Azure Key Vault resource that will store and p
 
 3. On the Security page, use the following configurations and select **Apply**.
 
-    >**NOTE**: The create credential command used in the next task cannot parse hyphens. If your client secret has hyphens you must go back to your App registration in Azure AD and generate a new client secret.
+    >**Note**: The create credential command used in the next task cannot parse hyphens. If your client secret has hyphens you must go back to your App registration in Azure AD and generate a new client secret.
 
     - Azure Key Vault integration: **Enabled**
-    - Principal name: *The application id for the application registration you created earlier*
-    - Principal secret: *The client secret you created in Azure AD*
+    - Principal name: *The application id for the application registration you created earlier*.
+    - Principal secret: *The client secret you created in Azure AD*.
     - Credential name: **CloudShopSQL**
 
 4. Wait for the VM to be updated before proceeding.
@@ -342,11 +342,11 @@ In this task, you will enable TDE leveraging your integrated key vault to store 
 
 8. Using Management Studio, verify that TDE has been turned on by connecting to your database with Object Explorer. Right-click your database, point to **Tasks**, and then choose **Manage Database Encryption**.
 
-    ![The right-click menu is shown with tasks sub-menu open and the Manage Database Encryption task highlighted.](images/2020-06-18-19-43-30.png "Database Tasks menu.")
+    ![The right-click menu is shown with tasks sub-menu open and the Manage Database Encryption task highlighted.](images/2020-06-18-19-43-30.png "Database Tasks menu")
 
 9.  In the Manage Database Encryption dialog box, confirm that TDE is on, and that your asymmetric key is encrypting the DEK.
 
-    ![The Manage Database Encryption window is open with the asymmetric key and the set database encryption fields highlighted.](images/2020-06-18-19-44-38.png "Manage Database Encryption.")
+    ![The Manage Database Encryption window is open with the asymmetric key and the set database encryption fields highlighted.](images/2020-06-18-19-44-38.png "Manage Database Encryption")
 
 ## Exercise 2: SQL Backup solution
 
@@ -548,7 +548,7 @@ Duration: 60 minutes
 
 In this exercise, you will create an archive solution using table partitioning. The goal of partitioning the table is to minimize the impact of the archival process on the production database and to minimize the size of the database overall to improve performance of the maintenance jobs. We will use monthly partitions to accomplish these goals.
 
-> **Note**: This is an alternate archive solution. It is not necessary to complete this exercise if you have already completed exercise 2.
+> **Note**: This is an alternate archive solution. It is not necessary to complete this exercise if you have already completed Exercise 2.
 
 ### Task 1: Create the archive database
 
@@ -602,7 +602,7 @@ In this task, we will create a new partitioned table which will be used to hold 
 
 1.  From SQL Server Management Studio on your **CloudShopSQL** virtual machine, open a new query window.
 
-2.  Create a partition function for the new partitioned table that you will create. For now, we will create the table with enough partitions to accommodate all of the data that is currently in the Sales.ResellersSales table. Paste the following code into your query window and execute it.
+2.  Create a partition function for the new partitioned table that you will create. For now, we will create the table with enough partitions to accommodate all of the data that is currently in the Sales.ResellersSales table. Paste the following code into your query window and execute it:
 
     ```sql
     USE AdventureWorks
@@ -615,7 +615,7 @@ In this task, we will create a new partitioned table which will be used to hold 
     ,'20040101','20040201','20040301','20040401','20040501','20040601');
     ```
 
-3.  Create the partition scheme for your table. Copy, paste and execute the following code into a new query window.
+3.  Create the partition scheme for your table. Copy, paste and execute the following code into a new query window:
 
     ```sql
     CREATE PARTITION SCHEME psResellerSales
@@ -623,7 +623,7 @@ In this task, we will create a new partitioned table which will be used to hold 
     ALL TO ([Primary]);
     ```
 
-4.  Create the new partitioned table using the partition scheme defined in the previous step. Copy, paste and execute the following code into a new query window.
+4.  Create the new partitioned table using the partition scheme defined in the previous step. Copy, paste and execute the following code into a new query window:
 
     ```sql
     -- Create the new partitioned table on the Partition Scheme
@@ -655,7 +655,7 @@ In this task, we will create a new partitioned table which will be used to hold 
     ) ON psResellerSales(OrderDateKey);
     ```
 
-5.  Load the data from **Sales.ResellerSales** into your new table by executing the following statement in a new query window in SQL Server Management Studio.
+5.  Load the data from **Sales.ResellerSales** into your new table by executing the following statement in a new query window in SQL Server Management Studio:
 
     ```sql
     -- Load the new partitioned table
@@ -720,7 +720,7 @@ In this task, you will move data from the new partitioned table to the table in 
          ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
     ```
 
-3.  Before we move any data let's take a look at how our data is distributed across our existing partitions. Execute the following code in SQL Server Management Studio.
+3.  Before we move any data let's take a look at how our data is distributed across our existing partitions. Execute the following code in SQL Server Management Studio:
 
     ```sql
     -- View partition info

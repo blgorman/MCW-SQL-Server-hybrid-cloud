@@ -400,7 +400,7 @@ In this task, you will configure automated backup using the SQL Server resource 
 
 Duration: 30 minutes
 
-There are numerous ways to implement an archive strategy in SQL Server. The easiest way to do this is through the SQL Server Stretch Database feature. A more common approach is to leverage table partitioning to separate historical data from current data. If you wish to implement table partitioning to archive data skip to **Exercise 3**.
+There are numerous ways to implement an archive strategy in SQL Server. The easiest way to do this is through the SQL Server Stretch Database feature. A more common approach is to leverage table partitioning to separate historical data from current data. If you wish to implement table partitioning to archive data skip to **Exercise 4**.
 
 In this exercise, you will implement SQL Server Stretch Database to stretch data from a table into Azure.
 

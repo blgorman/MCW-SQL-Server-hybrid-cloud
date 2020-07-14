@@ -46,16 +46,19 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
     - [Task 1: Create a logical SQL Server to host Stretch DB](#task-1-create-a-logical-sql-server-to-host-stretch-db)
     - [Task 2: Identify tables that may benefit from Stretch DB](#task-2-identify-tables-that-may-benefit-from-stretch-db)
     - [Task 3: Implement Stretch DB based on date key](#task-3-implement-stretch-db-based-on-date-key)
+  - [Summary](#summary)
   - [Exercise 4: Create an archive solution using table partitioning](#exercise-4-create-an-archive-solution-using-table-partitioning)
     - [Task 1: Create the archive database](#task-1-create-the-archive-database)
     - [Task 2: Create the new partitioned table](#task-2-create-the-new-partitioned-table)
     - [Task 3: Move data from the partitioned table to the archive database](#task-3-move-data-from-the-partitioned-table-to-the-archive-database)
+  - [Summary](#summary-1)
   - [Exercise 5: Build SQL Availability Group for Database Disaster Recovery](#exercise-5-build-sql-availability-group-for-database-disaster-recovery)
     - [Task 1: Create the cluster](#task-1-create-the-cluster)
     - [Task 2: Create the SQL Server Availability Group](#task-2-create-the-sql-server-availability-group)
     - [Task 3: Create the Internal Load Balancer](#task-3-create-the-internal-load-balancer)
     - [Task 4: Validate the Availability Group](#task-4-validate-the-availability-group)
     - [Task 5: Update the Web Application to Connect to the Listener](#task-5-update-the-web-application-to-connect-to-the-listener)
+    - [Summary](#summary-2)
   - [Exercise 6: Configure Azure Site Recovery for Web Tier DR](#exercise-6-configure-azure-site-recovery-for-web-tier-dr)
     - [Task 1: Create a Recovery Services Vault](#task-1-create-a-recovery-services-vault)
     - [Task 2: Configure Azure Site Recovery](#task-2-configure-azure-site-recovery)
@@ -247,7 +250,7 @@ In this task, you will create the Azure Key Vault resource that will store and p
 
 10. Create a key by selecting **Keys** from the settings menu, then selecting the **+Generate/Import** button. Use the following options to create the key and select **Create**.
 
-    ![](images/2020-06-18-18-49-48.png)
+    ![The create a key window is shown with options set to generate, name set to CloudShopSQL, Key Type set to RSA, Key Size set to 2048 and enabled set to Yes.](images/2020-06-18-18-49-48.png "Create a key")
 
 ### Task 5: Configure the SQL Server resource provider integrated key vault
 
@@ -257,7 +260,7 @@ In this task, you will create the Azure Key Vault resource that will store and p
 
 2. Select **Security** from the settings menu.
 
-    ![](images/2020-06-18-18-05-23.png)
+    ![The CloudShopSQL virtual machine blade is shown with the Security menu item highlighted.](images/2020-06-18-18-05-23.png "The CloudShopSQL virtual machine menu")
 
 3. On the Security page, use the following configurations and select **Apply**.
 

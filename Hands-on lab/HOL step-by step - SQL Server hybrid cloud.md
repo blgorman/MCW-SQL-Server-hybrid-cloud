@@ -9,7 +9,7 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-October 2019
+June 2020
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -18,7 +18,7 @@ Microsoft may have patents, patent applications, trademarks, copyrights, or othe
 
 The names of manufacturers, products, or URLs are provided for informational purposes only and Microsoft makes no representations and warranties, either expressed, implied, or statutory, regarding these manufacturers or the use of the products with any Microsoft technologies. The inclusion of a manufacturer or product does not imply endorsement of Microsoft of the manufacturer or product. Links may be provided to third party sites. Such sites are not under the control of Microsoft and Microsoft is not responsible for the contents of any linked site or any link contained in a linked site, or any changes or updates to such sites. Microsoft is not responsible for webcasting or any other form of transmission received from any linked site. Microsoft is providing these links to you only as a convenience, and the inclusion of any link does not imply endorsement of Microsoft of the site or the products contained therein.
 
-© 2019 Microsoft Corporation. All rights reserved.
+© 2020 Microsoft Corporation. All rights reserved.
 
 Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/Usage/General.aspx are trademarks of the Microsoft group of companies. All other trademarks are property of their respective owners.
 
@@ -32,31 +32,35 @@ Microsoft and the trademarks listed at https://www.microsoft.com/en-us/legal/int
   - [Solution architecture](#solution-architecture)
   - [Requirements](#requirements)
     - [Help references](#help-references)
-  - [Exercise 1: SQL Backup solution](#exercise-1-sql-backup-solution)
-    - [Task 1: Create an Azure Storage Account](#task-1-create-an-azure-storage-account)
-    - [Task 2: Configure managed backup in SQL Server](#task-2-configure-managed-backup-in-sql-server)
-  - [Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-2-implement-a-data-archive-strategy-with-sql-server-stretch-database)
-    - [Task 1: Crete a logical SQL Server to host Stretch DB](#task-1-crete-a-logical-sql-server-to-host-stretch-db)
+  - [Exercise 1: Configure Azure Key Vault integration with the SQL VM resource provider.](#exercise-1-configure-azure-key-vault-integration-with-the-sql-vm-resource-provider)
+    - [Task 1: Install Azure PowerShell cmdlets](#task-1-install-azure-powershell-cmdlets)
+    - [Task 2: Register the SQL VM resource provider](#task-2-register-the-sql-vm-resource-provider)
+    - [Task 3: Register an application in Azure Active Directory](#task-3-register-an-application-in-azure-active-directory)
+    - [Task 4: Create the Azure Key Vault](#task-4-create-the-azure-key-vault)
+    - [Task 5: Configure the SQL Server resource provider integrated key vault](#task-5-configure-the-sql-server-resource-provider-integrated-key-vault)
+    - [Task 6: Enable TDE](#task-6-enable-tde)
+  - [Exercise 2: SQL Backup solution](#exercise-2-sql-backup-solution)
+    - [Task 1: Create an Azure Storage account to hold backups](#task-1-create-an-azure-storage-account-to-hold-backups)
+    - [Task 2: Configure automated backup](#task-2-configure-automated-backup)
+  - [Exercise 3: Implement a Data Archive Strategy with SQL Server Stretch Database](#exercise-3-implement-a-data-archive-strategy-with-sql-server-stretch-database)
+    - [Task 1: Create a logical SQL Server to host Stretch DB](#task-1-create-a-logical-sql-server-to-host-stretch-db)
     - [Task 2: Identify tables that may benefit from Stretch DB](#task-2-identify-tables-that-may-benefit-from-stretch-db)
     - [Task 3: Implement Stretch DB based on date key](#task-3-implement-stretch-db-based-on-date-key)
-  - [Summary](#summary)
-  - [Exercise 3: Create an archive solution using table partitioning](#exercise-3-create-an-archive-solution-using-table-partitioning)
+  - [Exercise 4: Create an archive solution using table partitioning](#exercise-4-create-an-archive-solution-using-table-partitioning)
     - [Task 1: Create the archive database](#task-1-create-the-archive-database)
     - [Task 2: Create the new partitioned table](#task-2-create-the-new-partitioned-table)
     - [Task 3: Move data from the partitioned table to the archive database](#task-3-move-data-from-the-partitioned-table-to-the-archive-database)
-  - [Summary](#summary-1)
-  - [Exercise 4: Build SQL Availability Group for Database Disaster Recovery](#exercise-4-build-sql-availability-group-for-database-disaster-recovery)
+  - [Exercise 5: Build SQL Availability Group for Database Disaster Recovery](#exercise-5-build-sql-availability-group-for-database-disaster-recovery)
     - [Task 1: Create the cluster](#task-1-create-the-cluster)
     - [Task 2: Create the SQL Server Availability Group](#task-2-create-the-sql-server-availability-group)
     - [Task 3: Create the Internal Load Balancer](#task-3-create-the-internal-load-balancer)
     - [Task 4: Validate the Availability Group](#task-4-validate-the-availability-group)
     - [Task 5: Update the Web Application to Connect to the Listener](#task-5-update-the-web-application-to-connect-to-the-listener)
-    - [Summary](#summary-2)
-  - [Exercise 5: Configure Azure Site Recovery for Web Tier DR](#exercise-5-configure-azure-site-recovery-for-web-tier-dr)
+  - [Exercise 6: Configure Azure Site Recovery for Web Tier DR](#exercise-6-configure-azure-site-recovery-for-web-tier-dr)
     - [Task 1: Create a Recovery Services Vault](#task-1-create-a-recovery-services-vault)
     - [Task 2: Configure Azure Site Recovery](#task-2-configure-azure-site-recovery)
     - [Task 3: Creating the Recovery Plan](#task-3-creating-the-recovery-plan)
-  - [Exercise 6: Failing Over to the Disaster Recovery Site](#exercise-6-failing-over-to-the-disaster-recovery-site)
+  - [Exercise 7: Failing Over to the Disaster Recovery Site](#exercise-7-failing-over-to-the-disaster-recovery-site)
     - [Task 1: Failover the Data Tier](#task-1-failover-the-data-tier)
     - [Task 2: Failover the Web Tier](#task-2-failover-the-web-tier)
     - [Task 3: Validate Failover of the CloudShop application](#task-3-validate-failover-of-the-cloudshop-application)
@@ -109,167 +113,291 @@ Cloud based disaster recovery site.
 | Virtual Network Peering | <https://docs.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview> |
 | Azure Backup |  <https://azure.microsoft.com/en-us/services/backup/> |
 
-## Exercise 1: SQL Backup solution
+## Exercise 1: Configure Azure Key Vault integration with the SQL VM resource provider.
 
-Duration: 30 minutes
+Duration: 60 minutes
 
-Backups must be maintained offsite from the on-premises environment. The backups must be online and accessible by the DBA team. To accomplish this, you will configure SQL Managed Backup.
+To help protect and manage encryption keys, you need to leverage Azure Key Vault. To minimize the administrative overhead, you will use the SQL Server virtual machine resource provider to allow the SQL Servers to integrate with the Key Vault. You will then enable TDE on the database leveraging keys stored in Azure Key Vault.
 
-### Task 1: Create an Azure Storage Account
+### Task 1: Install Azure PowerShell cmdlets
 
-In this task, you will create an Azure Storage Account for use with SQL Managed Backup.
+In this task, you will install the Azure PowerShell cmdlets on your SQL Servers.
 
-1. Connect to your CloudShopSQL virtual machine by navigating to your **CloudShop1** resource group and then connecting to the **CloudShopSQL**  virtual machine.
+1. Connect to your **CloudShopSQL** virtual machine by navigating to your **CloudShop1** resource group and then connecting to the **CloudShopSQL**  virtual machine.
 
 2. Login with username **demouser** and password **demo@pass123**.
 
-3. Launch **Server Manager**, select **Local Server** from the menu on the left and verify that **IE Enhanced Security Configuration** is set to **Off**.
+3. Launch an administrative PowerShell ISE session.  
 
-    ![Server manager application with local server selected and IE Enhanced Security Configuration set to Off.](images/hands-on-lab/2019-03-24-18-38-33.png "Server Manager local server configuration")
+    ![The Windows Start menu with the PowerShell ISE tile highlighted, the More option highlighted from the menu and the Run as administrator option chosen.](images/2020-06-17-16-33-22.png "PowerShell ISE Run as administrator menu item.")
 
-4. From within your SQL Server guest virtual machine, install Azure PowerShell by launching an **administrative PowerShell ISE session** and running the following command. Accept any warnings or authorization to install the components.
+4. Execute the following code (approve any popups about NuGet or untrusted repositories):
 
     ```powershell
     Install-Module -Name Az -AllowClobber -Scope AllUsers
     ```
 
-5. From the PowerShell ISE, type the following at the prompt and follow the prompts to login to your Azure subscription:
+5. Repeat the above steps for **CloudShopSQL2** and **CloudShopSQL3**.
+
+### Task 2: Register the SQL VM resource provider
+
+In this task, you will register the SQL VM resource provider in full mode for all of your existing SQL Server virtual machines.
+
+1. From a machine with Azure PowerShell cmdlets installed, launch the PowerShell ISE and login to Azure using the Az-LoginAccount command.
 
     ```powershell
-    login-AzAccount
+    Login-AzAccount
     ```
 
-6. Execute the following PowerShell commands in the PowerShell ISE to create a new storage account and generate the T-SQL needed to configure managed backup for the database. Before executing the script:
+2. If your account has access to multiple subscriptions, verify that you are in the correct subscription. If not, you can use **Select-AzureSubscription** to change the Azure subscription context of your PowerShell session.
 
-   - Change the **$storageAcctName** variable to a unique name.
-   - Change the location to match the location you are deploying into for this lab.
+3. Execute the following script to register the SQL VM resource provider in your subscriptions and register your VMs:
 
     ```powershell
-    $storageAcctName = "[unique storage account name]"
+    Register-AzResourceProvider -ProviderNamespace Microsoft.SqlVirtualMachine
 
-    $resourceGroupName = "CloudShop2"
-    $containerName= "backups"
-    $location = "[choose the same region you used to deploy the CloudShop2 resource group]"
-    $storageSkuName = "Standard_LRS"
+    $vm = Get-AzVM -Name CloudShopSQL -ResourceGroupName CloudShop1
+    New-AzSqlVM -Name $vm.Name -ResourceGroupName $vm.ResourceGroupName -SqlManagementType Full -LicenseType PAYG -Location $vm.Location 
 
-    "Creating Storage Account $storageAcctName"
-    $sa = New-AzStorageAccount -ResourceGroupName $resourceGroupName  `
-        -Name $storageAcctName `
-        -Location $location `
-        -Type $storageSkuName 
+    $vm = Get-AzVM -Name CloudShopSQL2 -ResourceGroupName CloudShop2
+    New-AzSqlVM -Name $vm.Name -ResourceGroupName $vm.ResourceGroupName -SqlManagementType Full -LicenseType PAYG -Location $vm.Location
 
+    $vm = Get-AzVM -Name CloudShopSQL3 -ResourceGroupName CloudShop2
+    New-AzSqlVM -Name $vm.Name -ResourceGroupName $vm.ResourceGroupName -SqlManagementType Full -LicenseType PAYG -Location $vm.Location
+    ```
+
+    These commands will add the SQL virtual machine resource for each of your SQL Servers. They will also install the SQL IaaS extension and the SQL Connector for Azure Key Vault. The servers will need to be rebooted as part of the installation process.
+
+    ![Listing of all of the resources in the CloudShop1 resource group with the new SQL virtual machine resource highlighted.](images/2020-06-17-18-32-11.png "The SQL virtual machine resource.")
+
+4. Restart each of the SQL virtual machines to complete the installation.
+
+### Task 3: Register an application in Azure Active Directory
+
+In this task, you will register an application in Azure Active Directory so that you can leverage a Service Principal account to access your Key Vault.
+
+1. From the Azure portal, navigate to **Azure Active Directory**.
+
+2. From the Azure Active Directory blade, under the Manage menu, select **App registrations**.
+
+    ![The Azure AD Manage menu with App registrations highlighted.](images/2020-06-17-16-55-39.png "The Azure AD Manage menu")
+
+3. On the App registrations page, select the **+ New registration** button.
+
+4. On the Register an application page, type **SQLKeyVaultIntegration** for the name, leave **Accounts in this organizational directory only** radio button selected, and type **https://sqlkeyvault** for the Redirect URI then select **Register**.
+
+    ![The register an application window with the name and redirect URI fields filled in.](images/2020-06-17-17-05-39.png "Register an application")
+
+5. On the SQLKeyVaultIntegration page, copy the **Application (client) ID** and save it in a text editor for later use.
+
+    ![The SQLKeyVaultIntegration app registration page with the application ID highlighted.](images/2020-06-17-17-12-34.png "The application ID")
+
+6. Select the **Certificates & secrets** from the menu and then choose the **+ New client secret** button.
+
+    ![The certificates and secrets page with certificates and secrets and the new client secret button highlighted.](images/2020-06-17-17-18-47.png "Certificates and secrets page")
+
+7. On the Add a client secret popup, type **SQL Server/Key Vault integration** for the description, leave the expiration set to **1 year** and select **Add**.
+
+    ![The add a client secret page with the description filled in and 1 year is selected.](images/2020-06-17-17-21-57.png "Add a client secret")
+
+8. The new client secret is now listed under **Client secrets**. Copy the **Value** and save it to Notepad, once you navigate away from this page you will no longer be able to retrieve this secret.
+
+    ![The Certificates and secrets page, the new secret is listed under client secrets and the secret value is highlighted.](images/2020-06-17-17-28-15.png "Client secrets")
+
+9. **Verify that your client secret does not contain hyphens**. The command that is used to parse and store this secret in SQL Server cannot currently parse hyphens. If the client secret that is generated does contain hyphens, you must generate a new client secret.
+
+### Task 4: Create the Azure Key Vault
+
+In this task, you will create the Azure Key Vault resource that will store and protect secrets used by your SQL Server virtual machines.
+
+1. From the Azure portal, navigate to your **CloudShop2** resource group and select the **+ Add** button.
+
+2. Type **Key Vault** into the search box, choose **Key Vault** from the list and then select **Create**.
+
+3. On the Create key vault blade, use the following configurations and then choose **Next: Access policy**.
+
+    - Subscription: *Your subscription*
+    - Resource group: **CloudShop2**
+    - Key vault name: *A unique name for your key vault*.
+    - Region: *The region you used for the CloudShop2 resources*.
+    - Pricing tier: **Standard**
+    - Soft delete: **Disable**
+
+    ![The basics tab of the create key vault blade with the parameters configured.](images/2020-06-17-17-45-05.png "Create key vault")
+
+4. On the access policy tab, select the **+ Add Access Policy** button.
+
+    ![The access policy tab with the + add access policy button highlighted.](images/2020-06-18-17-02-16.png "Access policy")
+
+5. On the Add access policy screen, select the **Configure from template** dropdown and choose **SQL Server Connector** from the list.
+
+    ![The add access policy screen with the SQL Server Connector option selected in the  configure from template dropdown.](images/2020-06-18-17-05-43.png "Configure from template")
+
+6. Choose **Select principal**, then type **SQLKeyVaultIntegration**, select it from the list and then choose the **Select** button. 
+
+    ![The select a principal blade with SQLKeyVaultIntegration chosen.](images/2020-06-18-17-10-19.png "Select a principal")
+
+7. On the add access policy page, select **Add**, then select **Review + create**.
+
+8. On the review and create page, select **Create** to deploy your key vault.
+
+9.  After your Key Vault deployment completes, navigate to the resource, copy the **DNS Name** from the overview page and save it to Notepad for later use.
+
+    ![The Azure Key Vault overview page with the DNS name highlighted.](images/2020-06-17-18-46-02.png "Key vault overview.")
+
+10. Create a key by selecting **Keys** from the settings menu, then selecting the **+Generate/Import** button. Use the following options to create the key and select **Create**.
+
+    ![The create a key window is shown with options set to generate, name set to CloudShopSQL, Key Type set to RSA, Key Size set to 2048 and enabled set to Yes.](images/2020-06-18-18-49-48.png "Create a key")
+
+### Task 5: Configure the SQL Server resource provider integrated key vault
+
+1. Navigate to the CloudShop resource group and open the **CloudShopSQL SQL virtual machine** resource.
+
+    ![The CloudShopSQL Virtual machine and the CloudShopSQL SQL virtual machine resource are shown with the CloudShop SQL virtual machine resource highlighted.](images/2020-06-18-18-02-35.png "SQL virtual machine resource.")
+
+2. Select **Security** from the settings menu.
+
+    ![The CloudShopSQL virtual machine blade is shown with the Security menu item highlighted.](images/2020-06-18-18-05-23.png "The CloudShopSQL virtual machine menu")
+
+3. On the Security page, use the following configurations and select **Apply**.
+
+    >**Note**: The create credential command used in the next task cannot parse hyphens. If your client secret has hyphens you must go back to your App registration in Azure AD and generate a new client secret.
+
+    - Azure Key Vault integration: **Enabled**
+    - Principal name: *The application id for the application registration you created earlier*.
+    - Principal secret: *The client secret you created in Azure AD*.
+    - Credential name: **CloudShopSQL**
+
+4. Wait for the VM to be updated before proceeding.
+
+### Task 6: Enable TDE
+
+In this task, you will enable TDE leveraging your integrated key vault to store the keys.
+
+>**Note**: The create credential command used in the steps below cannot parse hyphens. If your client secret has hyphens you must go back to your App registration in Azure AD and generate a new client secret.
+
+1. Login to your **CloudShopSQL** virtual machine with the **CONTOSO\demouser** account and launch **Microsoft SQL Server Management Studio**.
+
+2. From a new query window, create the credential by executing the following script replacing the **IDENTITY** value with the name of your key vault (not the URL), and replacing the **SECRET** value with the Application ID without hyphens and the client secret to be passed together without a space between them. 
+
+    ```sql
+    USE master;  
+    CREATE CREDENTIAL TDEcred   
+        WITH IDENTITY = '<your key vault name>', 
+        SECRET = '<app id and client secret that you copied in a previous task>'   
+    FOR CRYPTOGRAPHIC PROVIDER AzureKeyVault_EKM_Prov;
+    ```
+
+    Your completed script should look similar to this:
     
-    $storageKey = Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -Name $storageAcctName
+    ![T-SQL query window with the script above filled in with example values for identity and secret.](images/2020-06-18-18-36-37.png "Create the credential.")
 
-    $context = New-AzStorageContext -StorageAccountName $storageAcctName -StorageAccountKey $storageKey[0].Value
+3. Associate the credential with your administrative login.
 
-    Write-Host "Creating New Storage Container  $containerName" 
-    New-AzStorageContainer -name $containerName -context $context
-
-    $fullSasToken = New-AzStorageContainerSASToken -Name $containerName -Permission rwdl -FullUri -Context $context  
-    $containerUrl = $fullSasToken.Substring(0,$fullSasToken.IndexOf("?"))
-    $sasToken = $fullSasToken.Substring($fullSasToken.IndexOf("?")+1)
-
-    $enableManagedBackupScript = @"
-    --------------------
-    ---BEGIN TSQL Script
-    --------------------
-    CREATE CREDENTIAL [$containerUrl]
-    WITH IDENTITY = 'Shared Access Signature',
-         SECRET = '$sasToken'
-
-    GO
-
-    EXEC msdb.managed_backup.sp_backup_config_basic
-     @enable_backup = 1,
-     @database_name = 'AdventureWorks',  
-     @container_url = '$containerUrl',
-     @retention_days = 30
-
-     --------------------
-     ---END TSQL Script
-     --------------------
-    "@
-
-    Write-Host $enableManagedBackupScript
+    ```
+    ALTER LOGIN [CONTOSO\demouser]  
+    ADD CREDENTIAL TDEcred;
     ```
 
-    >**Note**: Due to differences between markdown and PowerShell formatting requirements, you may need to remove the white space prior to the **\"\@** near the end of the file.
-
-7. Save the T-SQL code generated between the **Begin TSQL Script** and **End TSQL Script** in your PowerShell ISE output after execution into a notepad file. This code creates an identity using a Shared Access Signature (SAS) to a container in the storage account and configures managed backup when executed.
-
-### Task 2: Configure managed backup in SQL Server
-
-1. From within your SQL Server virtual machine, launch SQL Server Management Studio and connect to the local database instance, expand databases, and select the **AdventureWorks** database.
-
-2. From within SQL Server Management Studio, select **New Query**.
-
-    ![A screen showing how to launch the new query pane in SQL Server Management Studio.](images/hands-on-lab/2019-03-20-11-08-08.png "Launching the new query pane")
-
-3. Refresh SQL Server Management Studio and if SQL Server Agent is stopped right-click on it and select Start.
-
-    ![SQL Server Management Studio indicating the location of where to see the current status of the SQL Server Agent.](images/hands-on-lab/2019-03-24-19-13-52.png "Management Studio")
-
-4. Paste in the following code and select **Execute** to enable SQL Server Agent extended stored procedures. After running the code, right-click the SQL Server Agent and select **Start**.
+4. Create a key in your Azure Key Vault and open the key by executing the following T-SQL code.
 
     ```sql
-    EXEC sp_configure 'show advanced options', 1
-    GO
-    RECONFIGURE
-    GO
-    EXEC sp_configure 'Agent XPs', 1
-    GO
-    RECONFIGURE
+    CREATE ASYMMETRIC KEY TDEKey   
+    FROM PROVIDER [AzureKeyVault_EKM]  
+    WITH PROVIDER_KEY_NAME = 'CloudShopSQL',  
+    CREATION_DISPOSITION = OPEN_EXISTING;
+    ```
+
+5. Create a SQL Server login and add the credential from above to it. This credential will be used by the database engine when it loads a database encrypted by TDE. This Transact-SQL example uses the same key that was imported earlier.
+
+    ```sql
+    CREATE LOGIN EKM_Login   
+    FROM ASYMMETRIC KEY TDEKey;  
+    GO   
+  
+    ALTER LOGIN EKM_Login   
+    ADD CREDENTIAL CloudShopSQL;  
     GO
     ```
 
-5. Paste the T-SQL code you copied at the end of the previous task into the query window replacing the existing code and select **Execute**. An example of the code is below. This code creates the new SQL identity with a Shared Access Signature for your storage account. 
+6. Create the database encryption key (DEK) by executing the following query. The DEK will encrypt your data and log files in the database instance, and in turn be encrypted by the Azure Key Vault asymmetric key.
 
     ```sql
-    #sample only do not execute
-    CREATE CREDENTIAL [https://<your_storage_account>.blob.core.windows.net/backups]
-    WITH IDENTITY = 'Shared Access Signature',
-    SECRET = '<your_sas_token>'
-    GO
-
-    EXEC msdb.managed_backup.sp_backup_config_basic
-        enable_backup = 1,
-        @database_name = 'AdventureWorks',
-        @container_url = 'https://<your_storage_account>.blob.core.windows.net/backups',
-        @retention_days = 30
-    ```
-
-6. Paste the code below into the query window replacing the existing code and select **Execute** to create a custom backup schedule.
-
-    ```sql
-    USE msdb;  
+    USE AdventureWorks;  
     GO  
-    EXEC managed_backup.sp_backup_config_schedule   
-         @database_name =  'AdventureWorks'  
-        ,@scheduling_option = 'Custom'  
-        ,@full_backup_freq_type = 'Weekly'  
-        ,@days_of_week = 'Monday'  
-        ,@backup_begin_time =  '17:30'  
-        ,@backup_duration = '02:00'  
-        ,@log_backup_freq = '00:05'  
+
+    CREATE DATABASE ENCRYPTION KEY   
+    WITH ALGORITHM = AES_128   
+    ENCRYPTION BY SERVER ASYMMETRIC KEY TDEKey;  
     GO
     ```
 
-7. Execute the following T-SQL in the query window to generate a backup on-demand. You can also specify Log for \@type to generate a transaction log backup.
+7. Turn on TDE by executing the following query.
 
-    ```sql
-    EXEC msdb.managed_backup.sp_backup_on_demand
-    @database_name  = 'AdventureWorks',
-    @type ='Database'
+    ```sql 
+    ALTER DATABASE AdventureWorks   
+    SET ENCRYPTION ON;  
+    GO
     ```
 
-8. To verify that your backups are working, go to the Azure portal, navigate to your **CloudShop2** resource group. Open the storage account you just created, select the **Blobs** tile, then the **backups** container. You should see your backups here.
+8. Using Management Studio, verify that TDE has been turned on by connecting to your database with Object Explorer. Right-click your database, point to **Tasks**, and then choose **Manage Database Encryption**.
 
-## Exercise 2: Implement a Data Archive Strategy with SQL Server Stretch Database
+    ![The right-click menu is shown with tasks sub-menu open and the Manage Database Encryption task highlighted.](images/2020-06-18-19-43-30.png "Database Tasks menu")
+
+9.  In the Manage Database Encryption dialog box, confirm that TDE is on, and that your asymmetric key is encrypting the DEK.
+
+    ![The Manage Database Encryption window is open with the asymmetric key and the set database encryption fields highlighted.](images/2020-06-18-19-44-38.png "Manage Database Encryption")
+
+## Exercise 2: SQL Backup solution
 
 Duration: 30 minutes
 
-There are numerous ways to implement an archive strategy in SQL Server. The easiest way to do this is through the SQL Server Stretch Database feature. A more common approach is to leverage table partitioning to separate historical data from current data. If you wish to implement table partitioning to archive data skip to **Exercise 3**.
+Backups must be maintained offsite from the on-premises environment. The backups must be online and accessible by the DBA team. To accomplish this, you will leverage the automated backup feature provided by the SQL Server resource provider. 
+
+### Task 1: Create an Azure Storage account to hold backups
+
+In this task, you will create an Azure storage account that will be used as a target for the automated backups.
+
+1. From the Azure portal, select **+ Create a resource** and choose **Storage account** from the Azure Marketplace.
+
+2. Set the resource group to **CloudShop1**, choose a unique storage account name, set the location to the same location you deployed CloudShop1 into and verify that replication is set to **Read-access geo-redundant storage (RA-GRS)**. Leave all other settings at the default and choose **Review + create** then select **Create** on the validation screen.
+
+    ![The create storage account window with the resource group set to CloudShop1, a unique storage account name, the location set to the same region that CloudShop1 was deployed to and all other settings left at the default.](images/2020-06-18-20-57-17.png "Create storage account.")
+
+### Task 2: Configure automated backup
+
+In this task, you will configure automated backup using the SQL Server resource provider.
+
+1. Connect to your CloudShopSQL virtual machine by navigating to your **CloudShop1** resource group and then connecting to the **CloudShopSQL**  virtual machine.
+
+2. Login with username **demouser** and password **demo@pass123**.
+
+3. Launch **SQL Server Management Studio** and connect to **CloudShopSQL**.
+
+4.  Expand the databases folder, right-click the **AdventureWorks** database and select **Properties**.
+
+5.  On the Database Properties window, select **Options** then set the recovery model to **Full** and select the **OK** button. The full recovery model is required for databases that participate in automated backup and SQL Server Always On Availability Groups.
+
+    ![Database properties with the recovery model option set to full.](images/hands-on-lab/2019-03-24-22-31-59.png "Set the database recovery model to full")
+
+6. From the Azure portal, navigate to your **CloudShop1** resource group and open the **CloudShopSQL SQL virtual machine** resource.
+
+    ![The CloudShopSQL Virtual machine and the CloudShopSQL SQL virtual machine resource are shown with the CloudShop SQL virtual machine resource highlighted.](images/2020-06-18-18-02-35.png "SQL virtual machine resource.")
+
+7. From the SQL virtual machine blade, select **Backups** then use the following configurations and select **Apply**.
+
+    - Automated backup: **Enable**
+    - Retention period (days): **1**
+    - Storage account: ***Select the storage account you created in the previous task***
+    - Leave the other settings at the default settings. Note that you have options for encryption, backup of system databases and choosing either manual or automated backups. 
+
+    ![The SQL virtual machine backups configuration page with settings configured per the instructions.](images/2020-06-18-20-47-52.png "SQL virtual machine backup configuration.")
+
+## Exercise 3: Implement a Data Archive Strategy with SQL Server Stretch Database
+
+Duration: 30 minutes
+
+There are numerous ways to implement an archive strategy in SQL Server. The easiest way to do this is through the SQL Server Stretch Database feature. A more common approach is to leverage table partitioning to separate historical data from current data. If you wish to implement table partitioning to archive data skip to **Exercise 4**.
 
 In this exercise, you will implement SQL Server Stretch Database to stretch data from a table into Azure.
 
@@ -414,13 +542,13 @@ In this exercise, you will implement SQL Server Stretch Database to stretch data
 
 In this exercise, you implemented an archive solution with Stretch Database. First, you reviewed the table compatibility by using the Enable Database for Stretch wizard. You then configured your database and table via T-SQL to archive data satisfied by a stretch predicate. Finally, you reviewed the progress, status and space used locally and in Azure via the built-in management tools
 
-## Exercise 3: Create an archive solution using table partitioning
+## Exercise 4: Create an archive solution using table partitioning
 
 Duration: 60 minutes
 
 In this exercise, you will create an archive solution using table partitioning. The goal of partitioning the table is to minimize the impact of the archival process on the production database and to minimize the size of the database overall to improve performance of the maintenance jobs. We will use monthly partitions to accomplish these goals.
 
-> **Note**: This is an alternate archive solution. It is not necessary to complete this exercise if you have already completed exercise 2.
+> **Note**: This is an alternate archive solution. It is not necessary to complete this exercise if you have already completed Exercise 2.
 
 ### Task 1: Create the archive database
 
@@ -474,7 +602,7 @@ In this task, we will create a new partitioned table which will be used to hold 
 
 1.  From SQL Server Management Studio on your **CloudShopSQL** virtual machine, open a new query window.
 
-2.  Create a partition function for the new partitioned table that you will create. For now, we will create the table with enough partitions to accommodate all of the data that is currently in the Sales.ResellersSales table. Paste the following code into your query window and execute it.
+2.  Create a partition function for the new partitioned table that you will create. For now, we will create the table with enough partitions to accommodate all of the data that is currently in the Sales.ResellersSales table. Paste the following code into your query window and execute it:
 
     ```sql
     USE AdventureWorks
@@ -487,7 +615,7 @@ In this task, we will create a new partitioned table which will be used to hold 
     ,'20040101','20040201','20040301','20040401','20040501','20040601');
     ```
 
-3.  Create the partition scheme for your table. Copy, paste and execute the following code into a new query window.
+3.  Create the partition scheme for your table. Copy, paste and execute the following code into a new query window:
 
     ```sql
     CREATE PARTITION SCHEME psResellerSales
@@ -495,7 +623,7 @@ In this task, we will create a new partitioned table which will be used to hold 
     ALL TO ([Primary]);
     ```
 
-4.  Create the new partitioned table using the partition scheme defined in the previous step. Copy, paste and execute the following code into a new query window.
+4.  Create the new partitioned table using the partition scheme defined in the previous step. Copy, paste and execute the following code into a new query window:
 
     ```sql
     -- Create the new partitioned table on the Partition Scheme
@@ -527,7 +655,7 @@ In this task, we will create a new partitioned table which will be used to hold 
     ) ON psResellerSales(OrderDateKey);
     ```
 
-5.  Load the data from **Sales.ResellerSales** into your new table by executing the following statement in a new query window in SQL Server Management Studio.
+5.  Load the data from **Sales.ResellerSales** into your new table by executing the following statement in a new query window in SQL Server Management Studio:
 
     ```sql
     -- Load the new partitioned table
@@ -554,6 +682,8 @@ In this task, you will move data from the new partitioned table to the table in 
 2.  Copy and paste the following code into the query window and execute it. This code creates the work table that we will switch our oldest partition into. The table must be identical to the original table including indexing.
 
     ```sql
+    USE AdventureWorks
+    GO
     -- Create the work table
     -- This is the table we will switch out to
     CREATE TABLE Sales.ResellerSalesWork (
@@ -590,7 +720,7 @@ In this task, you will move data from the new partitioned table to the table in 
          ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
     ```
 
-3.  Before we move any data let's take a look at how our data is distributed across our existing partitions. Execute the following code in SQL Server Management Studio.
+3.  Before we move any data let's take a look at how our data is distributed across our existing partitions. Execute the following code in SQL Server Management Studio:
 
     ```sql
     -- View partition info
@@ -690,7 +820,7 @@ In this task, you will move data from the new partitioned table to the table in 
 
 In this exercise, you implemented an archive solution with table partitioning. You created a partitioned table to replace the existing Sales.ResellerSales table. You allowed the legacy reports to maintain access to the current and historical data by creating a view across both the historical archive table and the new current data stored in the partitioned table. 
 
-## Exercise 4: Build SQL Availability Group for Database Disaster Recovery
+## Exercise 5: Build SQL Availability Group for Database Disaster Recovery
 
 Duration: 60 minutes
 
@@ -706,7 +836,8 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 2. Navigate to your **CloudShop1** resource group and open your **CloudShopSQL** virtual machine and connect to it via Remote Desktop.
 
-3. Login with the **CONTOSO\demouser** domain account with password **demo@pass123**. Note that this is NOT the same account that you have been using, this is a domain account.
+3. Login with the **CONTOSO\demouser** domain account with password **demo@pass123**. 
+    > **Note**: This is NOT the same account that you have been using, this is a domain account. You must use a domain account that is an local administrator on all nodes of the cluster to properly configure Windows Failover Clustering.
 
 4. Launch Server Manager if it does not start automatically.
 
@@ -720,9 +851,9 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 8. On the **Select destination server** page, select the current server and select **Next**.
 
-9. On the **Select server roles** page, accept the defaults and select **Next**.
+9.  On the **Select server roles** page, accept the defaults and select **Next**.
 
-10. On the **Select features** page, select **Failover Clustering**, then select **Add Features** on the popup and then select **Next**.
+10. On the **Select features** page, select **Failover Clustering**, then verify that **Include management tools** is checked and select **Add Features** on the popup and then select **Next**.
 
     ![The add roles and features wizard with Failover Clustering selected on the select features page.](images/hands-on-lab/2019-03-24-20-03-47.png "Add Failover Clustering")
 
@@ -761,7 +892,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 22. On CloudShopSQL, open the PowerShell ISE and execute the following code:
 
     ```
-    New-Cluster -Name CLUST01 -Node CloudShopSQL, CloudShopSQL2, CloudShopSQl3 -StaticAddress 10.0.1.7, 172.16.1.7  -NoStorage
+    New-Cluster -Name CLUST01 -Node CloudShopSQL, CloudShopSQL2, CloudShopSQL3 -StaticAddress 10.0.1.7, 172.16.1.7 -NoStorage
     ```
     > **Note**: This command requires that you be logged in with an account that is an administrator on all nodes specified. For this lab you should use **CONTOSO\demouser**.
 
@@ -775,7 +906,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 ### Task 2: Create the SQL Server Availability Group
 
-1. On CloudShopSQL, launch **SQL Server 2017 Configuration Manager**.
+1. On CloudShopSQL, launch **SQL Server 2019 Configuration Manager**.
 
 2. Select **SQL Server Services**, then right-click **SQL Server (MSSQLSERVER)** and select **Properties**.
 
@@ -799,50 +930,25 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 8. Open a remote desktop connection to the CloudShopSQL virtual machine and login using the **CONTOSO\\demouser** account. Note that this demouser account is the domain administrator account. You must type the domain name in, otherwise you will be logged in with the local administrator account.
 
-9. Your SQL Server Availability Group will require a file share to be used for the initial synchronization. Open up File Explorer and
-    create a new folder in the root of the C: drive called **AG**.
-
-10. Right-click the new folder and select **Share with \> Specific people...**
-
-    ![File Explorer is shown with the right-click menu of the AG folder with Share with specific people highlighted.](images/hands-on-lab/2019-03-24-21-57-15.png "File Explorer")
-
-11. On the File Sharing window, select **Administrators** and select **Share**, then select **Done**.
-
-12. Launch **SQL Server Management Studio** and connect to **CloudShopSQL**.
-
-13. Expand the databases folder, right-click the **AdventureWorks** database and select **Properties**.
-
-14. On the Database Properties window, select **Options** then set the recovery model to **Full** and select the **OK** button. The full recovery model is required for databases that participate in SQL Server Always On Availability Groups.
-
-    ![Database properties with the recovery model option set to full.](images/hands-on-lab/2019-03-24-22-31-59.png "Set the database recovery model to full")
-
-15. Right-click the **AdventureWorks** database, select **Tasks** and choose **Back Up...**.
-
-    ![The AdventureWorks database is selected, then tasks is selected and backup is selected.](images/hands-on-lab/2019-03-24-22-39-23.png "Backup the database")
-
-16. On the Back Up Database - AdventureWorks window, choose to backup to disk, select **Add**, and set the destination to **C:\\Data\\AdventureWorks.bak**, then select **OK** and select **OK** again to initiate the backup.
-
-    ![Backup destination is selected from the backup wizard.](images/hands-on-lab/2019-03-24-22-46-39.png "Backup the database")
-
-17. From the SQL Server Management Studio CloudShopSQL connection, right-click **AlwaysOn High Availability** then select **New Availability Group Wizard...**
+9.  From within SQL Server Management Studio, right-click **AlwaysOn High Availability** then select **New Availability Group Wizard...**
     
     ![SQL Server Management Studio with the CloudShopSQL instance shown, the Always On High Availability folder highlighted with the New Availability Group Wizard selected.](images/hands-on-lab/2019-03-24-22-21-28.png "Launch the New Availability Group Wizard")
 
-18. Select **Next** on the Introduction screen.
+10. Select **Next** on the Introduction screen.
 
-19. Specify **AdventureWorks** for the name of the availability group and select **Next**.
+11. Specify **AdventureWorks** for the name of the availability group and select **Next**.
 
     ![Specify the availability group options is shown with the availability group name set to AdventureWorks.](images/hands-on-lab/2019-03-24-22-24-47.png "Specify the name of the availability group")
 
-20. Double-click the password field next to the **AdventureWorks** database and enter the password **demo@pass123** and select **Refresh**. The status of the database should state that it \"Meets prerequisites\" meaning that the database is in Full recovery mode and that you have supplied the correct password for the database master key. Select **Next**.
+12. Double-click the password field next to the **AdventureWorks** database and enter the password **demo@pass123** and select **Refresh**. The status of the database should state that it \"Meets prerequisites\" meaning that the database is in Full recovery mode and that you have supplied the correct password for the database master key. Select **Next**.
 
     ![AdventureWorks database is selected, the status shows that it meets prerequisites and the password has been filled in.](images/hands-on-lab/2019-03-24-23-02-02.png "Select database")
 
-21. On the Specify Replicas tab, select the **Add Replica...** button and connect to CloudShopSQL2 and CloudShopSQL3.
+13. On the Specify Replicas tab, select the **Add Replica...** button and connect to CloudShopSQL2 and CloudShopSQL3.
 
     ![The Specify Replicas window is shown, the add replica button has been selected and the connection shows a new connection to CloudShopSQL being established.](images/hands-on-lab/2019-03-24-23-05-41.png "Specify Replicas")
 
-22. Select the **Listener** tab, select the **Create an availability group listener** radio button, set the following values for the
+14. Select the **Listener** tab, select the **Create an availability group listener** radio button, set the following values for the
     listener, then select **Add**.
 
     - Listener DNS Name: **AdventureWorks**
@@ -853,19 +959,19 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![The specify replicas listener tab is selected, create an availability group listener is selected with the correct values entered.](images/hands-on-lab/2019-03-24-23-09-42.png "Specify replicas listener tab")
 
-23. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use **172.16.1.8**, then select **Next**.
+15. You will need to add two IP addresses for the listener, for the first use **10.0.1.8** and for the other use **172.16.1.8**, then select **Next**.
 
     ![The listener IP addresses are now shown in the specify replicas window.](images/hands-on-lab/2019-03-24-23-15-53.png "Specifying listener ip addresses")
 
-24. Ensure that **Full database and log backup** is selected and use **\\\\CloudShopSQL\\ag** for the network share. Select **Next** to continue.
+16. Ensure that **Automatic seeding** is selected. Select **Next** to continue.
 
-    ![Select the full database and log backup is chosen with the AG fileshare used as the shared backup location.](images/hands-on-lab/2019-03-24-23-19-12.png "Select initial data synchronization")
+    ![Select Initial Data Synchronization window with autommatic seeding selected.](images/2020-06-17-14-42-14.png "Select initial data synchronization")
 
-25. The validation tests will run automatically. They should all show success. Select **Next**.
+17. The validation tests will run automatically. They should all show success. Select **Next**.
 
     ![The validations window is shown with all validation marked as successful.](images/hands-on-lab/2019-03-24-23-21-45.png "Validation")
 
-26. Verify your configuration then select **Finish** to build the Availability Group. Select **Close** after the wizard completes.
+18. Verify your configuration then select **Finish** to build the Availability Group. Select **Close** after the wizard completes.
 
 ### Task 3: Create the Internal Load Balancer
 
@@ -875,12 +981,12 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     ![Create the load balancer resource.](images/hands-on-lab/2019-03-24-23-37-54.png "Add the load balancer")
 
-3. On the Create load balancer blade, configure the following options, then select **Review + Create**:
+3. On the Create load balancer blade, configure the following options, then select **Review + Create** and **Create** to deploy the load balancer:
 
     - Subscription: ***Your subscription***.
     - Resource group: **CloudShop2**
     - Name: **sqlag**
-    - Region: ***Choose the region you have used for this lab***.
+    - Region: ***Choose the region where you deployed CloudShopSQL2 and CloudShopSQL3***.
     - Type: **Internal**
     - SKU: **Basic**
     - Virtual network: **VNET2**
@@ -892,6 +998,8 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 4. Navigate back to your resource group and select the **sqlag** load balancer you just created.
 
+    ![List of resources in the CloudShop2 resource group are shown with the sqlag load balancer resource highlighted.](images/2020-06-17-14-00-18.png "Load balancer")
+
 5. On the sqlag load balancer blade, select **Backend pools**, then select the **+Add** button.
 
     ![The Load Balancer blade with backend pools selected.](images/hands-on-lab/2019-03-24-23-49-52.png "Add a backend pool")
@@ -900,26 +1008,23 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
     - Name: **sqlpool**
     - IP version: **IPv4** 
-    - Associated to: **Availability set**
-    - Availability set: **SQLAvSet2**
+    - Associated to: **Virtual machines**
 
-        ![Adding the backend pool.](images/hands-on-lab/2019-03-24-23-52-15.png "Add backend pool")
+        ![Adding the backend pool.](images/2020-06-17-14-03-33.png "Add backend pool")
 
-7.  select the **+ Add a target network IP configuration** button.
+7.  Under the **Virtual machines** section, select the **+ Add** button.
 
-    ![The add a target network IP configuration button.](images/hands-on-lab/2019-03-24-23-54-54.png "Add a target network IP configuration")
+    ![The add a target network IP configuration button.](images/2020-06-17-14-05-53.png "Add a virtual machine")
 
-8.  Select **CloudShopSQL2** for the Target virtual machine, and select **ipconfig1 (172.16.1.5)** for the Network IP configuration. 
+8.  Select **CloudShopSQL2** and **CloudShopSQL3** virtual machines, and select **Add**. 
    
     >**Note**: Your IP address may be different than our example.
 
-    ![Selecting CloudShopSQL2 ipconfig as a backend target.](images/hands-on-lab/2019-03-24-23-59-23.png "Select the target ip configuration")
+    ![Selecting CloudShopSQL2 ipconfig as a backend target.](images/2020-06-17-14-16-44.png "Select the target ip configuration")
 
-9.  Repeat steps 7-8 to add **CloudShopSQL3**. DO NOT ADD other machines to the backend pool. Select **OK** then wait for the load balancer to complete the update.
+9.  On the sqlag load balancer blade, select **Health Probes** and select the **+Add** button.
 
-10. On the sqlag load balancer blade, select **Health Probes** and select the **+Add** button.
-
-11. On the Add health probe blade, use the following configuration values then select **OK** and wait for the load balancer to complete
+10. On the Add health probe blade, use the following configuration values then select **OK** and wait for the load balancer to complete
     the update.
 
     >**Note**: If you receive an error your load balancer may still be updating itself from the prior step. Wait a minute and try again.
@@ -932,9 +1037,11 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![Health probe configuration showing port 59999 as the probe port.](images/hands-on-lab/2019-03-25-00-09-54.png "Health probe configuration")
 
-12. On the sqlag load balancer blade, select **Load balancing rules** and then select the **+Add** button.
+11. On the sqlag load balancer blade, select **Load balancing rules** and then select the **+Add** button.
 
-13. On the Add load balancing rule blade, use the following configuration values then select **OK** and wait for the load balancer to complete the update.
+    >**Note**: If your add button is greyed out and you have a message that states *Updating* then your load balancer is still configuring the prior steps. If it does not complete in a few minutes you can refresh the browser until it is available.
+
+12. On the Add load balancing rule blade, use the following configuration values then select **OK** and wait for the load balancer to complete the update.
 
     - Name: **sqlrules**
     - IP Version: **IPv4**
@@ -950,13 +1057,13 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
         ![Adding load balancer rule for floating IP with all configurations set.](images/hands-on-lab/2019-03-25-17-51-59.png "Load balancer rule configurations")
 
-14. Next we need to verify our cluster's network names. Open the **Failover Cluster Manager**, expand **CLUST01**, select **Networks** then double-select **Cluster Network 2** to open the properties. Verify that Cluster Network 2's subnet is set to **172.16.1.0/24**. In some cases, the cluster deployment may reverse the names it assign to the cluster networks. If your subnet does not match here, then you will simply change the name of the cluster network in the script below to reflect this.
+13. Next we need to verify our cluster's network names. Open the **Failover Cluster Manager**, expand **CLUST01**, select **Networks** then double-click **Cluster Network 2** to open the properties. Verify that Cluster Network 2's subnet is set to **172.16.1.0/24**. In some cases, the cluster deployment may reverse the names it assigns to the cluster networks. If your subnet does not match here, then you will simply change the name of the cluster network in the script below to reflect this.
     
     ![The Failover Cluster Manager with Cluster Network 2 properties page open. The subnet is highlighted.](images/hands-on-lab/2019-06-19-12-44-26.png "Cluster Network 2 properties")
 
-15. Open an **Administrative** PowerShell ISE session on **CloudShopSQL2**.
+14. Open an **Administrative** PowerShell ISE session on **CloudShopSQL2**.
 
-16. Copy the following PowerShell script to the script window. If your Cluster Network 2 did not match the 172.16.1.0/24 subnet, then change the $ClusterNetworkName variable to \"Cluster Network 1\". If your subnet did match then you do not need to make this change. Execute the script to configure your cluster for the probe port:
+15. Copy the following PowerShell script to the script window. If your Cluster Network 2 did not match the 172.16.1.0/24 subnet, then change the $ClusterNetworkName variable to \"Cluster Network 1\". If your subnet did match then you do not need to make this change. Execute the script to configure your cluster for the probe port:
 
     ```powershell
     $ClusterNetworkName = "Cluster Network 2"
@@ -1016,7 +1123,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 12. On the summary window, select **Finish**, then select **Close** on successful completion of the failover.
 
-13. From CloudShopSQL2 or CloudShopSQL3, connect to your **AdventureWorks** listener and open a new Query Window by selecting connect in SSMS and using AdventureWorks for the server name.
+13. From CloudShopSQL2, connect to your **AdventureWorks** listener and open a new Query Window by selecting connect in SSMS and using AdventureWorks for the server name.
 
     >**Note**: We must test from the same virtual network as our Internal Load Balancer. Internal Load Balancers do not currently support connectivity across peered networks.
 
@@ -1050,7 +1157,7 @@ In this task, you will create the underlying Windows Failover Cluster which is t
 
 In this exercise, you deployed a Windows Failover Cluster and a SQL Always-On Availability Group for database resiliency. Also, you deployed and configured an internal load balancer to support the Availability Group in Azure. Finally, you validated your configuration by failing over to one of your secondary nodes and connecting to the Availability Group Listener.
 
-## Exercise 5: Configure Azure Site Recovery for Web Tier DR 
+## Exercise 6: Configure Azure Site Recovery for Web Tier DR 
 
 Duration: 15 minutes
 
@@ -1081,7 +1188,7 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
    
 2. Select **Site recovery infrastructure** from the menu on the left and then choose **Network mapping**.
 
-3. Select the **+Add mapping** button. Set your source network to VNET1 and your target network to VNET2.
+3. Select the **+ Network mapping** button. Set your source network to VNET1 and your target network to VNET2.
 
     ![Network mapping is shown across VNET1 and VNET2.](images/hands-on-lab/2019-03-26-03-20-41.png "Add network mapping")
 
@@ -1089,9 +1196,9 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
     ![The recovery services vault blade with site recovery highlighted.](images/hands-on-lab/2019-03-25-23-46-47.png "Setup Site Recovery")
 
-5. Under **FOR ON-PREMISES MACHINES AND AZURE VMS** select **Step 1: Replicate Application**.
+5. Under **For on-premises machines and Azure VMs** select **Step 1: Replicate Application**.
 
-    ![An image that depicts Azure Site Recovery. Step 1: Replicate Application is highlighted.](images/hands-on-lab/2019-03-25-23-48-09.png "Replicate application Settings")
+    ![The Azure Site Recovery blade. Step 1: Replicate Application is highlighted.](images/hands-on-lab/2019-03-25-23-48-09.png "Replicate application Settings")
 
 6. Choose the following configurations and select **OK**.
 
@@ -1113,7 +1220,7 @@ In this exercise, you will configure Azure Site Recovery to protect your web app
 
     ![The configure settings dialogue with the Customize button highlighted.](images/hands-on-lab/2019-03-26-03-26-07.png "Configure settings dialogue")
 
-10. Change the target resource group to **CloudShop2**.
+10. Change the target resource group to **CloudShop2** and select **OK**.
 
     ![The customize target resources dialogue with default settings.](images/hands-on-lab/2019-03-26-03-27-29.png "Customize target resources")
 
@@ -1151,13 +1258,13 @@ In this task, you will create the recovery plan that will be used to orchestrate
 
 4. After a minute or two, you should see the CloudShopRP on the Recovery plans blade. This recovery plan will bring up your web server during a failover. 
 
-5. Now go back to the Recovery Services vault RSVault - Overview blade. Select Site Recovery. Notice that the CloudShopWeb virtual machine is replicating. Take note of the status. It should be close to 100%. You will not be able to continue until it is finished replicating. 
+5. Now go back to the Recovery Services vault RSVault - Overview blade. Select **Site Recovery** and then select the **Virtual Machine** tile. Notice that the CloudShopWeb virtual machine is replicating. Take note of the status. You will not be able to continue until it is finished replicating. 
 
    >**Note**: This may take up to an hour.
 
     ![The recovery services vault overview with site recovery selected.](images/hands-on-lab/2019-03-26-02-15-27.png "RSVault - Site Recovery")
 
-## Exercise 6: Failing Over to the Disaster Recovery Site 
+## Exercise 7: Failing Over to the Disaster Recovery Site 
 
 Duration: 30 minutes
 

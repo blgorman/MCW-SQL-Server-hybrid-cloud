@@ -9,7 +9,7 @@ Whiteboard design session student guide
 </div>
 
 <div class="MCWHeader3">
-October 2019
+June 2020
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -18,7 +18,7 @@ Microsoft may have patents, patent applications, trademarks, copyrights, or othe
 
 The names of manufacturers, products, or URLs are provided for informational purposes only and Microsoft makes no representations and warranties, either expressed, implied, or statutory, regarding these manufacturers or the use of the products with any Microsoft technologies. The inclusion of a manufacturer or product does not imply endorsement of Microsoft of the manufacturer or product. Links may be provided to third party sites. Such sites are not under the control of Microsoft and Microsoft is not responsible for the contents of any linked site or any link contained in a linked site, or any changes or updates to such sites. Microsoft is not responsible for webcasting or any other form of transmission received from any linked site. Microsoft is providing these links to you only as a convenience, and the inclusion of any link does not imply endorsement of Microsoft of the site or the products contained therein.
 
-© 2019 Microsoft Corporation. All rights reserved.
+© 2020 Microsoft Corporation. All rights reserved.
 
 Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/Usage/General.aspx> are trademarks of the Microsoft group of companies. All other trademarks are property of their respective owners.
 
@@ -33,6 +33,10 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Customer needs](#customer-needs)
     - [Customer objections](#customer-objections)
     - [Infographic for common scenarios](#infographic-for-common-scenarios)
+      - [Azure Site Recovery](#azure-site-recovery)
+      - [Azure Traffic Manager](#azure-traffic-manager)
+      - [SQL Server Always Encrypted](#sql-server-always-encrypted)
+      - [SQL Server Stretch Database](#sql-server-stretch-database)
   - [Step 2: Design a proof of concept solution](#step-2-design-a-proof-of-concept-solution)
   - [Step 3: Present the solution](#step-3-present-the-solution)
   - [Wrap-up](#wrap-up)
@@ -40,7 +44,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 <!-- /TOC -->
 
-# SQL Server hybrid cloud whiteboard design session student guide
+#  SQL Server hybrid cloud whiteboard design session student guide
 
 ## Abstract and learning objectives 
 
@@ -67,7 +71,7 @@ Directions:  With all participants in the session, the facilitator/SME presents 
 ### Customer situation
 
 Fabrikam Publishing is a media and publishing company in Seattle, Washington with approximately 5000 employees. They have a successful direct-to-consumer e-commerce site built with .NET, and they use SQL Server to store customer profile and order information.
-Fabrikam has a single data center for both internal and customer-facing applications. Most servers are virtualized on VMware. Application servers primarily run Microsoft server software, including Active Directory (AD) Domain Services and a number of AD-integrated services including Exchange 2013 as well as multi-tier, internal, and AD-integrated Microsoft Internet Information Services (IIS) based web applications with SQL Server 2017 as the database platform.
+Fabrikam has a single data center for both internal and customer-facing applications. Most servers are virtualized on VMware. Application servers primarily run Microsoft server software, including Active Directory (AD) Domain Services and a number of AD-integrated services including Exchange 2013 as well as multi-tier, internal, and AD-integrated Microsoft Internet Information Services (IIS) based web applications with SQL Server 2019 as the database platform.
 
 Recently, the site experienced a multi-day outage due to a lightning strike that disabled both the primary and secondary cooling systems at the data center. In order to avoid such long outages in the future, Fabrikam is investing in a secondary site for disaster recovery. "A disaster recovery site has been on our project proposals for the last four years, but it has always been shelved due to budget constraints," says Michelle Jenkins, Chief Information Officer (CIO). "The recent outage combined with the new capabilities in the cloud have finally encouraged the board to approve the additional budget necessary to build out our disaster recover (DR) capabilities." To keep capital expenditures in check, Fabrikam would like to use the public cloud to host its DR site.
 
@@ -83,7 +87,7 @@ An additional concern is that the database maintenance jobs are exceeding the cu
 
 Finally, Fabrikam has a requirement to store the database backups offsite in an encrypted format within two hours of backup completion and they need insight into when backups are not occurring across all databases in the environment, they currently rely on manual configuration of SQL Agent jobs to run backups and management is concerned that not all databases are being backed up appropriately. The current backup strategy consists of SQL Server backups to an on-premises file server; the backups are then copied to tape and shipped offsite. This process can take up to 24 hours to secure the tapes offsite. In addition to being slow, the tape backups are notoriously unreliable and are generally not available for ad hoc access in the case that a restore becomes necessary. Fabrikam would like to have these backups secured offsite within two hours of the backup completing and a centralized backup management and monitoring solution.
 
-![Fabrikam's datacenter is represented as icons that are labeled Web Farm, Application Servers, VMWare, and vCenter. Below that is another icon that is labeled SQL Server 2016, which is Fabrikam\'s database platform.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image2.png "Fabrikam Publishing data center illustration")
+![Fabrikam's datacenter is represented as icons that are labeled Web Farm, Application Servers, VMWare, and vCenter. Below that is another icon that is labeled SQL Server 2019, which is Fabrikam\'s database platform.](images/2020-06-18-22-55-14.png "Fabrikam Publishing data center illustration")
 
 ### Customer needs 
 
@@ -95,7 +99,7 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 4. The ability to seamlessly scale DR site infrastructure as the environment grows.
 
-5. Data encryption solution that encrypts only PCI data at the application and database level.
+5. Data encryption solution that encrypts PCI data at the application and database level and all other data at rest.
 
 6. Key management solution that does not expose the unencrypted keys to unauthorized personnel (including database administrators and developers) and allows for key management by the security administration team.
 
@@ -103,7 +107,7 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 8. Centralized management and monitoring of backups with secure offsite backups.
 
-### Customer objections
+### Customer objections 
 
 1. Solution must support orchestrated failover so that failover does not require an all hands-on deck.
 
@@ -131,13 +135,14 @@ Finally, Fabrikam has a requirement to store the database backups offsite in an 
 
 ![Graphic depicting Azure Traffic Manager routing. User submits a DNS query to their DNS server, the DNS server queries Traffic Manager and sends a DNS response back to the user with the DNS name of primary server. The client connects directly to the selected endpoint, not through traffic manager. When the primary fails the client will be routed to the highest priority among the remaining online endpoints.](images/2018-12-17-12-35-23.png "Diagram of the Failover traffic routing method for a set of endpoints")
 
+
 #### SQL Server Always Encrypted
 
 ![On the Trusted side (left), an Apps icon has bidirectional arrows pointing to and from an Enhanced ADO.NET Library icon. At the bottom-left corner is a Column Master Key icon. On the SQL Server side (right), the bidirectional arrows continue and point to and from a database icon. Below this icon is a table with the following columns: Name (dbo.Patients), SSN (ciphertext), and Country. The values in the first row are as follows: Jane Doe, 1x7fg65se2e, and USA. The values in the second row are as follows: Jim Gray, 0x7ff65ae6d, and USA. The values in the third row are as follows: John Smith, 0y8fj75ea2c, and USA. At the bottom-right corner is a Column Encryption Key icon.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image5.jpeg "SQL Server Always Encrypted diagram")
 
 #### SQL Server Stretch Database
 
-![Stretch Database is a feature of SQL Server 2016. On the bottom-left side (on-premises) are icons for a Local database (numbered 1) and a User Application (numbered 3 and represented as a monitor). In the Local database icon are tables representing Eligible Data (green) and Local Data (orange). On the top-right side (Azure) is an icon of an Azure SQL database (numbered 2 and labeled Remote Endpoint), and inside this icon is a table representing Remote Data. Two bidirectional arrows (the green one labeled Eligible Data and the orange one labeled T-SQL Queries) point across both sides to and from the local database icon and the Azure SQL database icon. One orange bidirectional arrow labeled T-SQL Queries point to and from the Local database icon and the User Application icon. Below the diagram is the following numbered list: 1. Local database: on-premises instance 2. Remote endpoint: Azure SQL Database holding remote copy 3. Application accessing data](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image6.png "SQL Server Stretch Database diagram")
+![Stretch Database is a feature of SQL Server. On the bottom-left side (on premises) are icons for a Local database (numbered 1) and a User Application (numbered 3 and represented as a monitor). In the Local database icon are tables representing Eligible Data (green) and Local Data (orange). On the top-right side (Azure) is an icon of an Azure SQL database (numbered 2 and labeled Remote Endpoint), and inside this icon is a table representing Remote Data. Two bidirectional arrows (the green one labeled Eligible Data and the orange one labeled T-SQL Queries) point across both sides to and from the local database icon and the Azure SQL database icon. One orange bidirectional arrow labeled T-SQL Queries point to and from the Local database icon and the User Application icon. Below the diagram is the following numbered list: 1. Local database: on-premises instance, 2. Remote endpoint: Azure SQL Database holding remote copy, 3. Application accessing data.](images/Whiteboarddesignsessiontrainerguide-SQLServerhybridcloudimages/media/image6.png "SQL Server Stretch Database diagram")
 
 ## Step 2: Design a proof of concept solution
 
@@ -163,7 +168,7 @@ Directions: With all participants at your table, respond to the following questi
 
 1. **Orchestrated failover**: Fabrikam needs to automate and simplify the failover process for the web site. Design a solution that supports orchestrated failover of the entire site.
 
-2. **Additional infrastructure:** Address what additional infrastructure Fabrikam needs to enable the stated solution.
+2. **Additional infrastructure:** Address what additional infrastructure Fabrikam needs to enable the stated solution
 
 3. **SQL Server:** The DR solution for SQL Server should include near-zero data loss. Design the DR solution to provide near-zero data loss, but minimal overhead on normal transactions. The solution should not require the application to be recoded.
 
@@ -171,7 +176,7 @@ Directions: With all participants at your table, respond to the following questi
 
 ***Scale out data platform***
 
-1. **Database scale out:** The solution should include the ability to scale out the data platform for heavy read workloads without major code changes to the existing application.
+1. **Database scale out:** The solution should include the ability to scale out the data platform for heavy read workloads without major code changes to the existing application
 
 2. **User experience**: Address the user experience issues of the data tier. How will this solution address this?
 
@@ -181,7 +186,7 @@ Directions: With all participants at your table, respond to the following questi
 
 ***Protect data***
 
-1. **Encrypt PCI data:** Choose an appropriate encryption technology to protect credit card related data.
+1. **Encrypt PCI data:** Choose an appropriate encryption technology to protect credit card related data
 
 2. **Key management**: How are the encryption keys to be managed in your design?
 
@@ -203,7 +208,7 @@ Directions: With all participants at your table, respond to the following questi
 
 1. **Plan**: What questions would you pose to the customer in designing a data archive strategy?
 
-2. **Identify archive data**: Describe how you would identify the appropriate tables for archiving.
+2. **Identify archive data**: Describe how you would identify the appropriate tables for archiving
 
 3. **Determine impact**: What impact will your design have on the existing reporting system? How will this solution effect the current maintenance issues?
 
@@ -253,13 +258,13 @@ Directions:
 
 7. Tables switch roles and repeat Steps 2-6.
 
-## Wrap-up
+##  Wrap-up 
 
 Timeframe: 15 minutes
 
 Directions: Tables reconvene with the larger group to hear the facilitator/SME share the preferred solution for the case study.
 
-## Additional references
+##  Additional references
 
 |         |            |
 | ------------- |:-------------:|
@@ -274,5 +279,7 @@ Directions: Tables reconvene with the larger group to hear the facilitator/SME s
 | Azure Key Vault | <https://docs.microsoft.com/en-us/azure/key-vault>  |
 | SQL Server Stretch Database  | <https://docs.microsoft.com/en-us/sql/sql-server/stretch-database/stretch-database>  |
 | Azure Backup   | <https://docs.microsoft.com/en-us/azure/backup/>   |
+| SQL Server on Azure VM   | <https://docs.microsoft.com/en-us/azure/azure-sql/virtual-machines/>   |
 | Azure Traffic Manager  | <https://docs.microsoft.com/en-us/azure/traffic-manager/traffic-manager-overview>   |
 | Reduce RTO with Traffic Manager and Azure Site Recovery  | <https://docs.microsoft.com/en-us/azure/traffic-manager/traffic-manager-overview>  |
+

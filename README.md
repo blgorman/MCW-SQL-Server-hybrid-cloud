@@ -2,10 +2,6 @@
 
 Effective October 1, 2021, this workshop will be retired. Content will be available through September, but the workshop is no longer being maintained or updated.
 
-In this workshop you will learn real-time analytics without IoT. You'll enable intelligent conversation in a machine learning enabled, real-time chat pipeline, and apply analytics to visualize customer sentiment in real time for hotel guests, allowing them to chat with one another, and to communicate directly with the concierge. You'll apply analytics to visualize customer sentiment in real-time, as well as view trending sentiment over time and create a bot that can answer questions and embed it in the custom web app.
-
-At the end of this workshop, you will better understand how to leverage Cognitive Services (LUIS & Text Analytics API), process events with Azure functions, index with Search Archive and Cosmos DB, visualize with Power BI Q&A, and use Bot Framework for questions and answers. You will be able to implement a lambda architecture, and enable web-based, real-time messaging through SignalR, Event Hubs, and Services Bus.
-
 # SQL Server hybrid cloud
 
 Fabrikam Publishing is a media and publishing company in Seattle, Washington with approximately 5000 employees. They have a successful direct-to-consumer e-commerce site built with .NET, and they use SQL Server to store customer profile and order information.

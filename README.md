@@ -1,6 +1,10 @@
-## Microsoft Cloud Workshops - Retirement Survey  
+## Retirement Notice  
 
-As we look to streamline content and improve training, we are considering retiring the Microsoft Cloud Workshop (MCW) program. Please take a moment to fill out the [Microsoft Cloud Workshop Survey](https://forms.office.com/r/834zwtaNtK) and give us your feedback.
+Effective October 1, 2021, this workshop will be retired. Content will be available through September, but the workshop is no longer being maintained or updated.
+
+In this workshop you will learn real-time analytics without IoT. You'll enable intelligent conversation in a machine learning enabled, real-time chat pipeline, and apply analytics to visualize customer sentiment in real time for hotel guests, allowing them to chat with one another, and to communicate directly with the concierge. You'll apply analytics to visualize customer sentiment in real-time, as well as view trending sentiment over time and create a bot that can answer questions and embed it in the custom web app.
+
+At the end of this workshop, you will better understand how to leverage Cognitive Services (LUIS & Text Analytics API), process events with Azure functions, index with Search Archive and Cosmos DB, visualize with Power BI Q&A, and use Bot Framework for questions and answers. You will be able to implement a lambda architecture, and enable web-based, real-time messaging through SignalR, Event Hubs, and Services Bus.
 
 # SQL Server hybrid cloud
 
